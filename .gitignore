@@ -1,0 +1,62 @@
+# --- LaTeX Hilfsdateien ---
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.lol
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.nav
+*.snm
+*.vrb
+*.dvi
+*.xdv
+*.idx
+*.ilg
+*.ind
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+*.ist
+*.xwm
+
+# --- Biber / BibLaTeX ---
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*-blx.bib
+
+# --- Pakete mit eigenen Ordnern ---
+_minted*/
+*.pyg
+auto/
+svg-inkscape/
+
+# --- Build-Ausgabe (falls ein out/-Ordner verwendet wird) ---
+out/
+build/
+
+
+
+# --- VS Code ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# --- Betriebssystem ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Backups / Temporäres ---
+*~
+*.bak
+*.tmp
