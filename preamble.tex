@@ -1,0 +1,18 @@
+\usepackage[ngerman]{babel}          % deutsche Silbentrennung und Bezeichnungen
+\usepackage[T1]{fontenc}             % korrekte Umlaute/Trennung in der PDF
+\usepackage{lmodern}
+\usepackage{microtype}               % bessere Typografie
+\usepackage[a4paper,left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry} % Platzhalter
+\usepackage{csquotes}                % Anführungszeichen, wird von biblatex empfohlen
+
+\usepackage[backend=biber,style=numeric]{biblatex}  % Zitierstil laut Schule anpassen
+\addbibresource{literatur.bib}
+
+\usepackage{graphicx}
+\graphicspath{{bilder/}}
+\usepackage{booktabs}                % schönere Tabellen
+\usepackage{xcolor}
+\usepackage{listings}                % Quellcode
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single}
+\usepackage{todonotes}               % \todo{...}
+\usepackage[hidelinks]{hyperref}     % klickbare Verweise, möglichst als vorletztes Paket
