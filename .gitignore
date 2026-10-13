@@ -44,7 +44,8 @@ svg-inkscape/
 out/
 build/
 
-
+# --- Pdf---
+*.pdf
 
 # --- VS Code ---
 .vscode/*
