@@ -2,30 +2,111 @@
 \chapter{Vorfeldanalyse}
 \label{chap:vorfeldanalyse}
 
-\section{Untersuchte Technologien}
-Django ist ein Python-Webframework \autocite{django-docs}.
-\todo{Weitere Frameworks vergleichen}
+% ---------------------------------------------------------------
+\section{Einleitung und Abgrenzung}
+\label{sec:einleitung}
+% - Was ist meine Aufgabe im Projekt (Backend, Lernalgorithmus, API)?
+% - Welche Anforderungen an das Backend ergeben sich aus der Zielsetzung?
+% - Schnittstellen zu Frontend und Infrastruktur nennen, aber nicht behandeln.
 
-\section{Vergleich}
-Siehe Tabelle~\ref{tab:vergleich}.
+% TODO: Aufgabe im Projekt beschreiben
 
-\begin{table}[htbp]
-  \centering
-  \caption{Beispieltabelle}
-  \label{tab:vergleich}
-  \begin{tabular}{lll}
-    \toprule
-    Kriterium & Option A & Option B \\
-    \midrule
-    Lizenz    & \dots    & \dots    \\
-    \bottomrule
-  \end{tabular}
+\subsection{Aufgabenstellung}
+\subsection{Anforderungen an das Backend}
+\subsection{Abgrenzung zu Frontend und Infrastruktur}
 
-\end{table}
+% ---------------------------------------------------------------
+\section{Softwarearchitektur und Backend-Technologien}
+\label{sec:architektur}
+% - Monolith, modularer Monolith oder Microservices?
+% - Warum Django, welche Alternativen (z. B. FastAPI, Flask)?
+% - Was bedeutet "skalierbar" und "modular" konkret hier?
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{moldovan/test.jpg}
-  \caption{Testfoto}
-  \label{fig:testfoto}
-\end{figure}
+% TODO: Architekturvarianten recherchieren
+
+\subsection{Architekturansätze im Vergleich}
+\subsection{Auswahl des Frameworks}
+\subsection{Skalierbarkeit und Modularität}
+
+% ---------------------------------------------------------------
+\section{Backend-Logik und Datenverwaltung}
+\label{sec:backend-logik}
+% - Entitäten: Benutzer, Lerninhalt, Lernkarte, Test, Ergebnis
+% - Abbildung von Lernergebnissen und Wiederholungsstatus pro Benutzer
+% - Strukturierung in Django-Apps
+
+% TODO: Entitäten und Beziehungen festlegen
+
+\subsection{Fachliche Entitäten}
+\subsection{Speicherung von Lernergebnissen und Wiederholungsstatus}
+\subsection{Projektstruktur in Django-Apps}
+
+% ---------------------------------------------------------------
+\section{Adaptiver Lernalgorithmus}
+\label{sec:algorithmus}
+% Kernthema, hier am meisten Recherche einplanen.
+% - Was bedeutet "adaptiv", was wird individuell angepasst?
+% - Verfahren zur Wiederholungsplanung (z. B. Leitner-System, SM-2, FSRS)
+% - Verfahren zur Wissensstandschätzung (z. B. Elo-ähnliche Modelle, IRT)
+% - Lernforschung zu verteiltem Wiederholen: nur mit echten Quellen belegen
+% - Realistischer Umfang in 180 h, Prüfung der Wirksamkeit
+
+% TODO: Quellen zur Lernforschung suchen und in literatur.bib eintragen
+
+\subsection{Begriff und Ziel der Adaptivität}
+\subsection{Grundlagen aus der Lernforschung}
+\subsection{Verfahren zur Wiederholungsplanung}
+\subsection{Verfahren zur Wissensstandschätzung}
+\subsection{Vergleich und Auswahl}
+
+
+\subsection{Bewertung der Wirksamkeit}
+
+% ---------------------------------------------------------------
+\section{API-Konzeption}
+\label{sec:api}
+% - REST oder GraphQL, Django REST Framework oder Alternativen?
+% - Versionierung, Fehlerformat, Dokumentation (z. B. OpenAPI)
+% - Abstimmung der Endpunkte mit Frontend und Infrastruktur
+
+% TODO: API-Stile vergleichen
+
+\subsection{API-Stile im Vergleich}
+\subsection{Gestaltung der Schnittstelle}
+\subsection{Abstimmung mit Frontend und Infrastruktur}
+
+% ---------------------------------------------------------------
+\section{Sicherheit}
+\label{sec:sicherheit}
+% - Authentifizierung: Sessions, Token, JWT;
+% - Rollen und Berechtigungen (Schüler, Lehrer, Admin)
+% - Risiken laut OWASP Top 10 für ein Django-Backend
+% - DSGVO bei Lernfortschrittsdaten von Schülern
+
+% TODO: Anforderungen zur Authentifizierung mit Kumar abstimmen
+
+\subsection{Authentifizierung und Autorisierung}
+\subsection{Typische Risiken von Webanwendungen}
+\subsection{Datenschutz}
+
+% ---------------------------------------------------------------
+\section{Teststrategie}
+\label{sec:tests}
+% - Unit-, Integrations- und API-Tests, Werkzeuge (z. B. Django-Tests, pytest)
+% - Bewertung der Qualität des Lernalgorithmus
+
+% TODO: Testarten und Werkzeuge festlegen
+
+\subsection{Testarten und Werkzeuge}
+\subsection{Testen des Lernalgorithmus}
+
+% ---------------------------------------------------------------
+\section{Fazit der Vorfeldanalyse}
+\label{sec:fazit-vorfeld}
+% - Abgeleitete Entscheidungen (Technologie, Architektur, Algorithmus)
+% - Verbleibende Risiken und offene Fragen
+
+% TODO: Erst nach Abschluss der Recherche schreiben
+
+\subsection{Getroffene Entscheidungen}
+\subsection{Risiken und offene Fragen}
