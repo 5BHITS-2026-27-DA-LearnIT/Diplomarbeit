@@ -1,3 +1,22 @@
 % !TEX root = ../../main.tex
 
-\Jai s teil
+\chapter{Vorfeldanalyse (Jai Kumar)}
+
+\section{Anforderungen und Abgrenzung}
+
+\subsection{Anforderungen an die Infrastruktur}
+
+Die Lernplattform wird von Lernenden einer Schule genutzt. Das Lastprofil ist dadurch ungleichmäßig: Die meiste Zeit ist die Auslastung gering, vor Schularbeiten, Tests und Abgaben steigt die Zahl gleichzeitiger Benutzer:innen jedoch deutlich an. Aus dem Projektantrag und diesem Nutzungskontext ergeben sich folgende Anforderungen an die Infrastruktur:
+
+\begin{itemize}
+  \item Die Serverumgebung ist reproduzierbar bereitstellbar und skalierbar.
+  \item Eine relationale Datenbank ist angebunden und funktioniert zuverlässig mit dem Backend.
+  \item Die Anmeldung erfolgt zentral über das Active Directory des Schulnetzwerks.
+  \item Lerninhalte können strukturiert importiert und exportiert werden.
+  \item Das System ist abgesichert, Daten werden gesichert und lassen sich wiederherstellen, und die Plattform ist gegen Ausfälle geschützt.
+  \item Sicherheit, Performance, Last und Stabilität werden getestet und die Ergebnisse dokumentiert.
+\end{itemize}
+
+\subsection{Abgrenzung zu Backend und Frontend}
+
+Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Die Infrastruktur stellt die Umgebung bereit, in der Backend und Frontend betrieben werden. Die Entwicklung der Backend-Logik, des adaptiven Lernalgorithmus und der API liegt bei Luca Moldovan, die Benutzeroberfläche bei Jakob Berger. Die Konfiguration der LDAP-Anbindung im Django-Backend ist Teil des Backends. Die Infrastruktur liefert dafür den Verzeichnisdienst, die Netzwerkanbindung, die Zertifikate und Testbenutzer:innen. Ebenso gehört die Datenbankstruktur (Modelle, Migrationen) zum Backend, während der Betrieb des Datenbankservers, die Datensicherung und die Verfügbarkeit Teil der Infrastruktur sind. Die genauen Schnittstellen werden im Infrastrukturkonzept (Meilenstein 15.11.2026) dokumentiert.
