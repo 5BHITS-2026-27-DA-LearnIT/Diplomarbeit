@@ -1,11 +1,38 @@
 % !TEX root = ../../main.tex
-\chapter{Vorfeldanalyse(\Luca)}
+\chapter{Vorfeldanalyse (\Luca)}
 \label{chap:vorfeldanalyse}
 
 % ---------------------------------------------------------------
 \section{Anforderungen und Abgrenzung}
 
+
 \subsection{Anforderungen an das Backend}
+Das Backend spielt in diesem Projekt eine zentrale Rolle. Seine Hauptaufgabe besteht in der Abbildung der Kernlogik und der Verwaltung der Daten.
+Die Anforderungen ergeben sich aus der Zielsetzung der Webanwendung.
+Dabei wird zwischen funktionalen und nicht-funktionalen Anforderungen unterschieden.
+Maximilian Lutz zitiert in seiner Arbeit \cite{lutz2022} aus dem Buch \cite{broy2021} die Definition von Anforderungen.
+Funktionale Anforderungen beschreiben, wie das System genutzt werden kann,
+und stellen die Funktionen an der Systemgrenze in den Mittelpunkt.
+Nicht"=funktionale Anforderungen legen hingegen fest, wie das System seine
+Leistung erbringt \parencite[S.~16]{lutz2022}.\\
+\\
+\textbf{Konkrete funktionale Anforderungen des Projekts sind:}
+\par
+\begin{itemize}
+    \item Verwaltung von Benutzern, Lerninhalten, Lernkarten, Tests und Ergebnissen;
+    \item Abbildung der Lernergebnisse und des Wiederholungsstatus jedes einzelnen Benutzers;
+    \item Durchführung der Wiederholungsplanung und Wissensstandschätzung durch den adaptiven Lernalgorithmus auf Grundlage der gespeicherten Lernergebnisse;
+    \item Bereitstellung einer strukturierten API für die Kommunikation mit dem Frontend und der Infrastruktur.
+\end{itemize}
+\textbf{Konkrete nicht"=funktionale Anforderungen des Projekts sind:}
+\par
+\begin{itemize}
+    \item Skalierbarkeit: Das Backend muss in der Lage sein, eine wachsende Anzahl an Benutzern und Daten zu bewältigen;
+    \item Modularität: Die Backend-Logik sollte in klar abgegrenzte Module unterteilt sein, um Wartbarkeit und Erweiterbarkeit zu gewährleisten;
+    \item Sicherheit: Das Backend muss sicherstellen, dass Benutzerdaten geschützt sind und nur autorisierte Zugriffe erfolgen;
+    \item Performance: Das Backend sollte eine kurze Reaktionszeit bieten, um eine gute Benutzererfahrung zu gewährleisten.
+\end{itemize}
+
 \subsection{Abgrenzung zu Frontend und Infrastruktur}
 
 % ---------------------------------------------------------------
@@ -41,8 +68,8 @@
 % - Was bedeutet "adaptiv", was wird individuell angepasst?
 % - Verfahren zur Wiederholungsplanung (z. B. Leitner-System, SM-2, FSRS)
 % - Verfahren zur Wissensstandschätzung (z. B. Elo-ähnliche Modelle, IRT)
-% - Lernforschung zu verteiltem Wiederholen: nur mit echten Quellen belegen
-% - Realistischer Umfang in 180 h, Prüfung der Wirksamkeit
+% - Lernforschung zum verteilten Wiederholen: nur mit belastbaren Quellen belegen
+% - Realistischer Umfang bei 180 h, Prüfung der Wirksamkeit
 
 % TODO: Quellen zur Lernforschung suchen und in literatur.bib eintragen
 
@@ -60,7 +87,7 @@
 \label{sec:api}
 % - REST oder GraphQL, Django REST Framework oder Alternativen?
 % - Versionierung, Fehlerformat, Dokumentation (z. B. OpenAPI)
-% - Abstimmung der Endpunkte mit Frontend und Infrastruktur
+% - Abstimmung der Endpunkte mit dem Frontend und der Infrastruktur
 
 % TODO: API-Stile vergleichen
 
