@@ -34,6 +34,25 @@ Leistung erbringt \parencite[S.~16]{lutz2022}.\\
 \end{itemize}
 
 \subsection{Abgrenzung zu Frontend und Infrastruktur}
+\Luca ist für die reine Entwicklung eines skalierbaren Backends zuständig.
+``Skalierbar'' bedeutet in diesem Zusammenhang, dass das Backend modular aufgebaut ist und sich um neue Funktionen erweitern lässt, ohne bestehende Komponenten umzubauen.
+Die Kommunikation mit dem Frontend wird mit \Jakob konzeptioniert und erfolgt über eine klar definierte API.
+Die Kommunikation mit der Infrastruktur, wie z. B. Datenbanken oder Cloud-Diensten, wird mit \Jai konzeptioniert und über das ORM-Framework Django realisiert.
+Die Datenverwaltung und die Abbildung der Kernlogik und Speicherung der Lernergebnisse sind die Hauptaufgaben des Backends.
+Die Entwicklung eines adaptiven Lernalgorithmus ist eine weitere wichtige Aufgabe des Backends.
+
+Die Trennung der Zuständigkeiten von Benutzeroberfläche und Datenhaltung
+macht die Oberfläche auf mehreren Plattformen besser einsetzbar und erleichtert
+die Skalierung, weil die Serverkomponenten einfacher werden
+\parencite[vgl.][Abschn.~5.1.2]{fielding2000}.
+
+Die Twelve-Factor-Methodik betrachtet Dienste wie eine Datenbank als
+angebundene Ressourcen, die über eine in der Konfiguration hinterlegte Adresse
+und Zugangsdaten angesprochen werden. Eine lokale Datenbank lässt sich so
+durch eine extern verwaltete ersetzen, ohne den Anwendungscode zu ändern
+\parencite[vgl.][]{wiggins12factor}.
+
+%todo:zitate sinnvoll einfügen, abgrenzen, was jai und jakob machen.
 
 % ---------------------------------------------------------------
 \section{Softwarearchitektur und Backend-Technologien}
