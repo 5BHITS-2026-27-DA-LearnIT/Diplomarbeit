@@ -1,6 +1,6 @@
 % !TEX root = ../../main.tex
 
-\chapter{Vorfeldanalyse (Jai Kumar)}
+\chapter{Vorfeldanalyse (\Jai)}
 
 \section{Anforderungen und Abgrenzung}
 
@@ -19,6 +19,56 @@ Die Lernplattform wird von Lernenden einer Schule benutzt. Meistens sind nur wen
 
 \subsection{Abgrenzung zu Backend und Frontend}
 
-Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Die Infrastruktur stellt die Umgebung bereit, in der Backend und Frontend laufen. Luca Moldovan entwickelt die Backend-Logik, den adaptiven Lernalgorithmus und die API. Jakob Berger entwickelt die Benutzeroberfläche.
-
+Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Die Infrastruktur stellt die Umgebung bereit, in der Backend und Frontend laufen. \Luca entwickelt die Backend-Logik, den adaptiven Lernalgorithmus und die API. \Jakob entwickelt die Benutzeroberfläche. \\ \\
 Bei der Anmeldung über das Active Directory sind die Aufgaben so aufgeteilt: Die Einstellungen im Django-Backend gehören zum Backend. Die Infrastruktur liefert den Verzeichnisdienst, die Netzwerkverbindung, die Zertifikate und Testkonten. Bei der Datenbank gehören die Tabellen und Migrationen zum Backend. Der Betrieb des Datenbankservers, die Backups und die Verfügbarkeit gehören zur Infrastruktur. Die genauen Schnittstellen werden im Infrastrukturkonzept festgehalten (Meilenstein am 15.11.2026).
+
+
+\section{Begrifflichkeiten}
+
+\begin{center}
+\begin{tabular}{|p{4.2cm}|p{9.5cm}|}
+\hline
+\textbf{Begriff} & \textbf{Erklärung} \\ \hline
+Active Directory (AD) & Verzeichnisdienst von Microsoft, der Benutzer:innen, Gruppen und Geräte in einem Netzwerk verwaltet \\ \hline
+LDAP / LDAPS & Protokoll, mit dem man ein Verzeichnis abfragen und Anmeldungen prüfen kann. LDAPS ist die verschlüsselte Version \\ \hline
+Container & Eine Art Paket, in dem eine Anwendung mit allem läuft, was sie braucht \\ \hline
+Docker Compose & Programm, mit dem man mehrere Container gemeinsam beschreibt und startet \\ \hline
+Infrastructure as Code (IaC) & Die Einrichtung eines Servers steht in Dateien statt in Handarbeit \\ \hline
+Reverse Proxy / Load Balancer & Server vor der Anwendung, der Anfragen annimmt und auf mehrere Instanzen verteilt \\ \hline
+Horizontale / vertikale Skalierung & Mehr Instanzen starten bzw. einen stärkeren Server verwenden \\ \hline
+ACID & Eigenschaften, die Datenbanktransaktionen zuverlässig machen \\ \hline
+WAL / PITR & Protokoll der Datenbankänderungen bzw. Wiederherstellung auf einen bestimmten Zeitpunkt \\ \hline
+RPO / RTO & Wie viele Daten höchstens verloren gehen dürfen bzw. wie lange eine Wiederherstellung höchstens dauern darf \\ \hline
+Failover & Umschalten auf ein Ersatzsystem, wenn das erste ausfällt \\ \hline
+Idempotenz & Eine Aktion mehrmals auszuführen ergibt dasselbe wie sie einmal auszuführen \\ \hline
+Lasttest / Stresstest & Test mit erwarteter Last bzw. mit mehr Last, als das System aushalten soll \\ \hline
+DSGVO & Datenschutz-Grundverordnung der EU \\ \hline
+\end{tabular}
+\end{center}
+
+\section{Serverinfrastruktur und Datenbank}
+
+\subsection{Reproduzierbarkeit und Container}
+
+Reproduzierbar heißt, dass sich die ganze Serverumgebung jederzeit aus einer Beschreibung neu aufbauen lässt. Dahinter steckt die Idee „Infrastructure as Code“. Die Einstellungen werden nicht von Hand am Server gemacht, sondern stehen in Dateien, die versioniert werden. So kann man jede Änderung nachvollziehen, und der Server kann bei einem Problem einfach neu erstellt werden. \\
+Dafür werden Container verwendet. Ein Container enthält die Anwendung und alles, was sie zum Laufen braucht. Dadurch läuft sie überall gleich. Mit Docker Compose werden mehrere Container gemeinsam beschrieben und mit einem Befehl gestartet. Es gibt auch andere Möglichkeiten, zum Beispiel Ansible oder Kubernetes. Kubernetes bedeutet aber viel Aufwand im Betrieb und ist für ein Projekt dieser Größe wahrscheinlich zu viel.
+
+
+\subsection{Skalierbarkeit und Reverse Proxy}
+
+Skalierbar heißt, dass das System auch mit mehr Benutzer:innen gut funktioniert. Es gibt zwei Wege. Bei der vertikalen Skalierung bekommt der Server stärkere Hardware. Bei der horizontalen Skalierung laufen mehrere Instanzen der Anwendung. Dafür dürfen die Instanzen keine Daten bei sich selbst speichern, sie müssen zustandslos sein. Sitzungen und Dateien liegen dann in der Datenbank, in einem gemeinsamen Cache oder in einem gemeinsamen Speicher.\footnote{Vgl. Kleppmann, Martin: Designing Data-Intensive Applications. Sebastopol: O'Reilly Media 2017, Kap. 1 und 5.\\ % TODO: Seitenzahlen prüfen und ergänzen 
+}
+
+Vor den Instanzen steht ein Reverse Proxy, zum Beispiel nginx. Er nimmt die Anfragen an, kümmert sich um die verschlüsselte Verbindung (TLS) und verteilt die Anfragen auf die Instanzen. Django läuft im Betrieb meistens hinter einem Server wie Gunicorn, der mehrere Prozesse starten kann. Statische Dateien wie Bilder oder Stylesheets liefert der Proxy direkt aus. \\
+Daraus ergibt sich der Aufbau in Schichten: Browser, Reverse Proxy, Django-Anwendung und Datenbank. Dazu kommen das Active Directory und die Orte, an denen die Backups liegen (siehe Abbildung~\ref{fig:architektur}).
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{Bilder/Kumar/Architekturübersicht.png}
+  \caption{Architekturübersicht der Infrastruktur (eigene Darstellung)}
+  \label{fig:architektur}
+\end{figure}
+
+\subsection{Relationale Datenbank}
+
+Die Plattform speichert viele Daten, die zusammenhängen: Benutzer:innen, Lerninhalte, Lernkarten, Tests, Ergebnisse und Wiederholungstermine. Dafür passt eine relationale Datenbank gut. Sie sorgt über Fremdschlüssel dafür, dass die Verbindungen zwischen den Daten stimmen. Mit Transaktionen (ACID) wird verhindert, dass ein Ergebnis nur halb gespeichert wird, wenn mitten im Vorgang ein Fehler passiert. Django kann mit mehreren relationalen Datenbanken arbeiten. PostgreSQL hat zusätzlich unter anderem einen JSON-Datentyp, Replikation und gute Möglichkeiten für Backups. \\
+Für die Infrastruktur sind drei Dinge wichtig. Erstens stehen die Zugangsdaten zur Datenbank in Umgebungsvariablen oder Secrets und nicht im Code. Die Anwendung soll Verbindungen wiederverwenden (Connection Pooling), damit der Datenbankserver bei vielen Anfragen nicht überlastet wird. Zweitens beschleunigen Indizes Abfragen, die oft vorkommen, zum Beispiel die Zuordnung von Benutzer:in zu Lernkarte. Drittens macht Replikation das System ausfallsicherer, weil ein zweiter Server (Standby) bereitsteht. Dafür braucht man aber einen Plan, wie auf diesen umgeschaltet wird.
