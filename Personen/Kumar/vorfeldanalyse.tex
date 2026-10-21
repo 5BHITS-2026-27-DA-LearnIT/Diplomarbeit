@@ -58,7 +58,6 @@ Dafür werden Container verwendet. Ein Container enthält die Anwendung und alle
 
 Skalierbar heißt, dass das System auch mit mehr Benutzer:innen gut funktioniert. Es gibt zwei Wege. Bei der vertikalen Skalierung bekommt der Server stärkere Hardware. Bei der horizontalen Skalierung laufen mehrere Instanzen der Anwendung. Dafür dürfen die Instanzen keine Daten bei sich selbst speichern, sie müssen zustandslos sein. Sitzungen und Dateien liegen dann in der Datenbank, in einem gemeinsamen Cache oder in einem gemeinsamen Speicher.\footnote{Vgl. Kleppmann, Martin: Designing Data-Intensive Applications. Sebastopol: O'Reilly Media 2017, Kap. 1 und 5.\\ % TODO: Seitenzahlen prüfen und ergänzen 
 }
-
 Vor den Instanzen steht ein Reverse Proxy, zum Beispiel nginx. Er nimmt die Anfragen an, kümmert sich um die verschlüsselte Verbindung (TLS) und verteilt die Anfragen auf die Instanzen. Django läuft im Betrieb meistens hinter einem Server wie Gunicorn, der mehrere Prozesse starten kann. Statische Dateien wie Bilder oder Stylesheets liefert der Proxy direkt aus. \\
 Daraus ergibt sich der Aufbau in Schichten: Browser, Reverse Proxy, Django-Anwendung und Datenbank. Dazu kommen das Active Directory und die Orte, an denen die Backups liegen (siehe Abbildung~\ref{fig:architektur}).
 \begin{figure}[htbp]
@@ -72,3 +71,64 @@ Daraus ergibt sich der Aufbau in Schichten: Browser, Reverse Proxy, Django-Anwen
 
 Die Plattform speichert viele Daten, die zusammenhängen: Benutzer:innen, Lerninhalte, Lernkarten, Tests, Ergebnisse und Wiederholungstermine. Dafür passt eine relationale Datenbank gut. Sie sorgt über Fremdschlüssel dafür, dass die Verbindungen zwischen den Daten stimmen. Mit Transaktionen (ACID) wird verhindert, dass ein Ergebnis nur halb gespeichert wird, wenn mitten im Vorgang ein Fehler passiert. Django kann mit mehreren relationalen Datenbanken arbeiten. PostgreSQL hat zusätzlich unter anderem einen JSON-Datentyp, Replikation und gute Möglichkeiten für Backups. \\
 Für die Infrastruktur sind drei Dinge wichtig. Erstens stehen die Zugangsdaten zur Datenbank in Umgebungsvariablen oder Secrets und nicht im Code. Die Anwendung soll Verbindungen wiederverwenden (Connection Pooling), damit der Datenbankserver bei vielen Anfragen nicht überlastet wird. Zweitens beschleunigen Indizes Abfragen, die oft vorkommen, zum Beispiel die Zuordnung von Benutzer:in zu Lernkarte. Drittens macht Replikation das System ausfallsicherer, weil ein zweiter Server (Standby) bereitsteht. Dafür braucht man aber einen Plan, wie auf diesen umgeschaltet wird.
+
+\section{Active-Directory-Anbindung}
+
+\subsection{Verzeichnisdienste und Protokolle}
+
+In Schulnetzwerken verwaltet normalerweise ein Active Directory (AD) die Konten, Gruppen und Passwörter. Wenn die Lernplattform dieses Verzeichnis benutzt, müssen sich Lernende nicht neu registrieren und kein zusätzliches Passwort merken. Die Schule muss Konten nur an einer Stelle pflegen. Wird ein Konto deaktiviert, zum Beispiel nach dem Schulaustritt, gilt das auch für die Plattform.
+
+Das AD arbeitet mit dem Protokoll LDAP und unterstützt auch Kerberos. Bei Webanwendungen wird meistens LDAP verwendet. Die Anwendung nimmt Benutzername und Passwort entgegen und prüft sie über einen „Bind“ beim Verzeichnis (siehe Abbildung~\ref{fig:ad}). Dabei sind diese Punkte wichtig:
+
+\begin{itemize}
+  \item \textbf{Verschlüsselung:} LDAP ohne Verschlüsselung (Port 389) ist für Passwörter nicht geeignet. Es braucht LDAPS (Port 636) oder LDAP mit StartTLS und eine Prüfung des Zertifikats.
+  \item \textbf{Service-Account:} Ein technisches Konto mit möglichst wenigen Rechten sucht die Benutzer:innen im Verzeichnis.
+  \item \textbf{Zuordnung der Benutzer:innen:} Der Anmeldename wird über Attribute wie \texttt{sAMAccountName} oder \texttt{userPrincipalName} gefunden und einem Django-Benutzerkonto zugeordnet.
+  \item \textbf{Gruppen und Rollen:} AD-Gruppen, zum Beispiel für Lernende und Lehrende, können Rollen in der Plattform bekommen.
+  \item \textbf{Ausfall:} Wenn der Domänencontroller nicht erreichbar ist, soll nicht die ganze Plattform stillstehen. Dafür braucht es einen Notfallzugang für Administrierende oder mehrere Domänencontroller.
+\end{itemize}
+
+
+\subsection{Anbindung an Django}
+
+Für Django gibt es das Paket \emph{django-auth-ldap}, das die Anmeldung über LDAP übernimmt. Laut Dokumentation prüft es Benutzer:innen gegen einen LDAP-Dienst und kann Benutzer, Gruppen und Berechtigungen verwalten. Für eine einfache Einrichtung reicht schon eine einzelne Vorlage für den Distinguished Name.\footnote{Vgl. django-auth-ldap: Django LDAP authentication backend, \url{https://pypi.org/project/django-auth-ldap} (zuletzt abgerufen am 16.10.2026).} Die Einstellungen im Backend macht \Luca. Das Verzeichnis, die Netzwerkverbindung und die Zertifikate stellt die Infrastruktur bereit.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{Bilder/Kumar/Ablauf_der_Authentifizierung_gegen_das_Active_Directory.png}
+  \caption{Ablauf der Authentifizierung gegen das Active Directory (eigene Darstellung)}
+  \label{fig:ad}
+\end{figure}
+
+\section{Import und Export von Lerninhalten}
+
+Eine Lernplattform braucht Inhalte. Wenn Lehrkräfte jede Lernkarte einzeln eingeben müssen, dauert das zu lang. Mit einem Import und Export können Inhalte in großen Mengen geladen und zwischen Systemen ausgetauscht werden (siehe Abbildung~\ref{fig:importexport}). Dabei sind diese Fragen zu klären:
+
+\begin{itemize}
+  \item \textbf{Format:} CSV ist einfach, kann aber verschachtelte Inhalte wie Themen, Lernkarten, Antworten und Medien schlecht darstellen. JSON oder ein Paket aus JSON und Mediendateien eignet sich besser.
+  \item \textbf{Schema und Version:} Ein beschriebenes Schema mit Versionsnummer verhindert, dass Importe nach Änderungen am Datenmodell unbemerkt falsch laufen.
+  \item \textbf{Prüfung:} Importierte Dateien sind nicht vertrauenswürdig. Sie werden auf Aufbau, Größe, Dateitypen und schädliche Inhalte geprüft.
+  \item \textbf{Keine Duplikate:} Wird dieselbe Datei zweimal importiert, sollen keine doppelten Inhalte entstehen. Dazu braucht jeder Inhalt eine eindeutige Kennung.
+  \item \textbf{Fehler:} Ein Import soll ganz oder gar nicht durchgehen (Transaktion). Bei einem Fehler gibt es eine verständliche Liste.
+  \item \textbf{Umfang des Exports:} Inhalte und Lernstände werden getrennt betrachtet, weil Lernstände persönliche Daten sind.
+\end{itemize}
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{Bilder/Kumar/Ablauf_von_Import_und_Export.png}
+  \caption{Ablauf von Import und Export (eigene Darstellung)}
+  \label{fig:importexport}
+\end{figure}
+
+\section{Sicherheit, Datensicherung und Ausfallsicherheit}
+
+\subsection{Sicherheit und Datenschutz}
+
+Die Plattform speichert persönliche Daten von Lernenden, zum Beispiel Lernergebnisse. Deshalb gilt die Datenschutz-Grundverordnung (DSGVO). Wichtig sind auch Datenminimierung und „Privacy by Design“. Für die technische Absicherung werden die OWASP Top 10 verwendet. Das ist eine Liste der häufigsten Risiken bei Webanwendungen, zum Beispiel falsche Zugriffsrechte oder Fehler in der Konfiguration.\footnote{Vgl. OWASP Foundation: OWASP Top 10, \url{https://owasp.org/www-project-top-ten/} (zuletzt abgerufen am 16.10.2026).} Auf der Ebene der Infrastruktur gehören dazu: Die Datenbank ist nur aus dem Anwendungsnetz erreichbar, alle Verbindungen sind mit TLS verschlüsselt, Updates werden regelmäßig eingespielt, Passwörter und Schlüssel liegen in Secrets, und wichtige Ereignisse werden protokolliert.
+
+\subsection{Datensicherung und Wiederherstellung}
+
+Für Backups gibt es zwei wichtige Kennzahlen. Das Recovery Point Objective (RPO) sagt, wie viele Daten höchstens verloren gehen dürfen. Das Recovery Time Objective (RTO) sagt, wie lange eine Wiederherstellung höchstens dauern darf. \\
+Laut der PostgreSQL-Dokumentation gibt es drei verschiedene Arten, die Datenbank zu sichern: einen SQL-Dump, ein Backup auf Dateisystemebene und die kontinuierliche Archivierung.\footnote{Vgl. PostgreSQL Global Development Group: Backup and Restore, \url{https://access.crunchydata.com/documentation/postgresql95/9.5.7/backup.html} (zuletzt abgerufen am 16.10.2026).} Bei der kontinuierlichen Archivierung wird eine Basissicherung mit den Write-Ahead-Log-Dateien kombiniert. Damit kann die Datenbank auf jeden beliebigen Zeitpunkt seit der Basissicherung zurückgesetzt werden (Point-in-Time-Recovery).\footnote{Vgl. PostgreSQL Global Development Group: Continuous Archiving and Point-in-Time Recovery (PITR), \url{https://www.postgresql.org/docs/19/continuous-archiving.html} (zuletzt abgerufen am 16.10.2026).} Zusätzlich gilt die 3-2-1-Regel: drei Kopien auf zwei verschiedenen Speichermedien, eine davon an einem anderen Ort. Backups müssen außerdem regelmäßig durch eine Wiederherstellung getestet werden. Ein Backup, das nie getestet wurde, ist keine sichere Absicherung.\footnote{Vgl. Beyer, Betsy u.\,a. (Hrsg.): Site Reliability Engineering. Sebastopol: O'Reilly Media 2016, Kap. 26. % TODO: Kapitel und Seitenzahlen prüfen
+}
