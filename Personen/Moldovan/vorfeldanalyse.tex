@@ -40,30 +40,166 @@ Die Kommunikation mit dem Frontend wird mit \Jakob konzeptioniert und erfolgt ü
 Die Kommunikation mit der Infrastruktur, wie z. B. Datenbanken oder Cloud-Diensten, wird mit \Jai konzeptioniert und über das ORM-Framework Django realisiert.
 Die Datenverwaltung und die Abbildung der Kernlogik und Speicherung der Lernergebnisse sind die Hauptaufgaben des Backends.
 Die Entwicklung eines adaptiven Lernalgorithmus ist eine weitere wichtige Aufgabe des Backends.
-
-Die Trennung der Zuständigkeiten von Benutzeroberfläche und Datenhaltung
-macht die Oberfläche auf mehreren Plattformen besser einsetzbar und erleichtert
-die Skalierung, weil die Serverkomponenten einfacher werden
-\parencite[vgl.][Abschn.~5.1.2]{fielding2000}.
-
 Die Twelve-Factor-Methodik betrachtet Dienste wie eine Datenbank als
 angebundene Ressourcen, die über eine in der Konfiguration hinterlegte Adresse
 und Zugangsdaten angesprochen werden. Eine lokale Datenbank lässt sich so
 durch eine extern verwaltete ersetzen, ohne den Anwendungscode zu ändern
 \parencite[vgl.][]{wiggins12factor}.
+Die Trennung der Zuständigkeiten von Benutzeroberfläche und Datenhaltung
+macht die Oberfläche auf mehreren Plattformen besser einsetzbar und erleichtert
+die Skalierung, weil die Serverkomponenten einfacher werden
+\parencite[vgl.][Abschn.~5.1.2]{fielding2000}.
+\Jakob ist zuständig für die Entwicklung der Benutzeroberfläche sowie Umsetzung der Benutzerinteraktion für Lernkarten, Tests und die Darstellung des individuellen Lernfortschritts.
+\Jai ist zuständig für die Konzeption und Umsetzung einer skalierbaren Serverinfrastruktur und Datenbankinfrastruktur mit Active Directory, Lerninhalte-Import/-Export sowie Durchführung von Sicherheits- und Performancetests.
 
 %todo:zitate sinnvoll einfügen, abgrenzen, was jai und jakob machen.
 
 % ---------------------------------------------------------------
 \section{Softwarearchitektur und Backend-Technologien}
 \label{sec:architektur}
-% - Monolith, modularer Monolith oder Microservices?
+% - Monolith, modularer Monolith oder Microservices? Belege überprüfen!
 % - Warum Django, welche Alternativen (z. B. FastAPI, Flask)?
 % - Was bedeutet "skalierbar" und "modular" konkret hier?
 
-% TODO: Architekturvarianten recherchieren
+% TODO: Belege überprüfen!
 
 \subsection{Architekturansätze im Vergleich}
+Relevante Architekturansätze für die Entwicklung des Backends sind der Monolith, der modulare Monolith und Microservices.
+Die Vor- und Nachteile der drei Ansätze werden in Tabelle~\ref{tab:architekturvergleich} gegenübergestellt.\\ \\
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{2.4cm}
+  >{\raggedright\arraybackslash}p{2.7cm}
+  >{\raggedright\arraybackslash}p{2.9cm}
+  >{\raggedright\arraybackslash}p{3.1cm}
+  >{\raggedright\arraybackslash}p{1.8cm}}
+
+\caption{Vergleich von Monolith, modularem Monolith und Microservices bei einer Neuentwicklung}
+\label{tab:architekturvergleich} \\
+
+\toprule
+\textbf{Kriterium} & \textbf{Monolith} & \textbf{Modularer Monolith} & \textbf{Microservices} & \textbf{Beleg} \\
+\midrule
+\endfirsthead
+
+\multicolumn{5}{l}{\small\itshape Fortsetzung von Tabelle~\ref{tab:architekturvergleich}} \\
+\toprule
+\textbf{Kriterium} & \textbf{Monolith} & \textbf{Modularer Monolith} & \textbf{Microservices} & \textbf{Beleg} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{5}{r}{\small\itshape weiter auf der nächsten Seite} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Deployment
+  & Eine Einheit
+  & Eine Einheit
+  & Pro Service einzeln deploybar
+  & \cite{zenodo2025petclinic}, \cite{faustino2022} \\
+
+Code-Struktur
+  & Eine Codebasis, Zugriffe überall möglich
+  & Eine Codebasis, Module mit Schnittstellen
+  & Getrennte Codebasen bzw. Projekte
+  & \cite{faustino2022}, Eig. \\
+
+Kopplung
+  & Oft eng (direkter Zugriff auf alle Modelle)
+  & Lose, Zugriff nur über Schnittstellen und DTOs
+  & Lose, nur über API oder Events
+  & \cite{faustino2022} \\
+
+Datenhaltung
+  & Eine Datenbank
+  & Eine Datenbank, aber getrennte Teilmodelle
+  & Meist je Service eine eigene Datenbank
+  & \cite{faustino2022} \\
+
+Kommunikation
+  & Funktionsaufrufe im Prozess
+  & Funktionsaufrufe im Prozess (über Schnittstelle)
+  & HTTP/REST oder Message Broker
+  & \cite{faustino2022} \\
+
+Transaktionen
+  & Normale ACID-Transaktionen
+  & ACID möglich, da eine Datenbank
+  & Keine verteilten ACID-Transaktionen, Eventual Consistency
+  & \cite{faustino2022} \\
+
+Latenz
+  & Am niedrigsten
+  & Nahe am Monolithen, abhängig von der DTO-Menge
+  & Am höchsten (Netzwerk, Serialisierung)
+  & \cite{faustino2022}, \cite{zenodo2025petclinic}, \cite{ufc2025monolith} \\
+
+Ressourcenbedarf
+  & Gering
+  & Gering
+  & Höher (mehr Prozesse, mehr Speicher)
+  & \cite{ufc2025monolith}, \cite{zenodo2025petclinic} \\
+
+Konfiguration und Betrieb
+  & Einfach
+  & Einfach
+  & Aufwendig (mehrere Dienste und Konfigurationsdateien)
+  & \cite{ufc2025monolith}, \cite{zenodo2025petclinic} \\
+
+Anfänglicher Entwicklungsaufwand
+  & Am geringsten
+  & Mittel (Schnittstellen und DTOs definieren)
+  & Am höchsten (APIs, Broker, Konsistenz, Deployment)
+  & Eig., \cite{faustino2022} \\
+
+Modulgrenzen später ändern
+  & Leicht, aber ohne erzwungene Grenzen
+  & Mittel (Refactoring im selben Prozess)
+  & Schwer (API-Änderungen über Prozessgrenzen)
+  & \cite{faustino2022}, Eig. \\
+
+Gefahr falscher Modulgrenzen
+  & Gering, da keine festen Grenzen
+  & Mittel
+  & Hoch
+  & \cite{faustino2022} \\
+
+Team-Unabhängigkeit
+  & Gering
+  & Mittel bis gut
+  & Am besten (eigene Services pro Team)
+  & \cite{faustino2022} \\
+
+Skalierung
+  & Gesamte Anwendung als Ganzes (z.\,B. mehr Worker)
+  & Wie Monolith
+  & Einzelne Services unabhängig skalierbar
+  & Eig. \\
+
+Ausfallsicherheit
+  & Ein Fehler kann die ganze Anwendung betreffen
+  & Wie Monolith
+  & Ausfall eines Services betrifft nicht automatisch alle
+  & \cite{aldebagy2018} \\
+
+Testbarkeit
+  & Einfach (ein Prozess)
+  & Einfach, Module einzeln testbar
+  & Aufwendiger (Integrationstests über Services)
+  & Eig. \\
+
+Typisches Risiko
+  & \enquote{Big Ball of Mud}, wenn keine Struktur eingehalten wird
+  & Grenzen werden im Alltag aufgeweicht
+  & Overengineering, Betriebsaufwand
+  & Eig. \\
+
+\end{longtable}
+
+\noindent\textit{Anmerkung:} \enquote{Eig.} kennzeichnet eigene Einschätzungen
+ohne gesonderten Quellenbeleg.
 \subsection{Auswahl des Frameworks}
 \subsection{Skalierbarkeit und Modularität}
 
