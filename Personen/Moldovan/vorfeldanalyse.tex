@@ -66,6 +66,9 @@ die Skalierung, weil die Serverkomponenten einfacher werden
 \subsection{Architekturansätze im Vergleich}
 Relevante Architekturansätze für die Entwicklung des Backends sind der Monolith, der modulare Monolith und Microservices.
 Die Vor- und Nachteile der drei Ansätze werden in Tabelle~\ref{tab:architekturvergleich} gegenübergestellt.\\ \\
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
 \begin{longtable}{
   >{\raggedright\arraybackslash}p{2.4cm}
   >{\raggedright\arraybackslash}p{2.7cm}
@@ -134,19 +137,19 @@ Latenz
   & Am niedrigsten
   & Nahe am Monolithen, abhängig von der DTO-Menge
   & Am höchsten (Netzwerk, Serialisierung)
-  & \cite{faustino2022}, \cite{zenodo2025petclinic}, \cite{ufc2025monolith} \\
+  & \cite{faustino2022}, \cite{zenodo2025petclinic} \\
 
 Ressourcenbedarf
   & Gering
   & Gering
   & Höher (mehr Prozesse, mehr Speicher)
-  & \cite{ufc2025monolith}, \cite{zenodo2025petclinic} \\
+  & \cite{zenodo2025petclinic} \\
 
 Konfiguration und Betrieb
   & Einfach
   & Einfach
   & Aufwendig (mehrere Dienste und Konfigurationsdateien)
-  & \cite{ufc2025monolith}, \cite{zenodo2025petclinic} \\
+  & \cite{zenodo2025petclinic} \\
 
 Anfänglicher Entwicklungsaufwand
   & Am geringsten
@@ -197,6 +200,7 @@ Typisches Risiko
   & Eig. \\
 
 \end{longtable}
+\endgroup
 
 \noindent\textit{Anmerkung:} \enquote{Eig.} kennzeichnet eigene Einschätzungen
 ohne gesonderten Quellenbeleg.
