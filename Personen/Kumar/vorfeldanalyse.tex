@@ -132,3 +132,157 @@ Die Plattform speichert persönliche Daten von Lernenden, zum Beispiel Lernergeb
 Für Backups gibt es zwei wichtige Kennzahlen. Das Recovery Point Objective (RPO) sagt, wie viele Daten höchstens verloren gehen dürfen. Das Recovery Time Objective (RTO) sagt, wie lange eine Wiederherstellung höchstens dauern darf. \\
 Laut der PostgreSQL-Dokumentation gibt es drei verschiedene Arten, die Datenbank zu sichern: einen SQL-Dump, ein Backup auf Dateisystemebene und die kontinuierliche Archivierung.\footnote{Vgl. PostgreSQL Global Development Group: Backup and Restore, \url{https://access.crunchydata.com/documentation/postgresql95/9.5.7/backup.html} (zuletzt abgerufen am 16.10.2026).} Bei der kontinuierlichen Archivierung wird eine Basissicherung mit den Write-Ahead-Log-Dateien kombiniert. Damit kann die Datenbank auf jeden beliebigen Zeitpunkt seit der Basissicherung zurückgesetzt werden (Point-in-Time-Recovery).\footnote{Vgl. PostgreSQL Global Development Group: Continuous Archiving and Point-in-Time Recovery (PITR), \url{https://www.postgresql.org/docs/19/continuous-archiving.html} (zuletzt abgerufen am 16.10.2026).} Zusätzlich gilt die 3-2-1-Regel: drei Kopien auf zwei verschiedenen Speichermedien, eine davon an einem anderen Ort. Backups müssen außerdem regelmäßig durch eine Wiederherstellung getestet werden. Ein Backup, das nie getestet wurde, ist keine sichere Absicherung.\footnote{Vgl. Beyer, Betsy u.\,a. (Hrsg.): Site Reliability Engineering. Sebastopol: O'Reilly Media 2016, Kap. 26. % TODO: Kapitel und Seitenzahlen prüfen
 }
+
+
+
+\subsection{Ausfallsicherheit}
+
+Ausfallsicherheit entsteht, wenn wichtige Teile doppelt vorhanden sind und Fehler automatisch erkannt werden. Dazu gehören mehrere Anwendungsinstanzen hinter einem Load Balancer, Health-Checks mit automatischem Neustart von Containern und eine Datenbank mit Standby. Jede zusätzliche Absicherung macht das System aber komplizierter und aufwendiger. Deshalb muss sie zum tatsächlichen Bedarf einer Schulplattform passen.
+
+\section{Teststrategie}
+
+\subsection{Testarten und Werkzeuge}
+
+Die Tests zeigen, ob die Infrastruktur die Anforderungen erfüllt. Es gibt mehrere Arten: \\
+Performancetests messen Antwortzeit und Durchsatz bei normaler Last. Lasttests simulieren viele gleichzeitige Benutzer:innen, zum Beispiel eine ganze Klasse, die gleichzeitig einen Test startet. Stresstests erhöhen die Last über das erwartete Maß, um zu sehen, wo das System an seine Grenzen kommt. Stabilitätstests laufen mehrere Stunden und zeigen, ob zum Beispiel der Speicher langsam volläuft. Sicherheitstests suchen nach Schwachstellen und Konfigurationsfehlern und prüfen die Anmeldung. \\\footnote{Vgl. Beyer, Betsy u.\,a. (Hrsg.): Site Reliability Engineering. Sebastopol: O'Reilly Media 2016, Kap. 17. % TODO: Kapitel und Seitenzahlen prüfen 
+}
+Für Lasttests eignet sich Locust. Dort wird das Verhalten der Benutzer:innen in Python beschrieben.\footnote{Vgl. Locust Project: Locust Documentation, \url{https://docs.locust.io/} (zuletzt abgerufen am 16.10.2026).}
+
+\subsection{Messgrößen}
+
+Tests sind nur aussagekräftig, wenn vorher festgelegt wird, was gemessen wird. Dafür sind geplant: das 95.\ Perzentil der Antwortzeit, die Fehlerrate, die Anfragen pro Sekunde und die Auslastung von CPU, Speicher und Datenbank. Die Ergebnisse werden dokumentiert und ausgewertet.
+
+\section{Konkurrenzanalyse}
+
+\subsection{Positionierung, Ziele und Kriterien}
+
+Die Arbeit liegt im Bereich selbst betriebener Lernplattformen für den Schulunterricht, bei denen die Anmeldung zentral läuft. Ziel ist eine Infrastruktur, die sich jederzeit neu aufbauen lässt, mitwächst, die Anmeldung über das Schulnetzwerk erlaubt und Lerninhalte offen austauschbar macht. Daraus ergeben sich vier Kriterien: Skalierbarkeit und Betrieb, Anbindung an Verzeichnisdienste, Qualität und Offenheit von Import und Export und Kontrolle über die eigenen Daten.
+
+\subsection{Auswahl der Konkurrenz}
+
+Auf der ersten Ebene, also mit ähnlichem Zweck und Einsatz, wurde Moodle gewählt. Moodle ist eine Lernplattform, die Schulen und Hochschulen selbst betreiben. Auf der zweiten Ebene wurden die Lernkarten-Programme Anki und Quizlet untersucht. Sie erfüllen dieselbe Aufgabe, nämlich Lernen mit Karten, aber auf andere Weise: Anki läuft lokal, Quizlet als Cloud-Dienst. Als Beispiel für eine Django-Anwendung mit AD-Anbindung dient zusätzlich Review Board. Die Analyse stützt sich auf die öffentliche Dokumentation der Hersteller und nicht auf eigene Langzeittests. Screenshots der untersuchten Funktionen kommen zur besseren Nachvollziehbarkeit in den Anhang.
+
+\subsection{Moodle}
+
+\textbf{Stärken.}
+\begin{enumerate}
+  \item Skalierbarkeit: Die Schichten der Anwendung sind klar getrennt. Dadurch kann Moodle auf mehrere Webserver verteilt werden, die dieselbe Datenbank und denselben Dateibereich benutzen.\footnote{Vgl. Moodle Docs: Performance recommendations, \url{https://docs.moodle.org/37/en/Performance_recommendations} (zuletzt abgerufen am 16.10.2026).}
+  \item Verzeichnisanbindung: Moodle kann Anmeldungen über LDAP prüfen, ausdrücklich auch mit Microsoft Active Directory.\footnote{Vgl. Moodle Docs: LDAP authentication, \url{https://docs.moodle.org/400/en/LDAP_authentication} (zuletzt abgerufen am 16.10.2026).}
+  \item Passwörter: Die Passwörter der LDAP-Benutzer:innen müssen nicht in Moodle gespeichert werden.\footnote{Vgl. ebd.}
+\end{enumerate}
+
+\textbf{Schwächen.}
+\begin{enumerate}
+  \item Viel Einrichtungsaufwand: Auch bei gleichem Servertyp wie AD kann jede Installation eine ganz andere Verzeichnisstruktur haben. Die Einstellungen müssen deshalb jedes Mal angepasst werden.\footnote{Vgl. ebd.}
+  \item Einschränkungen: Laut Dokumentation funktionieren bei Active Directory manche Vorgänge nicht, zum Beispiel das Aktualisieren von Daten im Verzeichnis. Die Anmeldung selbst ist davon nicht betroffen.\footnote{Vgl. ebd.}
+  \item Viel Feintuning: Im Betrieb sind manuelle Anpassungen nötig, zum Beispiel bei den Apache-Einstellungen. Bei sehr großen Systemen mit Lastverteilung wird die Leistung von Dateispeicher und Cache wichtig.\footnote{Vgl. Moodle Docs: Performance recommendations, \url{https://docs.moodle.org/37/en/Performance_recommendations} (zuletzt abgerufen am 16.10.2026).}
+\end{enumerate}
+
+\textbf{Chancen.} Eine schlankere Plattform kann den Betrieb einfacher machen, indem die AD-Einstellungen für das Schulnetzwerk fertig dokumentiert sind und alles versioniert bereitgestellt wird.
+
+\subsection{Anki}
+
+\textbf{Stärken.}
+\begin{enumerate}
+  \item Austauschformat: Ein Deckpaket (.apkg) enthält Karten, Notizen, Notiztypen sowie Ton- und Bilddateien in einer einzigen Datei.\footnote{Vgl. Anki Manual: Exporting, \url{https://docs.ankiweb.net/exporting.html} (zuletzt abgerufen am 16.10.2026).}
+  \item Import fügt nur hinzu: Beim Import eines Deckpakets werden die Inhalte der Sammlung hinzugefügt und nichts überschrieben.\footnote{Vgl. ebd.}
+  \item Inhalt und Lernstand getrennt: Beim Export kann man die Lerninformationen weglassen, damit ein Deck sauber weitergegeben werden kann.\footnote{Vgl. ebd.}
+\end{enumerate}
+
+\textbf{Schwächen.}
+\begin{enumerate}
+  \item Gefährlicher Vollimport: Wird eine Collection-Datei (.colpkg) importiert, werden alle aktuellen Karten gelöscht und durch den Inhalt der Datei ersetzt.\footnote{Vgl. ebd.}
+  \item Eingeschränkter Rückimport: Ein Textexport kann nur dann zuverlässig wieder importiert werden, wenn das erste Feld nicht verändert wird.\footnote{Vgl. ebd.}
+  \item Austausch per Datei: Inhalte werden von Hand als Dateien weitergegeben. Eine zentrale Benutzer- und Rechteverwaltung für den Schulbetrieb kommt in den untersuchten Teilen der Dokumentation nicht vor.
+\end{enumerate}
+
+\textbf{Chancen.} Die Ideen vom Import, der nur hinzufügt, und vom getrennten Export von Inhalt und Lernstand lassen sich in einem zentralen System mit Rechteverwaltung und einer Vorschau vor dem Import besser umsetzen.
+
+\subsection{Quizlet}
+
+\textbf{Stärken.}
+\begin{enumerate}
+  \item Export eigener Sets: Begriffe und Definitionen von eigenen Sets können exportiert werden.\footnote{Vgl. Quizlet Help Center: Exporting your sets, \url{https://help.quizlet.com/hc/en-au/articles/360034345672-Exporting-your-sets} (zuletzt abgerufen am 16.10.2026).}
+  \item Freigabe: Das Hilfecenter beschreibt Einstellungen für die Sichtbarkeit von Sets, für Bearbeitungsrechte und für Passwortschutz.\footnote{Vgl. Quizlet Help Center: Accessing and sharing, \url{https://help.quizlet.com/hc/en-au/sections/360005877232-Accessing-and-sharing} (zuletzt abgerufen am 16.10.2026).}
+  \item Komfort: Sets können gedruckt, eingebettet und in den mobilen Apps offline gelernt werden.\footnote{Vgl. ebd.}
+\end{enumerate}
+
+\textbf{Schwächen.}
+\begin{enumerate}
+  \item Eingeschränkter Export: Bilder können aus Urheberrechtsgründen nicht exportiert werden, und kopierte Sets lassen sich gar nicht exportieren.\footnote{Vgl. Quizlet Help Center: Exporting your sets, \url{https://help.quizlet.com/hc/en-au/articles/360034345672-Exporting-your-sets} (zuletzt abgerufen am 16.10.2026).}
+  \item Premium-Beschränkungen: In der kostenlosen Version können Sets, die mit Premium-Funktionen erstellt wurden, nicht kopiert und gespeichert werden.\footnote{Vgl. Quizlet Help Center: Trouble copying and saving a set, \url{https://help.quizlet.com/hc/en-us/articles/360036242411-Trouble-copying-and-saving-a-set} (zuletzt abgerufen am 16.10.2026).}
+  \item Abhängigkeit vom Anbieter: Die Inhalte liegen auf der Plattform des Anbieters. Die Schule hat keinen Einfluss auf Betrieb und Datenspeicherung.
+\end{enumerate}
+
+\textbf{Chancen.} Eine selbst betriebene Plattform kann Inhalte vollständig mit Medien exportierbar halten, und die Daten bleiben bei der Schule.
+
+\subsection{Gesamtvergleich}
+
+\begin{center}
+\begin{tabular}{|p{2.2cm}|p{3.6cm}|p{3.8cm}|p{4.2cm}|}
+\hline
+\textbf{Konkurrenz} & \textbf{Wichtigste Stärke} & \textbf{Wichtigste Schwäche} & \textbf{Folge für die Arbeit} \\ \hline
+Moodle & Lastverteilung, LDAP/AD & Viel Einrichtung und Feintuning & Zustandslose Instanzen, aber einfache, dokumentierte Konfiguration \\ \hline
+Anki & Austauschpaket, Import fügt nur hinzu & Vollimport löscht Karten, Austausch von Hand & Austauschformat mit Medien, nur hinzufügender Import \\ \hline
+Quizlet & Einfacher Export eigener Sets & Kein Export von Bildern, abhängig vom Anbieter & Offenes, vollständiges Exportformat, eigene Datenhaltung \\ \hline
+\end{tabular}
+\end{center}
+Als Vorbild für die AD-Anbindung in einer Django-Anwendung dient Review Board. Laut Dokumentation wird das AD-Backend über Domänenname, Suchbasis und TLS eingestellt. Es findet Domänencontroller über DNS und legt Benutzer:innen, die nur im AD vorhanden sind, beim ersten Login in der lokalen Datenbank an.\footnote{Vgl. Review Board Documentation: reviewboard.accounts.backends.ad, \url{https://www.reviewboard.org/docs/manual/6.x/extending/coderef/python/reviewboard.accounts.backends.ad} (zuletzt abgerufen am 16.10.2026).}
+
+\section{Fazit der Vorfeldanalyse}
+
+\subsection{Getroffene Entscheidungen}
+
+Aus der Vorfeldanalyse, der Aufgabenstellung und der Konkurrenzanalyse ergeben sich diese Entscheidungen:
+
+\begin{description}
+  \item[DE-1 Container.] Die Plattform läuft mit Docker Compose (Reverse Proxy, Django mit Gunicorn, Datenbank). Die Konfigurationen liegen versioniert im Repository, die Zugangsdaten in Umgebungsvariablen oder Secrets. Die Entscheidung fiel darauf, weil sich die Umgebung damit jederzeit neu aufbauen lässt und der Einrichtungsaufwand kleiner wird, der bei Moodle auffällt. Auf Kubernetes wird verzichtet, weil der Aufwand für dieses Projekt zu groß wäre.
+  \item[DE-2 Zustandslose Instanzen.] Die Anwendung läuft so, dass mehrere Instanzen hinter nginx arbeiten können, ohne Sitzungen oder Dateien bei sich zu speichern. Das ist dem Skalierungsmodell von Moodle nachempfunden.
+  \item[DE-3 PostgreSQL.] Die Datenbank läuft in einem eigenen Container mit dauerhaftem Speicher und ist nur aus dem internen Netz erreichbar. Connection Pooling und passende Indizes sorgen für Geschwindigkeit. Ausschlaggebend waren die sichere Verarbeitung von Transaktionen, die Unterstützung durch Django und die guten Backup-Möglichkeiten.
+  \item[DE-4 Anmeldung über LDAPS.] Die Anmeldung läuft verschlüsselt gegen das Schul-AD, mit einem Service-Account mit möglichst wenigen Rechten. AD-Gruppen werden Rollen zugeordnet, und Benutzer:innen werden beim ersten Login lokal angelegt, nach dem Vorbild von Review Board. Ein lokaler Administrationszugang bleibt als Notfallweg. Für Entwicklung und Tests gibt es ein eigenes Test-Verzeichnis.
+  \item[DE-5 Offenes Austauschformat.] Lerninhalte werden als JSON-Paket mit Versionsnummer und Medienordner ausgetauscht. Der Import fügt nur hinzu, erzeugt keine Duplikate, läuft als Transaktion, prüft die Dateien und zeigt vorher eine Vorschau mit Fehlerliste. Exportiert werden standardmäßig nur Inhalte und keine persönlichen Lernstände. Die Entscheidung stützt sich auf die Stärken von Anki und die Schwächen von Quizlet.
+  \item[DE-6 Mehrstufiges Backup.] Geplant sind tägliche Sicherungen, dazu laufende WAL-Archivierung für die Wiederherstellung auf einen Zeitpunkt, Aufbewahrung nach der 3-2-1-Regel, festgelegte RPO- und RTO-Ziele und regelmäßige, protokollierte Wiederherstellungstests.
+  \item[DE-7 Gestaffelte Tests.] Lasttests mit Locust mit realistischen Szenarien, festgelegte Messgrößen, ein Stabilitätstest über mehrere Stunden und eine Sicherheitsprüfung nach den OWASP Top 10. Die Ergebnisse werden dokumentiert und fließen in Verbesserungen ein.
+\end{description}
+
+\subsection{Risiken und offene Fragen}
+
+\begin{itemize}
+  \item \textbf{Zugang zum Schul-AD:} Es ist noch offen, ob und wie die Schul-IT einen Service-Account und einen Testzugang bereitstellt.
+  \item \textbf{Wo der Server läuft:} Ob im Schulnetzwerk oder extern, beeinflusst die Erreichbarkeit des AD, den Datenschutz und die nötige Hardware.
+  \item \textbf{Anzahl der Benutzer:innen:} Wie viele Personen gleichzeitig online sein werden, ist nicht bekannt und muss für die Lasttests angenommen werden.
+  \item \textbf{Umfang der Ausfallsicherheit:} Wie viel Absicherung im Projekt sinnvoll und machbar ist, wird im Infrastrukturkonzept festgelegt.
+  \item \textbf{Abstimmung im Team:} Die Aufteilung beim Backend (LDAP-Einstellungen, Import- und Export-Logik) und beim Frontend (Oberfläche für Import und Export) wird mit \Luca und \Jakob genauer geklärt.
+\end{itemize}
+
+\section*{Quellen- und Literaturverzeichnis (\Jai)}
+
+\textbf{Literatur}
+\begin{itemize}
+  \item Beyer, Betsy u.\,a. (Hrsg.): \emph{Site Reliability Engineering: How Google Runs Production Systems}. Sebastopol: O'Reilly Media 2016. % TODO: ISBN ergänzen
+  \item Kleppmann, Martin: \emph{Designing Data-Intensive Applications}. Sebastopol: O'Reilly Media 2017. % TODO: ISBN ergänzen
+\end{itemize}
+
+\textbf{Quellen aus dem Internet}
+\begin{itemize}
+  \item Anki Manual: Exporting. \url{https://docs.ankiweb.net/exporting.html} (zuletzt abgerufen am 16.10.2026).
+  \item django-auth-ldap: Django LDAP authentication backend. \url{https://pypi.org/project/django-auth-ldap} (zuletzt abgerufen am 16.10.2026).
+  \item Locust Project: Locust Documentation. \url{https://docs.locust.io/} (zuletzt abgerufen am 16.10.2026).
+  \item Moodle Docs: LDAP authentication. \url{https://docs.moodle.org/400/en/LDAP_authentication} (zuletzt abgerufen am 16.10.2026).
+  \item Moodle Docs: Performance recommendations. \url{https://docs.moodle.org/37/en/Performance_recommendations} (zuletzt abgerufen am 16.10.2026).
+  \item OWASP Foundation: OWASP Top 10. \url{https://owasp.org/www-project-top-ten/} (zuletzt abgerufen am 16.10.2026).
+  \item PostgreSQL Global Development Group: Backup and Restore. \url{https://access.crunchydata.com/documentation/postgresql95/9.5.7/backup.html} (zuletzt abgerufen am 16.10.2026).
+  \item PostgreSQL Global Development Group: Continuous Archiving and Point-in-Time Recovery (PITR). \url{https://www.postgresql.org/docs/19/continuous-archiving.html} (zuletzt abgerufen am 16.10.2026).
+  \item Quizlet Help Center: Accessing and sharing. \url{https://help.quizlet.com/hc/en-au/sections/360005877232-Accessing-and-sharing} (zuletzt abgerufen am 16.10.2026).
+  \item Quizlet Help Center: Exporting your sets. \url{https://help.quizlet.com/hc/en-au/articles/360034345672-Exporting-your-sets} (zuletzt abgerufen am 16.10.2026).
+  \item Quizlet Help Center: Trouble copying and saving a set. \url{https://help.quizlet.com/hc/en-us/articles/360036242411-Trouble-copying-and-saving-a-set} (zuletzt abgerufen am 16.10.2026).
+  \item Review Board Documentation: reviewboard.accounts.backends.ad. \url{https://www.reviewboard.org/docs/manual/6.x/extending/coderef/python/reviewboard.accounts.backends.ad} (zuletzt abgerufen am 16.10.2026).
+\end{itemize}
+
+\section*{Abbildungsverzeichnis (Jai Kumar)}
+
+\begin{itemize}
+  \item Abb.~\ref{fig:architektur}: Architekturübersicht der Infrastruktur (eigene Darstellung)
+  \item Abb.~\ref{fig:ad}: Ablauf der Authentifizierung gegen das Active Directory (eigene Darstellung)
+  \item Abb.~\ref{fig:importexport}: Ablauf von Import und Export (eigene Darstellung)
+\end{itemize}
