@@ -1,38 +1,40 @@
 % !TEX root = ../../main.tex
-
+ 
 \chapter{Vorfeldanalyse (\Jai)}
-
+ 
 \section{Anforderungen und Abgrenzung}
-
+ 
 \subsection{Anforderungen an die Infrastruktur}
-
-Die Lernplattform wird von Lernenden einer Schule benutzt. Meistens sind nur wenige Personen gleichzeitig online. Vor Schularbeiten, Tests und Abgaben sind es aber viel mehr. Die Infrastruktur muss auch diese Spitzen aushalten. Aus dem Projektantrag ergeben sich diese Anforderungen:
-
+ 
+Die Lernplattform wird von Lernenden einer Schule benutzt. Meistens sind nur wenige Personen gleichzeitig online. Vor Schularbeiten, Tests und Abgaben sind es aber viel mehr. Die Infrastruktur muss auch diese Spitzen aushalten. Aus dem Projektantrag und den Rahmenbedingungen ergeben sich diese Anforderungen:
+ 
 \begin{itemize}
+  \item Die Plattform läuft auf einem Windows-Server der Schule. Wenn die Schule keinen Server bereitstellen kann, läuft sie lokal auf einem eigenen Rechner.
   \item Die Serverumgebung lässt sich jederzeit gleich neu aufbauen und bei Bedarf vergrößern.
   \item Eine relationale Datenbank ist angebunden und arbeitet zuverlässig mit dem Backend zusammen.
-  \item Die Anmeldung läuft zentral über das Active Directory des Schulnetzwerks.
+  \item Die Anmeldung läuft zentral über ein Active Directory. Weil die Schule keinen Zugriff auf ihr eigenes Active Directory gibt, wird dafür ein eigenes eingerichtet.
   \item Lerninhalte können strukturiert importiert und exportiert werden.
   \item Das System ist abgesichert, die Daten werden gesichert und können wiederhergestellt werden. Bei einem Ausfall läuft die Plattform möglichst weiter.
   \item Sicherheit, Geschwindigkeit, Belastbarkeit und Stabilität werden getestet und die Ergebnisse dokumentiert.
 \end{itemize}
-
+ 
 \subsection{Abgrenzung zu Backend und Frontend}
-
+ 
 Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Die Infrastruktur stellt die Umgebung bereit, in der Backend und Frontend laufen. \Luca entwickelt die Backend-Logik, den adaptiven Lernalgorithmus und die API. \Jakob entwickelt die Benutzeroberfläche. \\ \\
 Bei der Anmeldung über das Active Directory sind die Aufgaben so aufgeteilt: Die Einstellungen im Django-Backend gehören zum Backend. Die Infrastruktur liefert den Verzeichnisdienst, die Netzwerkverbindung, die Zertifikate und Testkonten. Bei der Datenbank gehören die Tabellen und Migrationen zum Backend. Der Betrieb des Datenbankservers, die Backups und die Verfügbarkeit gehören zur Infrastruktur. Die genauen Schnittstellen werden im Infrastrukturkonzept festgehalten (Meilenstein am 15.11.2026).
-
-
+ 
+ 
 \section{Begrifflichkeiten}
-
+ 
 \begin{center}
 \begin{tabular}{|p{4.2cm}|p{9.5cm}|}
 \hline
 \textbf{Begriff} & \textbf{Erklärung} \\ \hline
 Active Directory (AD) & Verzeichnisdienst von Microsoft, der Benutzer:innen, Gruppen und Geräte in einem Netzwerk verwaltet \\ \hline
+Domänencontroller (DC) & Windows-Server, auf dem das Active Directory läuft und der Anmeldungen prüft \\ \hline
 LDAP / LDAPS & Protokoll, mit dem man ein Verzeichnis abfragen und Anmeldungen prüfen kann. LDAPS ist die verschlüsselte Version \\ \hline
-Container & Eine Art Paket, in dem eine Anwendung mit allem läuft, was sie braucht \\ \hline
-Docker Compose & Programm, mit dem man mehrere Container gemeinsam beschreibt und startet \\ \hline
+Git / Repository & Versionsverwaltung für Dateien. Im Repository liegen der Code und die Konfigurationen, hier auf GitHub \\ \hline
+Windows-Dienst & Programm, das im Hintergrund läuft, automatisch startet und bei Fehlern neu gestartet werden kann \\ \hline
 Infrastructure as Code (IaC) & Die Einrichtung eines Servers steht in Dateien statt in Handarbeit \\ \hline
 Reverse Proxy / Load Balancer & Server vor der Anwendung, der Anfragen annimmt und auf mehrere Instanzen verteilt \\ \hline
 Horizontale / vertikale Skalierung & Mehr Instanzen starten bzw. einen stärkeren Server verwenden \\ \hline
@@ -45,64 +47,65 @@ Lasttest / Stresstest & Test mit erwarteter Last bzw. mit mehr Last, als das Sys
 DSGVO & Datenschutz-Grundverordnung der EU \\ \hline
 \end{tabular}
 \end{center}
-
+ 
 \section{Serverinfrastruktur und Datenbank}
-
-\subsection{Reproduzierbarkeit und Container}
-
+ 
+\subsection{Reproduzierbarkeit und Git-Repository}
+ 
 Reproduzierbar heißt, dass sich die ganze Serverumgebung jederzeit aus einer Beschreibung neu aufbauen lässt. Dahinter steckt die Idee „Infrastructure as Code“. Die Einstellungen werden nicht von Hand am Server gemacht, sondern stehen in Dateien, die versioniert werden. So kann man jede Änderung nachvollziehen, und der Server kann bei einem Problem einfach neu erstellt werden. \\
-Dafür werden Container verwendet. Ein Container enthält die Anwendung und alles, was sie zum Laufen braucht. Dadurch läuft sie überall gleich. Mit Docker Compose werden mehrere Container gemeinsam beschrieben und mit einem Befehl gestartet. Es gibt auch andere Möglichkeiten, zum Beispiel Ansible oder Kubernetes. Kubernetes bedeutet aber viel Aufwand im Betrieb und ist für ein Projekt dieser Größe wahrscheinlich zu viel.
-
-
-\subsection{Skalierbarkeit und Reverse Proxy}
-
-Skalierbar heißt, dass das System auch mit mehr Benutzer:innen gut funktioniert. Es gibt zwei Wege. Bei der vertikalen Skalierung bekommt der Server stärkere Hardware. Bei der horizontalen Skalierung laufen mehrere Instanzen der Anwendung. Dafür dürfen die Instanzen keine Daten bei sich selbst speichern, sie müssen zustandslos sein. Sitzungen und Dateien liegen dann in der Datenbank, in einem gemeinsamen Cache oder in einem gemeinsamen Speicher \parencite[Kap.~1 und 5]{kleppmann2017}.
-Vor den Instanzen steht ein Reverse Proxy, zum Beispiel nginx. Er nimmt die Anfragen an, kümmert sich um die verschlüsselte Verbindung (TLS) und verteilt die Anfragen auf die Instanzen. Django läuft im Betrieb meistens hinter einem Server wie Gunicorn, der mehrere Prozesse starten kann. Statische Dateien wie Bilder oder Stylesheets liefert der Proxy direkt aus. \\
-Daraus ergibt sich der Aufbau in Schichten: Browser, Reverse Proxy, Django-Anwendung und Datenbank. Dazu kommen das Active Directory und die Orte, an denen die Backups liegen (siehe Abbildung~\ref{fig:architektur}).
+Häufig werden dafür Container wie Docker verwendet. Ein Container enthält die Anwendung und alles, was sie zum Laufen braucht. In diesem Projekt wird bewusst darauf verzichtet. Die Anwendung läuft direkt auf dem Windows-Server. Ein einzelner Server braucht dadurch weniger Ressourcen, und es gibt eine Schicht weniger, die eingerichtet und verstanden werden muss. Auf Windows läuft Docker meist über eine zusätzliche virtuelle Schicht, die Speicher und Rechenleistung kostet. Auch Kubernetes ist wegen des hohen Aufwands für ein Projekt dieser Größe nicht sinnvoll. \\
+Die Reproduzierbarkeit wird stattdessen über ein Git-Repository auf GitHub erreicht. Dort liegen der Code, die Konfigurationsvorlagen, die festgelegten Paketversionen und eine Installationsanleitung. Die Anwendung kann damit beliebig oft auf einen neuen Server geklont und eingerichtet werden. Geheime Daten wie Passwörter liegen nicht im Repository, sondern in Umgebungsvariablen auf dem Server. Wichtig ist, dass der Neuaufbau getestet wird, zum Beispiel auf einem frischen System. Nur dann ist belegt, dass die Beschreibung vollständig ist.
+ 
+ 
+\subsection{Skalierbarkeit und Webserver}
+ 
+Skalierbar heißt, dass das System auch mit mehr Benutzer:innen gut funktioniert. Es gibt zwei Wege. Bei der vertikalen Skalierung bekommt der Server stärkere Hardware. Bei der horizontalen Skalierung laufen mehrere Instanzen der Anwendung, zum Beispiel auf weiteren Servern, auf die das Repository geklont wird. Dafür dürfen die Instanzen keine Daten bei sich selbst speichern, sie müssen zustandslos sein. Sitzungen und Dateien liegen dann in der Datenbank, in einem gemeinsamen Cache oder in einem gemeinsamen Speicher \parencite[Kap.~1 und 5]{kleppmann2017}.
+Bei mehreren Instanzen verteilt ein Reverse Proxy oder Load Balancer die Anfragen. Er kümmert sich auch um die verschlüsselte Verbindung (TLS). Für den Start genügt eine einzelne Instanz, die so gebaut ist, dass später weitere dazukommen können. Django läuft im Betrieb nicht mit dem eingebauten Testserver, sondern mit einem Produktionsserver. Gunicorn, das oft verwendet wird, läuft nicht auf Windows. Dort wird deshalb ein Server verwendet, der Windows unterstützt, zum Beispiel Waitress. Die Anwendung wird als Windows-Dienst eingerichtet, damit sie automatisch startet und bei einem Fehler neu gestartet wird. \\
+Daraus ergibt sich der Aufbau in Schichten: Browser, Webserver mit Django-Anwendung und Datenbank. Dazu kommen das eigene Active Directory und die Orte, an denen die Backups liegen (siehe Abbildung~\ref{fig:architektur}).
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{Bilder/Kumar/Architekturübersicht.png}
   \caption{Architekturübersicht der Infrastruktur (eigene Darstellung)}
   \label{fig:architektur}
 \end{figure}
-
+ 
 \subsection{Relationale Datenbank}
-
-Die Plattform speichert viele Daten, die zusammenhängen: Benutzer:innen, Lerninhalte, Lernkarten, Tests, Ergebnisse und Wiederholungstermine. Dafür passt eine relationale Datenbank gut. Sie sorgt über Fremdschlüssel dafür, dass die Verbindungen zwischen den Daten stimmen. Mit Transaktionen (ACID) wird verhindert, dass ein Ergebnis nur halb gespeichert wird, wenn mitten im Vorgang ein Fehler passiert. Django kann mit mehreren relationalen Datenbanken arbeiten. PostgreSQL hat zusätzlich unter anderem einen JSON-Datentyp, Replikation und gute Möglichkeiten für Backups. \\
-Für die Infrastruktur sind drei Dinge wichtig. Erstens stehen die Zugangsdaten zur Datenbank in Umgebungsvariablen oder Secrets und nicht im Code. Die Anwendung soll Verbindungen wiederverwenden (Connection Pooling), damit der Datenbankserver bei vielen Anfragen nicht überlastet wird. Zweitens beschleunigen Indizes Abfragen, die oft vorkommen, zum Beispiel die Zuordnung von Benutzer:in zu Lernkarte. Drittens macht Replikation das System ausfallsicherer, weil ein zweiter Server (Standby) bereitsteht. Dafür braucht man aber einen Plan, wie auf diesen umgeschaltet wird.
-
+ 
+Die Plattform speichert viele Daten, die zusammenhängen: Benutzer:innen, Lerninhalte, Lernkarten, Tests, Ergebnisse und Wiederholungstermine. Dafür passt eine relationale Datenbank gut. Sie sorgt über Fremdschlüssel dafür, dass die Verbindungen zwischen den Daten stimmen. Mit Transaktionen (ACID) wird verhindert, dass ein Ergebnis nur halb gespeichert wird, wenn mitten im Vorgang ein Fehler passiert. Django kann mit mehreren relationalen Datenbanken arbeiten. PostgreSQL hat zusätzlich unter anderem einen JSON-Datentyp, Replikation und gute Möglichkeiten für Backups und läuft auch als Dienst unter Windows. \\
+Für die Infrastruktur sind drei Dinge wichtig. Erstens stehen die Zugangsdaten zur Datenbank in Umgebungsvariablen und nicht im Code. Die Anwendung soll Verbindungen wiederverwenden (Connection Pooling), damit der Datenbankserver bei vielen Anfragen nicht überlastet wird. Zweitens beschleunigen Indizes Abfragen, die oft vorkommen, zum Beispiel die Zuordnung von Benutzer:in zu Lernkarte. Drittens macht Replikation das System ausfallsicherer, weil ein zweiter Server (Standby) bereitsteht. Dafür braucht man aber einen Plan, wie auf diesen umgeschaltet wird.
+ 
 \section{Active-Directory-Anbindung}
-
+ 
 \subsection{Verzeichnisdienste und Protokolle}
-
-In Schulnetzwerken verwaltet normalerweise ein Active Directory (AD) die Konten, Gruppen und Passwörter. Wenn die Lernplattform dieses Verzeichnis benutzt, müssen sich Lernende nicht neu registrieren und kein zusätzliches Passwort merken. Die Schule muss Konten nur an einer Stelle pflegen. Wird ein Konto deaktiviert, zum Beispiel nach dem Schulaustritt, gilt das auch für die Plattform.
-
+ 
+In Schulnetzwerken verwaltet normalerweise ein Active Directory (AD) die Konten, Gruppen und Passwörter. Wenn eine Lernplattform ein solches Verzeichnis benutzt, müssen sich Lernende nicht neu registrieren und kein zusätzliches Passwort merken. Konten müssen nur an einer Stelle gepflegt werden. Wird ein Konto deaktiviert, zum Beispiel nach dem Schulaustritt, gilt das auch für die Plattform. \\
+Für dieses Projekt bekommt das Team keinen Zugriff auf das AD der Schule. Deshalb wird ein eigenes Active Directory eingerichtet. Es läuft auf Windows Server als Rolle „Active Directory Domain Services“, vermutlich auf demselben Server wie die Anwendung. Der Server übernimmt damit auch die Aufgabe eines Domänencontrollers. Für die Anwendung ändert sich dadurch nichts Grundsätzliches, denn die Anmeldung funktioniert wie beim Schul-AD. Falls später doch ein Zugriff auf das Schul-AD möglich wäre, müssten im Wesentlichen nur Servername, Suchbasis und Zertifikat angepasst werden. Das eigene AD enthält Testkonten für Lernende und Lehrende. \\
 Das AD arbeitet mit dem Protokoll LDAP und unterstützt auch Kerberos. Bei Webanwendungen wird meistens LDAP verwendet. Die Anwendung nimmt Benutzername und Passwort entgegen und prüft sie über einen „Bind“ beim Verzeichnis (siehe Abbildung~\ref{fig:ad}). Dabei sind diese Punkte wichtig:
-
+ 
 \begin{itemize}
   \item \textbf{Verschlüsselung:} LDAP ohne Verschlüsselung (Port 389) ist für Passwörter nicht geeignet. Es braucht LDAPS (Port 636) oder LDAP mit StartTLS und eine Prüfung des Zertifikats.
   \item \textbf{Service-Account:} Ein technisches Konto mit möglichst wenigen Rechten sucht die Benutzer:innen im Verzeichnis.
   \item \textbf{Zuordnung der Benutzer:innen:} Der Anmeldename wird über Attribute wie \texttt{sAMAccountName} oder \texttt{userPrincipalName} gefunden und einem Django-Benutzerkonto zugeordnet.
   \item \textbf{Gruppen und Rollen:} AD-Gruppen, zum Beispiel für Lernende und Lehrende, können Rollen in der Plattform bekommen.
-  \item \textbf{Ausfall:} Wenn der Domänencontroller nicht erreichbar ist, soll nicht die ganze Plattform stillstehen. Dafür braucht es einen Notfallzugang für Administrierende oder mehrere Domänencontroller.
+  \item \textbf{Ausfall:} Wenn der Domänencontroller nicht erreichbar ist, soll nicht die ganze Plattform stillstehen. Da das AD auf demselben Server wie die Anwendung läuft, würde ein Serverausfall beides treffen. Deshalb braucht es einen Notfallzugang für Administrierende. Zusätzliche Domänencontroller wären eine Erweiterung.
 \end{itemize}
-
-
+ 
+ 
 \subsection{Anbindung an Django}
-
-Für Django gibt es das Paket \emph{django-auth-ldap}, das die Anmeldung über LDAP übernimmt. Laut Dokumentation prüft es Benutzer:innen gegen einen LDAP-Dienst und kann Benutzer, Gruppen und Berechtigungen verwalten. Für eine einfache Einrichtung reicht schon eine einzelne Vorlage für den Distinguished Name \parencite{django-auth-ldap}. Die Einstellungen im Backend macht \Luca. Das Verzeichnis, die Netzwerkverbindung und die Zertifikate stellt die Infrastruktur bereit.
-
+ 
+Für Django gibt es das Paket \emph{django-auth-ldap}, das die Anmeldung über LDAP übernimmt. Laut Dokumentation prüft es Benutzer:innen gegen einen LDAP-Dienst und kann Benutzer, Gruppen und Berechtigungen verwalten. Für eine einfache Einrichtung reicht schon eine einzelne Vorlage für den Distinguished Name \parencite{django-auth-ldap}. Die Einstellungen im Backend macht \Luca. Das eigene Verzeichnis, die Netzwerkverbindung und die Zertifikate stellt die Infrastruktur bereit.
+ 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{Bilder/Kumar/Ablauf_der_Authentifizierung_gegen_das_Active_Directory.png}
   \caption{Ablauf der Authentifizierung gegen das Active Directory (eigene Darstellung)}
   \label{fig:ad}
 \end{figure}
-
+ 
 \section{Import und Export von Lerninhalten}
-
+ 
 Eine Lernplattform braucht Inhalte. Wenn Lehrkräfte jede Lernkarte einzeln eingeben müssen, dauert das zu lang. Mit einem Import und Export können Inhalte in großen Mengen geladen und zwischen Systemen ausgetauscht werden (siehe Abbildung~\ref{fig:importexport}). Dabei sind diese Fragen zu klären:
-
+ 
 \begin{itemize}
   \item \textbf{Format:} CSV ist einfach, kann aber verschachtelte Inhalte wie Themen, Lernkarten, Antworten und Medien schlecht darstellen. JSON oder ein Paket aus JSON und Mediendateien eignet sich besser.
   \item \textbf{Schema und Version:} Ein beschriebenes Schema mit Versionsnummer verhindert, dass Importe nach Änderungen am Datenmodell unbemerkt falsch laufen.
@@ -111,149 +114,151 @@ Eine Lernplattform braucht Inhalte. Wenn Lehrkräfte jede Lernkarte einzeln eing
   \item \textbf{Fehler:} Ein Import soll ganz oder gar nicht durchgehen (Transaktion). Bei einem Fehler gibt es eine verständliche Liste.
   \item \textbf{Umfang des Exports:} Inhalte und Lernstände werden getrennt betrachtet, weil Lernstände persönliche Daten sind.
 \end{itemize}
-
-
+ 
+ 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{Bilder/Kumar/Ablauf_von_Import_und_Export.png}
   \caption{Ablauf von Import und Export (eigene Darstellung)}
   \label{fig:importexport}
 \end{figure}
-
+ 
 \section{Sicherheit, Datensicherung und Ausfallsicherheit}
-
+ 
 \subsection{Sicherheit und Datenschutz}
-
-Die Plattform speichert persönliche Daten von Lernenden, zum Beispiel Lernergebnisse. Deshalb gilt die Datenschutz-Grundverordnung (DSGVO). Wichtig sind auch Datenminimierung und „Privacy by Design“. Für die technische Absicherung werden die OWASP Top 10 verwendet. Das ist eine Liste der häufigsten Risiken bei Webanwendungen, zum Beispiel falsche Zugriffsrechte oder Fehler in der Konfiguration \parencite{owasp-top-ten}. Auf der Ebene der Infrastruktur gehören dazu: Die Datenbank ist nur aus dem Anwendungsnetz erreichbar, alle Verbindungen sind mit TLS verschlüsselt, Updates werden regelmäßig eingespielt, Passwörter und Schlüssel liegen in Secrets, und wichtige Ereignisse werden protokolliert.
-
+ 
+Die Plattform speichert persönliche Daten von Lernenden, zum Beispiel Lernergebnisse. Deshalb gilt die Datenschutz-Grundverordnung (DSGVO). Wichtig sind auch Datenminimierung und „Privacy by Design“. Für die technische Absicherung werden die OWASP Top 10 verwendet. Das ist eine Liste der häufigsten Risiken bei Webanwendungen, zum Beispiel falsche Zugriffsrechte oder Fehler in der Konfiguration \parencite{owasp-top-ten}. Auf der Ebene der Infrastruktur gehören dazu: Die Datenbank ist nur lokal beziehungsweise aus dem internen Netz erreichbar, alle Verbindungen sind mit TLS verschlüsselt, Windows und die Software werden regelmäßig aktualisiert, Passwörter und Schlüssel liegen nicht im Code, und wichtige Ereignisse werden protokolliert. Da das Active Directory auf demselben Server läuft wie die Anwendung, muss der Server besonders gut abgesichert sein. Wird er angegriffen, wären beide betroffen.
+ 
 \subsection{Datensicherung und Wiederherstellung}
-
+ 
 Für Backups gibt es zwei wichtige Kennzahlen. Das Recovery Point Objective (RPO) sagt, wie viele Daten höchstens verloren gehen dürfen. Das Recovery Time Objective (RTO) sagt, wie lange eine Wiederherstellung höchstens dauern darf. \\
-Laut der PostgreSQL-Dokumentation gibt es drei verschiedene Arten, die Datenbank zu sichern: einen SQL-Dump, ein Backup auf Dateisystemebene und die kontinuierliche Archivierung \parencite{postgres-backup-restore}. Bei der kontinuierlichen Archivierung wird eine Basissicherung mit den Write-Ahead-Log-Dateien kombiniert. Damit kann die Datenbank auf jeden beliebigen Zeitpunkt seit der Basissicherung zurückgesetzt werden (Point-in-Time-Recovery) \parencite{postgres-pitr}. Zusätzlich gilt die 3-2-1-Regel: drei Kopien auf zwei verschiedenen Speichermedien, eine davon an einem anderen Ort. Backups müssen außerdem regelmäßig durch eine Wiederherstellung getestet werden. Ein Backup, das nie getestet wurde, ist keine sichere Absicherung \parencite[Kap.~26]{beyer2016sre}.
-
-
-
+Laut der PostgreSQL-Dokumentation gibt es drei verschiedene Arten, die Datenbank zu sichern: einen SQL-Dump, ein Backup auf Dateisystemebene und die kontinuierliche Archivierung \parencite{postgres-backup-restore}. Bei der kontinuierlichen Archivierung wird eine Basissicherung mit den Write-Ahead-Log-Dateien kombiniert. Damit kann die Datenbank auf jeden beliebigen Zeitpunkt seit der Basissicherung zurückgesetzt werden (Point-in-Time-Recovery) \parencite{postgres-pitr}. Unter Windows lassen sich Sicherungen automatisch über die Aufgabenplanung zeitgesteuert ausführen. Zusätzlich gilt die 3-2-1-Regel: drei Kopien auf zwei verschiedenen Speichermedien, eine davon an einem anderen Ort. Auch das Active Directory muss gesichert werden, damit die Konten bei einem Serverausfall wiederhergestellt werden können. Backups müssen außerdem regelmäßig durch eine Wiederherstellung getestet werden. Ein Backup, das nie getestet wurde, ist keine sichere Absicherung \parencite[Kap.~26]{beyer2016sre}.
+ 
+ 
+ 
 \subsection{Ausfallsicherheit}
-
-Ausfallsicherheit entsteht, wenn wichtige Teile doppelt vorhanden sind und Fehler automatisch erkannt werden. Dazu gehören mehrere Anwendungsinstanzen hinter einem Load Balancer, Health-Checks mit automatischem Neustart von Containern und eine Datenbank mit Standby. Jede zusätzliche Absicherung macht das System aber komplizierter und aufwendiger. Deshalb muss sie zum tatsächlichen Bedarf einer Schulplattform passen.
-
+ 
+Ausfallsicherheit entsteht, wenn wichtige Teile doppelt vorhanden sind und Fehler automatisch erkannt werden. Dazu gehören mehrere Anwendungsinstanzen hinter einem Load Balancer, ein automatischer Neustart der Windows-Dienste bei Fehlern und eine Datenbank mit Standby. Jede zusätzliche Absicherung macht das System aber komplizierter und aufwendiger. Deshalb muss sie zum tatsächlichen Bedarf einer Schulplattform passen. Auf einem einzelnen Server ist der Server selbst die größte Schwachstelle. Backups und eine dokumentierte Wiederherstellung sind deshalb besonders wichtig.
+ 
 \section{Teststrategie}
-
+ 
 \subsection{Testarten und Werkzeuge}
-
+ 
 Die Tests zeigen, ob die Infrastruktur die Anforderungen erfüllt. Es gibt mehrere Arten: \\
-Performancetests messen Antwortzeit und Durchsatz bei normaler Last. Lasttests simulieren viele gleichzeitige Benutzer:innen, zum Beispiel eine ganze Klasse, die gleichzeitig einen Test startet. Stresstests erhöhen die Last über das erwartete Maß, um zu sehen, wo das System an seine Grenzen kommt. Stabilitätstests laufen mehrere Stunden und zeigen, ob zum Beispiel der Speicher langsam volläuft. Sicherheitstests suchen nach Schwachstellen und Konfigurationsfehlern und prüfen die Anmeldung \parencite[Kap.~17]{beyer2016sre}. Für Lasttests eignet sich Locust. Dort wird das Verhalten der Benutzer:innen in Python beschrieben \parencite{locust-docs}.
-
+Performancetests messen Antwortzeit und Durchsatz bei normaler Last. Lasttests simulieren viele gleichzeitige Benutzer:innen, zum Beispiel eine ganze Klasse, die gleichzeitig einen Test startet. Stresstests erhöhen die Last über das erwartete Maß, um zu sehen, wo das System an seine Grenzen kommt. Stabilitätstests laufen mehrere Stunden und zeigen, ob zum Beispiel der Speicher langsam volläuft. Sicherheitstests suchen nach Schwachstellen und Konfigurationsfehlern und prüfen die Anmeldung \parencite[Kap.~17]{beyer2016sre}. Für Lasttests eignet sich Locust. Dort wird das Verhalten der Benutzer:innen in Python beschrieben \parencite{locust-docs}. Zusätzlich wird getestet, ob sich das System anhand des Repositorys auf einem frischen Server neu aufbauen lässt.
+ 
 \subsection{Messgrößen}
-
-Tests sind nur aussagekräftig, wenn vorher festgelegt wird, was gemessen wird. Dafür sind geplant: das 95.\ Perzentil der Antwortzeit, die Fehlerrate, die Anfragen pro Sekunde und die Auslastung von CPU, Speicher und Datenbank. Die Ergebnisse werden dokumentiert und ausgewertet.
-
+ 
+Tests sind nur aussagekräftig, wenn vorher festgelegt wird, was gemessen wird. Dafür sind geplant: das 95.\ Perzentil der Antwortzeit, die Fehlerrate, die Anfragen pro Sekunde und die Auslastung von CPU, Speicher und Datenbank. Da Anwendung, Datenbank und Active Directory auf demselben Server laufen, wird auch gemessen, wie sich die Dienste gegenseitig beeinflussen. Die Ergebnisse werden dokumentiert und ausgewertet.
+ 
 \section{Konkurrenzanalyse}
-
+ 
 \subsection{Positionierung, Ziele und Kriterien}
-
-Die Arbeit liegt im Bereich selbst betriebener Lernplattformen für den Schulunterricht, bei denen die Anmeldung zentral läuft. Ziel ist eine Infrastruktur, die sich jederzeit neu aufbauen lässt, mitwächst, die Anmeldung über das Schulnetzwerk erlaubt und Lerninhalte offen austauschbar macht. Daraus ergeben sich vier Kriterien: Skalierbarkeit und Betrieb, Anbindung an Verzeichnisdienste, Qualität und Offenheit von Import und Export und Kontrolle über die eigenen Daten.
-
+ 
+Die Arbeit liegt im Bereich selbst betriebener Lernplattformen für den Schulunterricht, bei denen die Anmeldung zentral läuft. Ziel ist eine Infrastruktur, die sich jederzeit neu aufbauen lässt, mitwächst, die Anmeldung über ein Active Directory erlaubt und Lerninhalte offen austauschbar macht. Daraus ergeben sich vier Kriterien: Skalierbarkeit und Betrieb, Anbindung an Verzeichnisdienste, Qualität und Offenheit von Import und Export und Kontrolle über die eigenen Daten.
+ 
 \subsection{Auswahl der Konkurrenz}
-
+ 
 Auf der ersten Ebene, also mit ähnlichem Zweck und Einsatz, wurde Moodle gewählt. Moodle ist eine Lernplattform, die Schulen und Hochschulen selbst betreiben. Auf der zweiten Ebene wurden die Lernkarten-Programme Anki und Quizlet untersucht. Sie erfüllen dieselbe Aufgabe, nämlich Lernen mit Karten, aber auf andere Weise: Anki läuft lokal, Quizlet als Cloud-Dienst. Als Beispiel für eine Django-Anwendung mit AD-Anbindung dient zusätzlich Review Board. Die Analyse stützt sich auf die öffentliche Dokumentation der Hersteller und nicht auf eigene Langzeittests. Screenshots der untersuchten Funktionen kommen zur besseren Nachvollziehbarkeit in den Anhang.
-
+ 
 \subsection{Moodle}
-
+ 
 \textbf{Stärken.}
 \begin{enumerate}
   \item Skalierbarkeit: Die Schichten der Anwendung sind klar getrennt. Dadurch kann Moodle auf mehrere Webserver verteilt werden, die dieselbe Datenbank und denselben Dateibereich benutzen \parencite{moodle-performance}.
   \item Verzeichnisanbindung: Moodle kann Anmeldungen über LDAP prüfen, ausdrücklich auch mit Microsoft Active Directory \parencite{moodle-ldap}.
   \item Passwörter: Die Passwörter der LDAP-Benutzer:innen müssen nicht in Moodle gespeichert werden \parencite{moodle-ldap}.
 \end{enumerate}
-
+ 
 \textbf{Schwächen.}
 \begin{enumerate}
   \item Viel Einrichtungsaufwand: Auch bei gleichem Servertyp wie AD kann jede Installation eine ganz andere Verzeichnisstruktur haben. Die Einstellungen müssen deshalb jedes Mal angepasst werden \parencite{moodle-ldap}.
   \item Einschränkungen: Laut Dokumentation funktionieren bei Active Directory manche Vorgänge nicht, zum Beispiel das Aktualisieren von Daten im Verzeichnis. Die Anmeldung selbst ist davon nicht betroffen \parencite{moodle-ldap}.
   \item Viel Feintuning: Im Betrieb sind manuelle Anpassungen nötig, zum Beispiel bei den Apache-Einstellungen. Bei sehr großen Systemen mit Lastverteilung wird die Leistung von Dateispeicher und Cache wichtig \parencite{moodle-performance}.
 \end{enumerate}
-
-\textbf{Chancen.} Eine schlankere Plattform kann den Betrieb einfacher machen, indem die AD-Einstellungen für das Schulnetzwerk fertig dokumentiert sind und alles versioniert bereitgestellt wird.
-
+ 
+\textbf{Chancen.} Eine schlankere Plattform kann den Betrieb einfacher machen, indem die AD-Einstellungen fertig dokumentiert sind und alles versioniert im Repository bereitgestellt wird.
+ 
 \subsection{Anki}
-
+ 
 \textbf{Stärken.}
 \begin{enumerate}
   \item Austauschformat: Ein Deckpaket (.apkg) enthält Karten, Notizen, Notiztypen sowie Ton- und Bilddateien in einer einzigen Datei \parencite{anki-exporting}.
   \item Import fügt nur hinzu: Beim Import eines Deckpakets werden die Inhalte der Sammlung hinzugefügt und nichts überschrieben \parencite{anki-exporting}.
   \item Inhalt und Lernstand getrennt: Beim Export kann man die Lerninformationen weglassen, damit ein Deck sauber weitergegeben werden kann \parencite{anki-exporting}.
 \end{enumerate}
-
+ 
 \textbf{Schwächen.}
 \begin{enumerate}
   \item Gefährlicher Vollimport: Wird eine Collection-Datei (.colpkg) importiert, werden alle aktuellen Karten gelöscht und durch den Inhalt der Datei ersetzt \parencite{anki-exporting}.
   \item Eingeschränkter Rückimport: Ein Textexport kann nur dann zuverlässig wieder importiert werden, wenn das erste Feld nicht verändert wird \parencite{anki-exporting}.
   \item Austausch per Datei: Inhalte werden von Hand als Dateien weitergegeben. Eine zentrale Benutzer- und Rechteverwaltung für den Schulbetrieb kommt in den untersuchten Teilen der Dokumentation nicht vor.
 \end{enumerate}
-
+ 
 \textbf{Chancen.} Die Ideen vom Import, der nur hinzufügt, und vom getrennten Export von Inhalt und Lernstand lassen sich in einem zentralen System mit Rechteverwaltung und einer Vorschau vor dem Import besser umsetzen.
-
+ 
 \subsection{Quizlet}
-
+ 
 \textbf{Stärken.}
 \begin{enumerate}
   \item Export eigener Sets: Begriffe und Definitionen von eigenen Sets können exportiert werden \parencite{quizlet-exporting}.
   \item Freigabe: Das Hilfecenter beschreibt Einstellungen für die Sichtbarkeit von Sets, für Bearbeitungsrechte und für Passwortschutz \parencite{quizlet-sharing}.
   \item Komfort: Sets können gedruckt, eingebettet und in den mobilen Apps offline gelernt werden \parencite{quizlet-sharing}.
 \end{enumerate}
-
+ 
 \textbf{Schwächen.}
 \begin{enumerate}
   \item Eingeschränkter Export: Bilder können aus Urheberrechtsgründen nicht exportiert werden, und kopierte Sets lassen sich gar nicht exportieren \parencite{quizlet-exporting}.
   \item Premium-Beschränkungen: In der kostenlosen Version können Sets, die mit Premium-Funktionen erstellt wurden, nicht kopiert und gespeichert werden \parencite{quizlet-copying}.
   \item Abhängigkeit vom Anbieter: Die Inhalte liegen auf der Plattform des Anbieters. Die Schule hat keinen Einfluss auf Betrieb und Datenspeicherung.
 \end{enumerate}
-
+ 
 \textbf{Chancen.} Eine selbst betriebene Plattform kann Inhalte vollständig mit Medien exportierbar halten, und die Daten bleiben bei der Schule.
-
+ 
 \subsection{Gesamtvergleich}
-
+ 
 \begin{center}
 \small
 \begin{tabular}{|p{2.0cm}|p{3.4cm}|p{3.6cm}|p{4.0cm}|}
 \hline
 \textbf{Konkurrenz} & \textbf{Wichtigste Stärke} & \textbf{Wichtigste Schwäche} & \textbf{Folge für die Arbeit} \\ \hline
-Moodle & Lastverteilung, LDAP/AD & Viel Einrichtung und Feintuning & Zustandslose Instanzen, aber einfache, dokumentierte Konfiguration \\ \hline
+Moodle & Lastverteilung, LDAP/AD & Viel Einrichtung und Feintuning & Zustandslose Anwendung, aber einfache, dokumentierte Konfiguration \\ \hline
 Anki & Austauschpaket, Import fügt nur hinzu & Vollimport löscht Karten, Austausch von Hand & Austauschformat mit Medien, nur hinzufügender Import \\ \hline
 Quizlet & Einfacher Export eigener Sets & Kein Export von Bildern, abhängig vom Anbieter & Offenes, vollständiges Exportformat, eigene Datenhaltung \\ \hline
 \end{tabular}
 \end{center}
 Als Vorbild für die AD-Anbindung in einer Django-Anwendung dient Review Board. Laut Dokumentation wird das AD-Backend über Domänenname, Suchbasis und TLS eingestellt. Es findet Domänencontroller über DNS und legt Benutzer:innen, die nur im AD vorhanden sind, beim ersten Login in der lokalen Datenbank an \parencite{reviewboard-ad}.
-
+ 
 \section{Fazit der Vorfeldanalyse}
-
+ 
 \subsection{Getroffene Entscheidungen}
-
+ 
 Aus der Vorfeldanalyse, der Aufgabenstellung und der Konkurrenzanalyse ergeben sich diese Entscheidungen:
-
+ 
 \begin{description}
-  \item[DE-1 Container.] Die Plattform läuft mit Docker Compose (Reverse Proxy, Django mit Gunicorn, Datenbank). Die Konfigurationen liegen versioniert im Repository, die Zugangsdaten in Umgebungsvariablen oder Secrets. Die Entscheidung fiel darauf, weil sich die Umgebung damit jederzeit neu aufbauen lässt und der Einrichtungsaufwand kleiner wird, der bei Moodle auffällt. Auf Kubernetes wird verzichtet, weil der Aufwand für dieses Projekt zu groß wäre.
-  \item[DE-2 Zustandslose Instanzen.] Die Anwendung läuft so, dass mehrere Instanzen hinter nginx arbeiten können, ohne Sitzungen oder Dateien bei sich zu speichern. Das ist dem Skalierungsmodell von Moodle nachempfunden.
-  \item[DE-3 PostgreSQL.] Die Datenbank läuft in einem eigenen Container mit dauerhaftem Speicher und ist nur aus dem internen Netz erreichbar. Connection Pooling und passende Indizes sorgen für Geschwindigkeit. Ausschlaggebend waren die sichere Verarbeitung von Transaktionen, die Unterstützung durch Django und die guten Backup-Möglichkeiten.
-  \item[DE-4 Anmeldung über LDAPS.] Die Anmeldung läuft verschlüsselt gegen das Schul-AD, mit einem Service-Account mit möglichst wenigen Rechten. AD-Gruppen werden Rollen zugeordnet, und Benutzer:innen werden beim ersten Login lokal angelegt, nach dem Vorbild von Review Board. Ein lokaler Administrationszugang bleibt als Notfallweg. Für Entwicklung und Tests gibt es ein eigenes Test-Verzeichnis.
+  \item[DE-1 Windows-Server ohne Container.] Die Plattform läuft direkt auf einem Windows-Server der Schule. Steht kein Schulserver zur Verfügung, läuft sie lokal. Der Code, die Konfigurationsvorlagen, die festgelegten Paketversionen und die Installationsanleitung liegen in einem GitHub-Repository, die Zugangsdaten in Umgebungsvariablen. Die Entscheidung fiel gegen Docker, weil ein einzelner Server ohne Container weniger Ressourcen braucht und eine Schicht weniger eingerichtet werden muss. Auf Kubernetes wird verzichtet, weil der Aufwand für dieses Projekt zu groß wäre. Dass sich die Umgebung neu aufbauen lässt, wird durch einen Test auf einem frischen System nachgewiesen.
+  \item[DE-2 Zustandslose Anwendung.] Die Anwendung ist so gebaut, dass bei Bedarf weitere Instanzen auf weiteren Servern laufen können, ohne Sitzungen oder Dateien bei sich zu speichern. Für den Anfang läuft eine Instanz als Windows-Dienst mit einem Windows-tauglichen Produktionsserver (zum Beispiel Waitress). Das ist dem Skalierungsmodell von Moodle nachempfunden.
+  \item[DE-3 PostgreSQL.] Die Datenbank läuft als eigener Dienst auf dem Server mit dauerhaftem Speicher und ist nur lokal beziehungsweise aus dem internen Netz erreichbar. Connection Pooling und passende Indizes sorgen für Geschwindigkeit. Ausschlaggebend waren die sichere Verarbeitung von Transaktionen, die Unterstützung durch Django und die guten Backup-Möglichkeiten.
+  \item[DE-4 Eigenes Active Directory mit LDAPS.] Weil die Schule keinen Zugriff auf ihr Active Directory gibt, wird ein eigenes AD auf Windows Server eingerichtet, voraussichtlich auf demselben Server wie die Anwendung. Die Anmeldung läuft verschlüsselt gegen dieses AD, mit einem Service-Account mit möglichst wenigen Rechten. AD-Gruppen werden Rollen zugeordnet, und Benutzer:innen werden beim ersten Login lokal angelegt, nach dem Vorbild von Review Board. Ein lokaler Administrationszugang bleibt als Notfallweg. Das eigene AD enthält Testkonten und dient gleichzeitig als Test-Verzeichnis für Entwicklung und Tests.
   \item[DE-5 Offenes Austauschformat.] Lerninhalte werden als JSON-Paket mit Versionsnummer und Medienordner ausgetauscht. Der Import fügt nur hinzu, erzeugt keine Duplikate, läuft als Transaktion, prüft die Dateien und zeigt vorher eine Vorschau mit Fehlerliste. Exportiert werden standardmäßig nur Inhalte und keine persönlichen Lernstände. Die Entscheidung stützt sich auf die Stärken von Anki und die Schwächen von Quizlet.
-  \item[DE-6 Mehrstufiges Backup.] Geplant sind tägliche Sicherungen, dazu laufende WAL-Archivierung für die Wiederherstellung auf einen Zeitpunkt, Aufbewahrung nach der 3-2-1-Regel, festgelegte RPO- und RTO-Ziele und regelmäßige, protokollierte Wiederherstellungstests.
-  \item[DE-7 Gestaffelte Tests.] Lasttests mit Locust mit realistischen Szenarien, festgelegte Messgrößen, ein Stabilitätstest über mehrere Stunden und eine Sicherheitsprüfung nach den OWASP Top 10. Die Ergebnisse werden dokumentiert und fließen in Verbesserungen ein.
+  \item[DE-6 Mehrstufiges Backup.] Geplant sind tägliche Sicherungen über die Windows-Aufgabenplanung, dazu laufende WAL-Archivierung für die Wiederherstellung auf einen Zeitpunkt, Sicherung des Active Directory, Aufbewahrung nach der 3-2-1-Regel, festgelegte RPO- und RTO-Ziele und regelmäßige, protokollierte Wiederherstellungstests.
+  \item[DE-7 Gestaffelte Tests.] Lasttests mit Locust mit realistischen Szenarien, festgelegte Messgrößen, ein Stabilitätstest über mehrere Stunden und eine Sicherheitsprüfung nach den OWASP Top 10. Zusätzlich wird der Neuaufbau aus dem Repository getestet. Die Ergebnisse werden dokumentiert und fließen in Verbesserungen ein.
 \end{description}
-
+ 
 \subsection{Risiken und offene Fragen}
-
+ 
 \begin{itemize}
-  \item \textbf{Zugang zum Schul-AD:} Es ist noch offen, ob und wie die Schul-IT einen Service-Account und einen Testzugang bereitstellt.
-  \item \textbf{Wo der Server läuft:} Ob im Schulnetzwerk oder extern, beeinflusst die Erreichbarkeit des AD, den Datenschutz und die nötige Hardware.
+  \item \textbf{Schulserver:} Es ist noch offen, ob die Schule einen Server bereitstellt. Wenn nicht, läuft die Plattform lokal. Das Active Directory ist eine Rolle von Windows Server. Dann muss also lokal ein Windows Server eingerichtet werden, zum Beispiel in einer virtuellen Maschine.
+  \item \textbf{Alles auf einem Server:} Anwendung, Datenbank und Active Directory auf demselben Server sind einfacher einzurichten, aber nicht die empfohlene Praxis. Ein Ausfall oder ein Angriff betrifft alles zugleich. Eine Trennung auf mehrere Server oder virtuelle Maschinen wäre sicherer.
+  \item \textbf{Eigenes statt Schul-AD:} Das Projektziel einer zentralen Anmeldung über das Schulnetzwerk wird durch ein eigenes AD ersetzt. Dieses enthält nur Testkonten und ist nicht mit den echten Schulkonten verbunden.
+  \item \textbf{Reproduzierbarkeit ohne Container:} Ohne Docker hängt der Neuaufbau davon ab, dass Anleitung und Versionen im Repository vollständig sind. Das muss getestet werden, sonst gibt es Unterschiede zwischen Servern.
   \item \textbf{Anzahl der Benutzer:innen:} Wie viele Personen gleichzeitig online sein werden, ist nicht bekannt und muss für die Lasttests angenommen werden.
   \item \textbf{Umfang der Ausfallsicherheit:} Wie viel Absicherung im Projekt sinnvoll und machbar ist, wird im Infrastrukturkonzept festgelegt.
   \item \textbf{Abstimmung im Team:} Die Aufteilung beim Backend (LDAP-Einstellungen, Import- und Export-Logik) und beim Frontend (Oberfläche für Import und Export) wird mit \Luca und \Jakob genauer geklärt.
 \end{itemize}
-
-\section*{Abbildungsverzeichnis (Jai Kumar)}
-
+ 
+\section*{Abbildungsverzeichnis (\Jai)}
+ 
 \begin{itemize}
   \item Abb.~\ref{fig:architektur}: Architekturübersicht der Infrastruktur (eigene Darstellung)
   \item Abb.~\ref{fig:ad}: Ablauf der Authentifizierung gegen das Active Directory (eigene Darstellung)
