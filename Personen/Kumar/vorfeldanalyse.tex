@@ -56,8 +56,7 @@ Dafür werden Container verwendet. Ein Container enthält die Anwendung und alle
 
 \subsection{Skalierbarkeit und Reverse Proxy}
 
-Skalierbar heißt, dass das System auch mit mehr Benutzer:innen gut funktioniert. Es gibt zwei Wege. Bei der vertikalen Skalierung bekommt der Server stärkere Hardware. Bei der horizontalen Skalierung laufen mehrere Instanzen der Anwendung. Dafür dürfen die Instanzen keine Daten bei sich selbst speichern, sie müssen zustandslos sein. Sitzungen und Dateien liegen dann in der Datenbank, in einem gemeinsamen Cache oder in einem gemeinsamen Speicher.\footnote{Vgl. Kleppmann, Martin: Designing Data-Intensive Applications. Sebastopol: O'Reilly Media 2017, Kap. 1 und 5.\\ % TODO: Seitenzahlen prüfen und ergänzen 
-}
+Skalierbar heißt, dass das System auch mit mehr Benutzer:innen gut funktioniert. Es gibt zwei Wege. Bei der vertikalen Skalierung bekommt der Server stärkere Hardware. Bei der horizontalen Skalierung laufen mehrere Instanzen der Anwendung. Dafür dürfen die Instanzen keine Daten bei sich selbst speichern, sie müssen zustandslos sein. Sitzungen und Dateien liegen dann in der Datenbank, in einem gemeinsamen Cache oder in einem gemeinsamen Speicher \parencite[Kap.~1 und 5]{kleppmann2017}.
 Vor den Instanzen steht ein Reverse Proxy, zum Beispiel nginx. Er nimmt die Anfragen an, kümmert sich um die verschlüsselte Verbindung (TLS) und verteilt die Anfragen auf die Instanzen. Django läuft im Betrieb meistens hinter einem Server wie Gunicorn, der mehrere Prozesse starten kann. Statische Dateien wie Bilder oder Stylesheets liefert der Proxy direkt aus. \\
 Daraus ergibt sich der Aufbau in Schichten: Browser, Reverse Proxy, Django-Anwendung und Datenbank. Dazu kommen das Active Directory und die Orte, an denen die Backups liegen (siehe Abbildung~\ref{fig:architektur}).
 \begin{figure}[htbp]
@@ -91,7 +90,7 @@ Das AD arbeitet mit dem Protokoll LDAP und unterstützt auch Kerberos. Bei Weban
 
 \subsection{Anbindung an Django}
 
-Für Django gibt es das Paket \emph{django-auth-ldap}, das die Anmeldung über LDAP übernimmt. Laut Dokumentation prüft es Benutzer:innen gegen einen LDAP-Dienst und kann Benutzer, Gruppen und Berechtigungen verwalten. Für eine einfache Einrichtung reicht schon eine einzelne Vorlage für den Distinguished Name.\footnote{Vgl. django-auth-ldap: Django LDAP authentication backend, \url{https://pypi.org/project/django-auth-ldap} (zuletzt abgerufen am 16.10.2026).} Die Einstellungen im Backend macht \Luca. Das Verzeichnis, die Netzwerkverbindung und die Zertifikate stellt die Infrastruktur bereit.
+Für Django gibt es das Paket \emph{django-auth-ldap}, das die Anmeldung über LDAP übernimmt. Laut Dokumentation prüft es Benutzer:innen gegen einen LDAP-Dienst und kann Benutzer, Gruppen und Berechtigungen verwalten. Für eine einfache Einrichtung reicht schon eine einzelne Vorlage für den Distinguished Name \parencite{django-auth-ldap}. Die Einstellungen im Backend macht \Luca. Das Verzeichnis, die Netzwerkverbindung und die Zertifikate stellt die Infrastruktur bereit.
 
 \begin{figure}[htbp]
   \centering
@@ -125,13 +124,12 @@ Eine Lernplattform braucht Inhalte. Wenn Lehrkräfte jede Lernkarte einzeln eing
 
 \subsection{Sicherheit und Datenschutz}
 
-Die Plattform speichert persönliche Daten von Lernenden, zum Beispiel Lernergebnisse. Deshalb gilt die Datenschutz-Grundverordnung (DSGVO). Wichtig sind auch Datenminimierung und „Privacy by Design“. Für die technische Absicherung werden die OWASP Top 10 verwendet. Das ist eine Liste der häufigsten Risiken bei Webanwendungen, zum Beispiel falsche Zugriffsrechte oder Fehler in der Konfiguration.\footnote{Vgl. OWASP Foundation: OWASP Top 10, \url{https://owasp.org/www-project-top-ten/} (zuletzt abgerufen am 16.10.2026).} Auf der Ebene der Infrastruktur gehören dazu: Die Datenbank ist nur aus dem Anwendungsnetz erreichbar, alle Verbindungen sind mit TLS verschlüsselt, Updates werden regelmäßig eingespielt, Passwörter und Schlüssel liegen in Secrets, und wichtige Ereignisse werden protokolliert.
+Die Plattform speichert persönliche Daten von Lernenden, zum Beispiel Lernergebnisse. Deshalb gilt die Datenschutz-Grundverordnung (DSGVO). Wichtig sind auch Datenminimierung und „Privacy by Design“. Für die technische Absicherung werden die OWASP Top 10 verwendet. Das ist eine Liste der häufigsten Risiken bei Webanwendungen, zum Beispiel falsche Zugriffsrechte oder Fehler in der Konfiguration \parencite{owasp-top-ten}. Auf der Ebene der Infrastruktur gehören dazu: Die Datenbank ist nur aus dem Anwendungsnetz erreichbar, alle Verbindungen sind mit TLS verschlüsselt, Updates werden regelmäßig eingespielt, Passwörter und Schlüssel liegen in Secrets, und wichtige Ereignisse werden protokolliert.
 
 \subsection{Datensicherung und Wiederherstellung}
 
 Für Backups gibt es zwei wichtige Kennzahlen. Das Recovery Point Objective (RPO) sagt, wie viele Daten höchstens verloren gehen dürfen. Das Recovery Time Objective (RTO) sagt, wie lange eine Wiederherstellung höchstens dauern darf. \\
-Laut der PostgreSQL-Dokumentation gibt es drei verschiedene Arten, die Datenbank zu sichern: einen SQL-Dump, ein Backup auf Dateisystemebene und die kontinuierliche Archivierung.\footnote{Vgl. PostgreSQL Global Development Group: Backup and Restore, \url{https://access.crunchydata.com/documentation/postgresql95/9.5.7/backup.html} (zuletzt abgerufen am 16.10.2026).} Bei der kontinuierlichen Archivierung wird eine Basissicherung mit den Write-Ahead-Log-Dateien kombiniert. Damit kann die Datenbank auf jeden beliebigen Zeitpunkt seit der Basissicherung zurückgesetzt werden (Point-in-Time-Recovery).\footnote{Vgl. PostgreSQL Global Development Group: Continuous Archiving and Point-in-Time Recovery (PITR), \url{https://www.postgresql.org/docs/19/continuous-archiving.html} (zuletzt abgerufen am 16.10.2026).} Zusätzlich gilt die 3-2-1-Regel: drei Kopien auf zwei verschiedenen Speichermedien, eine davon an einem anderen Ort. Backups müssen außerdem regelmäßig durch eine Wiederherstellung getestet werden. Ein Backup, das nie getestet wurde, ist keine sichere Absicherung.\footnote{Vgl. Beyer, Betsy u.\,a. (Hrsg.): Site Reliability Engineering. Sebastopol: O'Reilly Media 2016, Kap. 26. % TODO: Kapitel und Seitenzahlen prüfen
-}
+Laut der PostgreSQL-Dokumentation gibt es drei verschiedene Arten, die Datenbank zu sichern: einen SQL-Dump, ein Backup auf Dateisystemebene und die kontinuierliche Archivierung \parencite{postgres-backup-restore}. Bei der kontinuierlichen Archivierung wird eine Basissicherung mit den Write-Ahead-Log-Dateien kombiniert. Damit kann die Datenbank auf jeden beliebigen Zeitpunkt seit der Basissicherung zurückgesetzt werden (Point-in-Time-Recovery) \parencite{postgres-pitr}. Zusätzlich gilt die 3-2-1-Regel: drei Kopien auf zwei verschiedenen Speichermedien, eine davon an einem anderen Ort. Backups müssen außerdem regelmäßig durch eine Wiederherstellung getestet werden. Ein Backup, das nie getestet wurde, ist keine sichere Absicherung \parencite[Kap.~26]{beyer2016sre}.
 
 
 
@@ -144,9 +142,7 @@ Ausfallsicherheit entsteht, wenn wichtige Teile doppelt vorhanden sind und Fehle
 \subsection{Testarten und Werkzeuge}
 
 Die Tests zeigen, ob die Infrastruktur die Anforderungen erfüllt. Es gibt mehrere Arten: \\
-Performancetests messen Antwortzeit und Durchsatz bei normaler Last. Lasttests simulieren viele gleichzeitige Benutzer:innen, zum Beispiel eine ganze Klasse, die gleichzeitig einen Test startet. Stresstests erhöhen die Last über das erwartete Maß, um zu sehen, wo das System an seine Grenzen kommt. Stabilitätstests laufen mehrere Stunden und zeigen, ob zum Beispiel der Speicher langsam volläuft. Sicherheitstests suchen nach Schwachstellen und Konfigurationsfehlern und prüfen die Anmeldung. \\\footnote{Vgl. Beyer, Betsy u.\,a. (Hrsg.): Site Reliability Engineering. Sebastopol: O'Reilly Media 2016, Kap. 17. % TODO: Kapitel und Seitenzahlen prüfen 
-}
-Für Lasttests eignet sich Locust. Dort wird das Verhalten der Benutzer:innen in Python beschrieben.\footnote{Vgl. Locust Project: Locust Documentation, \url{https://docs.locust.io/} (zuletzt abgerufen am 16.10.2026).}
+Performancetests messen Antwortzeit und Durchsatz bei normaler Last. Lasttests simulieren viele gleichzeitige Benutzer:innen, zum Beispiel eine ganze Klasse, die gleichzeitig einen Test startet. Stresstests erhöhen die Last über das erwartete Maß, um zu sehen, wo das System an seine Grenzen kommt. Stabilitätstests laufen mehrere Stunden und zeigen, ob zum Beispiel der Speicher langsam volläuft. Sicherheitstests suchen nach Schwachstellen und Konfigurationsfehlern und prüfen die Anmeldung \parencite[Kap.~17]{beyer2016sre}. Für Lasttests eignet sich Locust. Dort wird das Verhalten der Benutzer:innen in Python beschrieben \parencite{locust-docs}.
 
 \subsection{Messgrößen}
 
@@ -166,16 +162,16 @@ Auf der ersten Ebene, also mit ähnlichem Zweck und Einsatz, wurde Moodle gewäh
 
 \textbf{Stärken.}
 \begin{enumerate}
-  \item Skalierbarkeit: Die Schichten der Anwendung sind klar getrennt. Dadurch kann Moodle auf mehrere Webserver verteilt werden, die dieselbe Datenbank und denselben Dateibereich benutzen.\footnote{Vgl. Moodle Docs: Performance recommendations, \url{https://docs.moodle.org/37/en/Performance_recommendations} (zuletzt abgerufen am 16.10.2026).}
-  \item Verzeichnisanbindung: Moodle kann Anmeldungen über LDAP prüfen, ausdrücklich auch mit Microsoft Active Directory.\footnote{Vgl. Moodle Docs: LDAP authentication, \url{https://docs.moodle.org/400/en/LDAP_authentication} (zuletzt abgerufen am 16.10.2026).}
-  \item Passwörter: Die Passwörter der LDAP-Benutzer:innen müssen nicht in Moodle gespeichert werden.\footnote{Vgl. ebd.}
+  \item Skalierbarkeit: Die Schichten der Anwendung sind klar getrennt. Dadurch kann Moodle auf mehrere Webserver verteilt werden, die dieselbe Datenbank und denselben Dateibereich benutzen \parencite{moodle-performance}.
+  \item Verzeichnisanbindung: Moodle kann Anmeldungen über LDAP prüfen, ausdrücklich auch mit Microsoft Active Directory \parencite{moodle-ldap}.
+  \item Passwörter: Die Passwörter der LDAP-Benutzer:innen müssen nicht in Moodle gespeichert werden \parencite{moodle-ldap}.
 \end{enumerate}
 
 \textbf{Schwächen.}
 \begin{enumerate}
-  \item Viel Einrichtungsaufwand: Auch bei gleichem Servertyp wie AD kann jede Installation eine ganz andere Verzeichnisstruktur haben. Die Einstellungen müssen deshalb jedes Mal angepasst werden.\footnote{Vgl. ebd.}
-  \item Einschränkungen: Laut Dokumentation funktionieren bei Active Directory manche Vorgänge nicht, zum Beispiel das Aktualisieren von Daten im Verzeichnis. Die Anmeldung selbst ist davon nicht betroffen.\footnote{Vgl. ebd.}
-  \item Viel Feintuning: Im Betrieb sind manuelle Anpassungen nötig, zum Beispiel bei den Apache-Einstellungen. Bei sehr großen Systemen mit Lastverteilung wird die Leistung von Dateispeicher und Cache wichtig.\footnote{Vgl. Moodle Docs: Performance recommendations, \url{https://docs.moodle.org/37/en/Performance_recommendations} (zuletzt abgerufen am 16.10.2026).}
+  \item Viel Einrichtungsaufwand: Auch bei gleichem Servertyp wie AD kann jede Installation eine ganz andere Verzeichnisstruktur haben. Die Einstellungen müssen deshalb jedes Mal angepasst werden \parencite{moodle-ldap}.
+  \item Einschränkungen: Laut Dokumentation funktionieren bei Active Directory manche Vorgänge nicht, zum Beispiel das Aktualisieren von Daten im Verzeichnis. Die Anmeldung selbst ist davon nicht betroffen \parencite{moodle-ldap}.
+  \item Viel Feintuning: Im Betrieb sind manuelle Anpassungen nötig, zum Beispiel bei den Apache-Einstellungen. Bei sehr großen Systemen mit Lastverteilung wird die Leistung von Dateispeicher und Cache wichtig \parencite{moodle-performance}.
 \end{enumerate}
 
 \textbf{Chancen.} Eine schlankere Plattform kann den Betrieb einfacher machen, indem die AD-Einstellungen für das Schulnetzwerk fertig dokumentiert sind und alles versioniert bereitgestellt wird.
@@ -184,15 +180,15 @@ Auf der ersten Ebene, also mit ähnlichem Zweck und Einsatz, wurde Moodle gewäh
 
 \textbf{Stärken.}
 \begin{enumerate}
-  \item Austauschformat: Ein Deckpaket (.apkg) enthält Karten, Notizen, Notiztypen sowie Ton- und Bilddateien in einer einzigen Datei.\footnote{Vgl. Anki Manual: Exporting, \url{https://docs.ankiweb.net/exporting.html} (zuletzt abgerufen am 16.10.2026).}
-  \item Import fügt nur hinzu: Beim Import eines Deckpakets werden die Inhalte der Sammlung hinzugefügt und nichts überschrieben.\footnote{Vgl. ebd.}
-  \item Inhalt und Lernstand getrennt: Beim Export kann man die Lerninformationen weglassen, damit ein Deck sauber weitergegeben werden kann.\footnote{Vgl. ebd.}
+  \item Austauschformat: Ein Deckpaket (.apkg) enthält Karten, Notizen, Notiztypen sowie Ton- und Bilddateien in einer einzigen Datei \parencite{anki-exporting}.
+  \item Import fügt nur hinzu: Beim Import eines Deckpakets werden die Inhalte der Sammlung hinzugefügt und nichts überschrieben \parencite{anki-exporting}.
+  \item Inhalt und Lernstand getrennt: Beim Export kann man die Lerninformationen weglassen, damit ein Deck sauber weitergegeben werden kann \parencite{anki-exporting}.
 \end{enumerate}
 
 \textbf{Schwächen.}
 \begin{enumerate}
-  \item Gefährlicher Vollimport: Wird eine Collection-Datei (.colpkg) importiert, werden alle aktuellen Karten gelöscht und durch den Inhalt der Datei ersetzt.\footnote{Vgl. ebd.}
-  \item Eingeschränkter Rückimport: Ein Textexport kann nur dann zuverlässig wieder importiert werden, wenn das erste Feld nicht verändert wird.\footnote{Vgl. ebd.}
+  \item Gefährlicher Vollimport: Wird eine Collection-Datei (.colpkg) importiert, werden alle aktuellen Karten gelöscht und durch den Inhalt der Datei ersetzt \parencite{anki-exporting}.
+  \item Eingeschränkter Rückimport: Ein Textexport kann nur dann zuverlässig wieder importiert werden, wenn das erste Feld nicht verändert wird \parencite{anki-exporting}.
   \item Austausch per Datei: Inhalte werden von Hand als Dateien weitergegeben. Eine zentrale Benutzer- und Rechteverwaltung für den Schulbetrieb kommt in den untersuchten Teilen der Dokumentation nicht vor.
 \end{enumerate}
 
@@ -202,15 +198,15 @@ Auf der ersten Ebene, also mit ähnlichem Zweck und Einsatz, wurde Moodle gewäh
 
 \textbf{Stärken.}
 \begin{enumerate}
-  \item Export eigener Sets: Begriffe und Definitionen von eigenen Sets können exportiert werden.\footnote{Vgl. Quizlet Help Center: Exporting your sets, \url{https://help.quizlet.com/hc/en-au/articles/360034345672-Exporting-your-sets} (zuletzt abgerufen am 16.10.2026).}
-  \item Freigabe: Das Hilfecenter beschreibt Einstellungen für die Sichtbarkeit von Sets, für Bearbeitungsrechte und für Passwortschutz.\footnote{Vgl. Quizlet Help Center: Accessing and sharing, \url{https://help.quizlet.com/hc/en-au/sections/360005877232-Accessing-and-sharing} (zuletzt abgerufen am 16.10.2026).}
-  \item Komfort: Sets können gedruckt, eingebettet und in den mobilen Apps offline gelernt werden.\footnote{Vgl. ebd.}
+  \item Export eigener Sets: Begriffe und Definitionen von eigenen Sets können exportiert werden \parencite{quizlet-exporting}.
+  \item Freigabe: Das Hilfecenter beschreibt Einstellungen für die Sichtbarkeit von Sets, für Bearbeitungsrechte und für Passwortschutz \parencite{quizlet-sharing}.
+  \item Komfort: Sets können gedruckt, eingebettet und in den mobilen Apps offline gelernt werden \parencite{quizlet-sharing}.
 \end{enumerate}
 
 \textbf{Schwächen.}
 \begin{enumerate}
-  \item Eingeschränkter Export: Bilder können aus Urheberrechtsgründen nicht exportiert werden, und kopierte Sets lassen sich gar nicht exportieren.\footnote{Vgl. Quizlet Help Center: Exporting your sets, \url{https://help.quizlet.com/hc/en-au/articles/360034345672-Exporting-your-sets} (zuletzt abgerufen am 16.10.2026).}
-  \item Premium-Beschränkungen: In der kostenlosen Version können Sets, die mit Premium-Funktionen erstellt wurden, nicht kopiert und gespeichert werden.\footnote{Vgl. Quizlet Help Center: Trouble copying and saving a set, \url{https://help.quizlet.com/hc/en-us/articles/360036242411-Trouble-copying-and-saving-a-set} (zuletzt abgerufen am 16.10.2026).}
+  \item Eingeschränkter Export: Bilder können aus Urheberrechtsgründen nicht exportiert werden, und kopierte Sets lassen sich gar nicht exportieren \parencite{quizlet-exporting}.
+  \item Premium-Beschränkungen: In der kostenlosen Version können Sets, die mit Premium-Funktionen erstellt wurden, nicht kopiert und gespeichert werden \parencite{quizlet-copying}.
   \item Abhängigkeit vom Anbieter: Die Inhalte liegen auf der Plattform des Anbieters. Die Schule hat keinen Einfluss auf Betrieb und Datenspeicherung.
 \end{enumerate}
 
@@ -228,7 +224,7 @@ Anki & Austauschpaket, Import fügt nur hinzu & Vollimport löscht Karten, Austa
 Quizlet & Einfacher Export eigener Sets & Kein Export von Bildern, abhängig vom Anbieter & Offenes, vollständiges Exportformat, eigene Datenhaltung \\ \hline
 \end{tabular}
 \end{center}
-Als Vorbild für die AD-Anbindung in einer Django-Anwendung dient Review Board. Laut Dokumentation wird das AD-Backend über Domänenname, Suchbasis und TLS eingestellt. Es findet Domänencontroller über DNS und legt Benutzer:innen, die nur im AD vorhanden sind, beim ersten Login in der lokalen Datenbank an.\footnote{Vgl. Review Board Documentation: reviewboard.accounts.backends.ad, \url{https://www.reviewboard.org/docs/manual/6.x/extending/coderef/python/reviewboard.accounts.backends.ad} (zuletzt abgerufen am 16.10.2026).}
+Als Vorbild für die AD-Anbindung in einer Django-Anwendung dient Review Board. Laut Dokumentation wird das AD-Backend über Domänenname, Suchbasis und TLS eingestellt. Es findet Domänencontroller über DNS und legt Benutzer:innen, die nur im AD vorhanden sind, beim ersten Login in der lokalen Datenbank an \parencite{reviewboard-ad}.
 
 \section{Fazit der Vorfeldanalyse}
 
@@ -255,8 +251,6 @@ Aus der Vorfeldanalyse, der Aufgabenstellung und der Konkurrenzanalyse ergeben s
   \item \textbf{Umfang der Ausfallsicherheit:} Wie viel Absicherung im Projekt sinnvoll und machbar ist, wird im Infrastrukturkonzept festgelegt.
   \item \textbf{Abstimmung im Team:} Die Aufteilung beim Backend (LDAP-Einstellungen, Import- und Export-Logik) und beim Frontend (Oberfläche für Import und Export) wird mit \Luca und \Jakob genauer geklärt.
 \end{itemize}
-
-\nocite{beyer2016sre,kleppmann2017,anki-exporting,django-auth-ldap,locust-docs,moodle-ldap,moodle-performance,owasp-top-ten,postgres-backup-restore,postgres-pitr,quizlet-sharing,quizlet-exporting,quizlet-copying,reviewboard-ad}
 
 \section*{Abbildungsverzeichnis (Jai Kumar)}
 
