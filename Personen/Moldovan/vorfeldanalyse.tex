@@ -205,6 +205,110 @@ Typisches Risiko
 \noindent\textit{Anmerkung:} \enquote{Eig.} kennzeichnet eigene Einschätzungen
 ohne gesonderten Quellenbeleg.
 \subsection{Auswahl des Frameworks}
+Relevante Frameworks für die Entwicklung des Backends sind Django, FastAPI und Flask.
+Die drei Frameworks werden miteinander verglichen. Die Vor- und Nachteile der drei Frameworks werden in Tabelle~\ref{tab:frameworkvergleich} gegenübergestellt.\\ \\
+
+
+\begin{footnotesize}
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{2.1cm}
+  >{\raggedright\arraybackslash}p{3.4cm}
+  >{\raggedright\arraybackslash}p{3.4cm}
+  >{\raggedright\arraybackslash}p{3.4cm}
+  >{\raggedright\arraybackslash}p{2.3cm}}
+
+\caption{Vergleich von Django (mit Django REST Framework), FastAPI und Flask für das Backend}
+\label{tab:frameworkvergleich} \\
+
+\toprule
+\textbf{Kriterium} & \textbf{Django (mit DRF)} & \textbf{FastAPI} & \textbf{Flask} & \textbf{Beleg} \\
+\midrule
+\endfirsthead
+
+\multicolumn{5}{l}{\itshape Fortsetzung von Tabelle~\ref{tab:frameworkvergleich}} \\
+\toprule
+\textbf{Kriterium} & \textbf{Django (mit DRF)} & \textbf{FastAPI} & \textbf{Flask} & \textbf{Beleg} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{5}{r}{\itshape weiter auf der nächsten Seite} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Charakter
+  & Umfangreiches Framework; mitgeliefert u.\,a. ORM, Migrationen, Admin-Oberfläche, Templates, Caching. API-Funktionen über das Django REST Framework (DRF)
+  & Baut auf Starlette und Pydantic auf; will gezielt ein \enquote{Micro-Framework} sein
+  & \enquote{Microframework}: schlanker, erweiterbarer Kern, trifft wenige Vorgaben (z.\,B. zur Datenbank)
+  & \cite{djangoOverview}, \cite{drfHome}; \cite{fastapiAlternatives}; \cite{flaskForeword} \\
+
+Datenbankzugriff
+  & Eigener ORM mit Migrationen; laut FastAPI-Doku eng an relationale Datenbanken gekoppelt
+  & Kein eigener ORM; ORMs und ODMs von Drittanbietern auf Pydantic-Basis nutzbar
+  & Keine Datenbankintegration im Kern; Anbindung über Erweiterungen (z.\,B. Flask-SQLAlchemy)
+  & \cite{djangoOverview}, \cite{fastapiAlternatives}; \cite{fastapiFeatures}; \cite{fastapiAlternatives}, \cite{bednarz2025} \\
+
+Admin-Oberfläche
+  & Wird aus den registrierten Modellen automatisch erzeugt
+  & Nicht Teil des Kerns
+  & Nicht Teil des Kerns
+  & \cite{djangoOverview}; Eig. \\
+
+Authentifizierung und Sicherheit
+  & Benutzer- und Rechteverwaltung über \texttt{django.contrib.auth}; DRF ergänzt Authentifizierung, Berechtigungen und Throttling. Eingebauter Schutz u.\,a. gegen XSS, CSRF, SQL-Injection und Clickjacking
+  & Integrierte Werkzeuge für HTTP Basic, OAuth2 (mit JWT) und API-Keys
+  & Nicht im Kern; per Plug-ins ergänzbar
+  & \cite{drfHome}, \cite{djangoSecurity}; \cite{fastapiFeatures}; \cite{fastapiAlternatives} \\
+
+API-Dokumentation und Validierung
+  & Serializer für ORM- und Nicht-ORM-Daten, \enquote{Browsable API}, Schema-Erzeugung als DRF-Funktion
+  & Automatische interaktive Dokumentation (Swagger UI, ReDoc) auf Basis von OpenAPI; Validierung über Pydantic und Typ-Annotationen
+  & Validierung und OpenAPI-Dokumentation über Zusatzpakete (z.\,B. Flask-apispec, Marshmallow, Webargs)
+  & \cite{drfHome}; \cite{fastapiFeatures}; \cite{fastapiAlternatives} \\
+
+Asynchronität
+  & Async-Views; ORM, Cache, Authentifizierung und Sessions mit Async-Schnittstellen. Volle Wirkung unter ASGI, unter WSGI mit Zusatzkosten. Async-Unterstützung von DRF nicht geprüft
+  & Auf ASGI (Starlette, Uvicorn) ausgelegt, nativ asynchron
+  & Async-Views seit Version 2.0, aber unter WSGI bindet jeder Request einen Worker; für überwiegend asynchronen Code verweist die Doku auf Quart
+  & \cite{djangoAsync}; \cite{fastapiAlternatives}, \cite{bednarz2025}; \cite{flaskAsync} \\
+
+Durchsatz (Benchmark)
+  & GET: 1\,660\,req/s; Echo: 1\,551\,req/s
+  & GET: 4\,783 (SQLite) bzw. 4\,417 (SQLModel)\,req/s; Echo: 4\,024 bzw. 3\,627\,req/s
+  & GET: ca.\ 2\,700\,req/s; Echo: 2\,194 (SQLite) bzw. 2\,143 (SQLAlchemy)\,req/s
+  & \cite{bednarz2025} \\
+
+Antwortzeit (Benchmark)
+  & Einzelner Datensatz: 13,4\,ms; alle Datensätze: 75,0\,ms; Anlegen: 99,6\,ms
+  & Einzeln: 2,5 (SQLite) bzw. 7,6 (SQLModel)\,ms; alle: 67,4 bzw. 168,8\,ms; Anlegen: 78,6 bzw. 92,4\,ms
+  & Einzeln: 5,0 (SQLite) bzw. 8,5 (SQLAlchemy)\,ms; alle: 28,2 bzw. 69,2\,ms; Anlegen: 111,3 bzw. 116,0\,ms
+  & \cite{bednarz2025} \\
+
+Projektstruktur
+  & Anwendung in Apps gegliedert (Beispiel-App \enquote{news} in der Doku)
+  & Mehrere Dateien über Router möglich
+  & Keine feste Projektstruktur vorgegeben
+  & \cite{djangoOverview}; Eig.; \cite{bednarz2025} \\
+
+Genannter Haupteinsatz
+  & Ursprünglich zur HTML-Erzeugung im Backend gedacht; mit DRF auch für APIs; geeignet für größere Projekte mit Komplettumfang
+  & Moderne, performante APIs und Microservices
+  & Kleine bis mittlere Projekte, Prototypen, volle Kontrolle
+  & \cite{fastapiAlternatives}, \cite{djangoOverview}; \cite{bednarz2025} \\
+
+\end{longtable}
+
+\noindent\textit{Anmerkung:} Die Benchmark-Werte stammen aus \cite{bednarz2025}
+(Windows\,10, SQLite, Gunicorn mit 2 Workern und 2 Threads, nicht auf das jeweilige
+Framework optimiert; Django\,5.2.1 mit DRF, Flask\,3.1.0, FastAPI\,0.115.12).
+\enquote{Eig.} kennzeichnet eigene Einschätzungen ohne gesonderten Quellenbeleg.
+\end{footnotesize}
+
 \subsection{Skalierbarkeit und Modularität}
 
 % ---------------------------------------------------------------
