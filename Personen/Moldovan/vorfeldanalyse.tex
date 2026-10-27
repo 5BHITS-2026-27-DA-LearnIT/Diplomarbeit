@@ -204,7 +204,7 @@ Typisches Risiko
 
 \noindent\textit{Anmerkung:} \enquote{Eig.} kennzeichnet eigene Einschätzungen
 ohne gesonderten Quellenbeleg.
-\subsection{Auswahl des Frameworks}
+\subsection{Vergleich der Frameworks}
 Relevante Frameworks für die Entwicklung des Backends sind Django, FastAPI und Flask.
 Die drei Frameworks werden miteinander verglichen. Die Vor- und Nachteile der drei Frameworks werden in Tabelle~\ref{tab:frameworkvergleich} gegenübergestellt.\\ \\
 
@@ -310,7 +310,59 @@ Framework optimiert; Django\,5.2.1 mit DRF, Flask\,3.1.0, FastAPI\,0.115.12).
 \end{footnotesize}
 
 \subsection{Skalierbarkeit und Modularität}
+\label{sec:skalierbarkeit-modularitaet}
+Skalierbarkeit und Modularität sind zwei der nicht\"=funktionalen Anforderungen an das Backend. Für dieses Projekt werden beide Begriffe wie folgt verstanden.\\ \\
+\textbf{Begriffe.}
+Skalierbarkeit bedeutet, dass das Backend mit einer wachsenden Anzahl an Benutzern und Daten zurechtkommt, ohne dass die Antwortzeiten unbrauchbar werden.
+Die Skalierung der Serverumgebung, vertikal durch stärkere Hardware oder horizontal durch mehrere Instanzen, übernimmt \Jai\ (siehe Abschnitt~\ref{sec:skalierbarkeit-infra}).
+Das Backend muss dafür so aufgebaut sein, dass mehrere Instanzen parallel laufen können. Es darf daher keine Sitzungs- oder Benutzerdaten im Prozess selbst speichern.
+Modularität bedeutet, dass die Backend-Logik in klar abgegrenzte Teile mit definierten Schnittstellen gegliedert ist.
+Neue Funktionen lassen sich so ergänzen, ohne bestehende Komponenten umzubauen.
+Modularität betrifft also den Aufbau und die Erweiterbarkeit des Codes, Skalierbarkeit das Verhalten unter Last.\\ \\
 
+
+\subsection{Auswahl von Framework und Architekturansatz}
+\label{subsec:auswahl-framework-architektur}
+
+Für das Backend der Lernplattform wurde Django als Framework gewählt. Die Anwendung wird als modularer Monolith umgesetzt. Grundlage der Entscheidung sind die Vergleiche der Frameworks in Tabelle~\ref{tab:framework-vergleich} und der Architekturansätze in Tabelle~\ref{tab:architektur-vergleich}.
+
+\textbf{Auswahl des Frameworks.}
+
+Django ist ein Python-Framework, das bereits viele Funktionen für die Lernplattform mitbringt. Dazu gehören ein objektrelationales Mapping (ORM) für die relationale Datenbank, ein Authentifizierungs- und Berechtigungssystem, Schutzmechanismen gegen gängige Webangriffe wie CSRF sowie ein Administrationsbereich zur Verwaltung von Lerninhalten. Bei einem minimalistischen Framework müssten diese Funktionen aus einzelnen Bibliotheken zusammengesetzt werden. Das würde den Entwicklungsaufwand und das Wartungsrisiko erhöhen (vgl.~Tabelle~\ref{tab:framework-vergleich}).
+
+Ein weiterer Vorteil ist, dass der adaptive Lernalgorithmus direkt in Python umgesetzt und in das Backend integriert werden kann. Dadurch ist keine zusätzliche Schnittstelle zwischen dem Algorithmus und dem Backend erforderlich. Außerdem kann das Authentifizierungssystem von Django erweitert werden, um eine Anbindung an das schulische Active Directory zu ermöglichen.
+
+\textbf{Architekturentscheidung.}
+
+Für die Architektur wurde ein modularer Monolith gegenüber einer Microservice-Architektur bevorzugt (vgl.~Tabelle~\ref{tab:architektur-vergleich}). Dabei werden alle Module in einer gemeinsamen Codebasis entwickelt und als ein System bereitgestellt. Innerhalb dieser Anwendung sind die einzelnen fachlichen Bereiche jedoch klar voneinander getrennt.
+
+Für diese Entscheidung sprechen mehrere Gründe. Kanu et al. verglichen die Anwendung Spring Petclinic als Monolith und als Microservices auf einem lokalen Rechner. Der Monolith erzielte unter den meisten untersuchten Lastbedingungen einen höheren Durchsatz, eine geringere Latenz und einen geringeren Ressourcenverbrauch. Bei Spitzenlast wiesen die Microservices deutlich höhere Fehlerraten auf, hauptsächlich aufgrund begrenzter CPU- und Speicherressourcen \parencite{zenodo2025petclinic}. Da die untersuchte Anwendung und die verwendeten Technologien nicht mit der Lernplattform übereinstimmen, lassen sich diese Ergebnisse allerdings nur eingeschränkt übertragen.
+
+Microservices ermöglichen zwar die unabhängige Skalierung einzelner Dienste, verursachen jedoch zusätzlichen Aufwand für die Kommunikation zwischen den Diensten, das Deployment, die Fehlersuche und die Sicherstellung konsistenter Daten. Faustino et al. beschreiben den modularen Monolithen als möglichen Zwischenschritt auf dem Weg zu Microservices. Sie weisen außerdem auf den Leistungsaufwand durch Kapselung und Kommunikation zwischen Komponenten sowie auf den Aufwand bei der nachträglichen Modularisierung hin \parencite{faustino2022}. Daraus wird für das Projekt abgeleitet, dass die Modulgrenzen bereits zu Beginn festgelegt werden sollten.
+
+Bei drei Projektmitgliedern mit jeweils 180 Stunden Arbeitsaufwand und festen Meilensteinen, beginnend mit einem startfähigen System am 29.11.2026, wäre der zusätzliche Aufwand einer Microservice-Architektur aus eigener Einschätzung nicht gerechtfertigt. Ein modularer Monolith ermöglicht dagegen eine einfachere Bereitstellung und Integrationstests über Frontend, Backend und Datenbank hinweg. Da alle Module dieselbe relationale Datenbank verwenden, können zusammengehörige Änderungen außerdem innerhalb gemeinsamer Datenbanktransaktionen durchgeführt werden. Das ist beispielsweise für die Speicherung von Testergebnissen und Wiederholungsstatus relevant.
+
+\textbf{Umsetzung der Modularität in Django.}
+
+Django ermöglicht die Gliederung eines Projekts in Apps. Eine App ist ein Python-Paket, das einen bestimmten Funktionsbereich bereitstellt und beispielsweise Modelle, Views und URL-Konfigurationen enthalten kann. Die Einbindung erfolgt über die Einstellung \texttt{INSTALLED\_APPS} \parencite{djangoApplications}.
+
+Die Lernplattform wird in fachlich getrennte Apps aufgeteilt. Vorgesehen sind Bereiche für die Benutzerverwaltung, Lerninhalte und Lernkarten, Tests, Lernergebnisse und Lernfortschritt sowie den adaptiven Lernalgorithmus. Die Kommunikation mit dem Frontend erfolgt über eine strukturierte REST-API. Die genaue Aufteilung der Backend-Logik wird in Abschnitt~\ref{sec:backend-logik} beschrieben.
+
+Da Django-Apps technisch eigenständige Python-Pakete sind, werden Zugriffe auf andere Apps nicht automatisch eingeschränkt. Die Modularität muss daher durch verbindliche Regeln sichergestellt werden:
+
+\begin{itemize}
+    \item Eine App greift auf die Daten einer anderen App nur über definierte Funktionen oder Schnittstellen zu und verändert deren Modelle nicht direkt.
+    \item Abhängigkeiten zwischen den Apps verlaufen nur in eine Richtung. Zyklische Abhängigkeiten sind zu vermeiden.
+    \item Der adaptive Lernalgorithmus ist von der API-Schicht unabhängig, damit seine Logik separat getestet werden kann.
+\end{itemize}
+
+Die Einhaltung dieser Regeln wird durch Code-Reviews und automatisierte Tests überprüft (eigene Festlegung).
+
+\textbf{Grenzen und weitere Überprüfung.}
+
+Ein modularer Monolith wird als Ganzes skaliert, beispielsweise durch den Einsatz zusätzlicher Worker. Einzelne Module wie der adaptive Lernalgorithmus können daher nicht unabhängig von der restlichen Anwendung skaliert werden. Durch die festgelegten Schnittstellen können einzelne Module bei einem späteren Bedarf jedoch grundsätzlich als eigenständige Dienste herausgelöst werden.
+
+Ob die gewählte Architektur die erwartete Benutzerzahl und Last bewältigen kann, wird durch die Last- und Performancetests von \Jai überprüft.
 % ---------------------------------------------------------------
 \section{Backend-Logik und Datenverwaltung}
 \label{sec:backend-logik}
