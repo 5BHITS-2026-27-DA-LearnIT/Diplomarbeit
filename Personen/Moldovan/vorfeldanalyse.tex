@@ -366,15 +366,170 @@ Ob die gewählte Architektur die erwartete Benutzerzahl und Last bewältigen kan
 % ---------------------------------------------------------------
 \section{Backend-Logik und Datenverwaltung}
 \label{sec:backend-logik}
-% - Entitäten: Benutzer, Lerninhalt, Lernkarte, Test, Ergebnis
-% - Abbildung von Lernergebnissen und Wiederholungsstatus pro Benutzer
-% - Strukturierung in Django-Apps
 
-% TODO: Entitäten und Beziehungen festlegen
+Dieser Abschnitt legt fest, welche Daten das Backend verwaltet, wie Lernergebnisse und Wiederholungsstatus gespeichert werden und wie das Backend in Django-Apps gegliedert ist. Es handelt sich um einen Entwurf aus der Vorfeldanalyse. Einzelne Felder und Namen können sich bei der Umsetzung noch ändern.
 
 \subsection{Fachliche Entitäten}
+\label{subsec:entitaeten}
+Django bildet Daten über Modelle ab. Ein Modell ist eine Python-Klasse, jedes Attribut entspricht einem Datenbankfeld, und ein Modell entspricht in der Regel einer Tabelle. Beziehungen, bei denen mehrere Datensätze zu genau einem anderen gehören, werden mit einem \texttt{ForeignKey} ausgedrückt \parencite{djangoModels}.
+Aus den funktionalen Anforderungen (Verwaltung von Benutzern, Lerninhalten, Lernkarten, Tests und Ergebnissen sowie Abbildung des Wiederholungsstatus) ergeben sich die Entitäten in Tabelle~\ref{tab:entitaeten}. Die Aufteilung ist ein eigener Entwurf.\\ \\
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{3.2cm}
+  >{\raggedright\arraybackslash}p{5.5cm}
+  >{\raggedright\arraybackslash}p{5.3cm}}
+
+\caption{Fachliche Entitäten des Backends (Entwurf)}
+\label{tab:entitaeten} \\
+
+\toprule
+\textbf{Entität} & \textbf{Bedeutung} & \textbf{Beziehungen} \\
+\midrule
+\endfirsthead
+
+\multicolumn{3}{l}{\small\itshape Fortsetzung von Tabelle~\ref{tab:entitaeten}} \\
+\toprule
+\textbf{Entität} & \textbf{Bedeutung} & \textbf{Beziehungen} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{3}{r}{\small\itshape weiter auf der nächsten Seite} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Benutzer
+  & Person, die die Plattform nutzt, mit einer Rolle (vorgesehen: Schüler, Lehrkraft, Administrator)
+  & Hat Testversuche, Lernergebnisse und Wiederholungsstatus \\
+
+Lerninhalt
+  & Thematische Einheit des Lernstoffs, die Lernkarten und Tests bündelt
+  & Enthält mehrere Lernkarten und mehrere Tests \\
+
+Lernkarte
+  & Karte mit Frage (Vorderseite) und Antwort (Rückseite)
+  & Gehört zu genau einem Lerninhalt \\
+
+Test
+  & Zusammenstellung von Testaufgaben zu einem Lerninhalt
+  & Gehört zu einem Lerninhalt, enthält mehrere Testaufgaben \\
+
+Testaufgabe
+  & Einzelne Frage eines Tests mit der zugehörigen Lösung
+  & Gehört zu genau einem Test \\
+
+Testversuch
+  & Ein Durchlauf eines Tests durch einen Benutzer mit Zeitpunkt und Gesamtergebnis
+  & Gehört zu einem Benutzer und einem Test \\
+
+Lernergebnis
+  & Bewertung einer einzelnen Antwort auf eine Lernkarte oder eine Testaufgabe, mit Zeitpunkt
+  & Gehört zu einem Benutzer und zur beantworteten Lernkarte bzw.\ Testaufgabe; bei Testaufgaben zusätzlich zum Testversuch \\
+
+Wieder\-holungs\-status
+  & Aktueller Planungszustand einer Lernkarte für einen Benutzer (siehe Abschnitt~\ref{subsec:ergebnisse-speichern})
+  & Verbindet Benutzer und Lernkarte; je Paar höchstens ein Datensatz \\
+
+\end{longtable}
+\endgroup
+
+Der Wiederholungsstatus verbindet Benutzer und Lernkarte und trägt zusätzliche Daten. Er ist damit die Zuordnungsentität zwischen beiden. Der Lernfortschritt wird nicht als eigene Entität gespeichert, sondern aus den Lernergebnissen und dem Wiederholungsstatus berechnet. So kann er den gespeicherten Daten nicht widersprechen (eigene Festlegung). Sollten diese Abfragen zu langsam sein, kann später ein Zwischenspeicher ergänzt werden.
+\todo[inline]{Offen: (1) Hat auch die Testaufgabe einen Wiederholungsstatus? Der Meilenstein vom 24.01.2027 nennt \enquote{adaptive Wiederholung anhand der Ergebnisse}. (2) Technische Umsetzung des Lernergebnisses festlegen (zwei getrennte Modelle oder ein Modell mit Verweis auf beide). (3) Mit \Jakob klären, ob Daten der Gamification-Elemente im Backend gespeichert werden.}
+
 \subsection{Speicherung von Lernergebnissen und Wiederholungsstatus}
+\label{subsec:ergebnisse-speichern}
+Das Backend speichert zwei Arten von Daten über den Lernprozess:
+\begin{itemize}
+    \item \textbf{Lernergebnisse} halten fest, was geschehen ist. Jede bewertete Antwort wird mit Zeitpunkt als eigener Datensatz gespeichert und danach nicht mehr verändert.
+    \item Der \textbf{Wiederholungsstatus} hält fest, wie es weitergeht. Er enthält je Benutzer und Lernkarte den letzten und den nächsten Wiederholungszeitpunkt sowie die Parameter des Verfahrens. Welche Parameter nötig sind, hängt vom gewählten Verfahren ab und wird in Abschnitt~\ref{sec:algorithmus} festgelegt.
+\end{itemize}
+Die Trennung hat aus eigener Einschätzung zwei Vorteile. Erstens bleibt die Historie erhalten. Der Lernfortschritt lässt sich daraus berechnen, und der Wiederholungsstatus kann bei einem geänderten Verfahren aus den Lernergebnissen neu berechnet werden. Das ist auch für das Testen des Algorithmus nützlich (Abschnitt~\ref{sec:tests}). Zweitens ist der Wiederholungsstatus klein und wird bei jeder Antwort gelesen, ohne dass die Historie ausgewertet werden muss.\\ \\
+Wenn ein Benutzer eine Antwort abgibt, laufen drei Schritte ab:
+\begin{enumerate}
+    \item Das Backend speichert das Lernergebnis.
+    \item Der Lernalgorithmus berechnet aus dem bisherigen Wiederholungsstatus und dem Ergebnis den neuen Status.
+    \item Das Backend speichert den neuen Wiederholungsstatus.
+\end{enumerate}
+Alle drei Schritte werden in einer Datenbanktransaktion ausgeführt. Django stellt dafür den Block \texttt{atomic} bereit. Wird er ohne Fehler beendet, werden die Änderungen übernommen, bei einer Ausnahme werden sie zurückgerollt \parencite{djangoTransactions}. Dadurch wird nie ein Lernergebnis ohne den dazugehörigen Wiederholungsstatus gespeichert. Das setzt die gemeinsame relationale Datenbank voraus (Abschnitt~\ref{subsec:auswahl-framework-architektur}).\\ \\
+Zusätzlich gelten folgende Festlegungen (eigener Entwurf):
+\begin{itemize}
+    \item Je Benutzer und Lernkarte gibt es höchstens einen Wiederholungsstatus. Die Datenbank sichert das über eine Eindeutigkeitsbedingung ab.
+    \item Die häufigste Abfrage ist vermutlich die nach den fälligen Lernkarten eines Benutzers. Dafür ist ein Index auf Benutzer und Fälligkeitszeitpunkt sinnvoll. Ob er nötig ist, zeigen die Performancetests von \Jai.
+    \item Lernergebnisse und Wiederholungsstatus sind personenbezogene Daten von Schülern. Der Schutz dieser Daten wird in Abschnitt~\ref{sec:sicherheit} behandelt.
+\end{itemize}
+
 \subsection{Projektstruktur in Django-Apps}
+\label{subsec:projektstruktur}
+Die Backend-Logik wird nach den Regeln aus Abschnitt~\ref{sec:skalierbarkeit-modularitaet} in Apps gegliedert. Jede App enthält ihre Modelle und Fachfunktionen. Andere Apps greifen nur über diese Fachfunktionen zu (eigene Festlegung). Tabelle~\ref{tab:apps} zeigt den Entwurf. Die Namen sind Vorschläge.\\ \\
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{2.5cm}
+  >{\raggedright\arraybackslash}p{2.3cm}
+  >{\raggedright\arraybackslash}p{5.4cm}
+  >{\raggedright\arraybackslash}p{3.1cm}}
+
+\caption{Apps des Backends und ihre Abhängigkeiten (Entwurf)}
+\label{tab:apps} \\
+
+\toprule
+\textbf{Bereich} & \textbf{App} & \textbf{Verantwortung} & \textbf{Nutzt} \\
+\midrule
+\endfirsthead
+
+\multicolumn{4}{l}{\small\itshape Fortsetzung von Tabelle~\ref{tab:apps}} \\
+\toprule
+\textbf{Bereich} & \textbf{App} & \textbf{Verantwortung} & \textbf{Nutzt} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{4}{r}{\small\itshape weiter auf der nächsten Seite} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Benutzerverwaltung
+  & \texttt{accounts}
+  & Benutzer und Rollen
+  & keine \\
+
+Lerninhalte und Lernkarten
+  & \texttt{content}
+  & Lerninhalte und Lernkarten
+  & keine \\
+
+Tests
+  & \texttt{assessments}
+  & Tests, Testaufgaben, Testversuche und die Bewertung von Antworten
+  & \texttt{accounts}, \texttt{content} \\
+
+Lernergebnisse und Lernfortschritt
+  & \texttt{progress}
+  & Lernergebnisse, Wiederholungsstatus und Berechnung des Lernfortschritts; führt den Ablauf aus Abschnitt~\ref{subsec:ergebnisse-speichern} aus
+  & \texttt{accounts}, \texttt{content}, \texttt{assessments}, \texttt{adaptive} \\
+
+Adaptiver Lernalgorithmus
+  & \texttt{adaptive}
+  & Wiederholungsplanung und Wissensstandschätzung als reine Python-Logik ohne Django-Modelle
+  & keine \\
+
+API
+  & \texttt{api}
+  & REST-Schnittstelle zum Frontend (Abschnitt~\ref{sec:api}), ohne eigene Fachlogik
+  & alle Fachapps \\
+
+\end{longtable}
+\endgroup
+
+Die Abhängigkeiten verlaufen nur in eine Richtung. Die App \texttt{adaptive} kennt weder die Datenbank noch die API. Sie erhält Status und Ergebnis als einfache Daten und liefert den neuen Status zurück. Dadurch lässt sie sich ohne Datenbank testen (Abschnitt~\ref{sec:tests}). Die App \texttt{api} enthält keine eigene Fachlogik, damit sich die Schnittstelle ändern lässt, ohne die Fachlogik anzupassen.
+\todo[inline]{Appnamen, Abhängigkeiten und die Rolle der Gamification (siehe oben) nach der Implementierung der ersten Modelle (Meilenstein 29.11.2026) mit dem tatsächlichen Code abgleichen.}
 
 % ---------------------------------------------------------------
 \section{Adaptiver Lernalgorithmus}
@@ -445,3 +600,4 @@ Ob die gewählte Architektur die erwartete Benutzerzahl und Last bewältigen kan
 
 \subsection{Getroffene Entscheidungen}
 \subsection{Risiken und offene Fragen}
+\subsection{Verwendung von Künstlicher Intelligenz}
