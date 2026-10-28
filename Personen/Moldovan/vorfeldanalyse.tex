@@ -9,7 +9,7 @@
 \subsection{Anforderungen an das Backend}
 Das Backend spielt in diesem Projekt eine zentrale Rolle. Seine Hauptaufgabe besteht in der Abbildung der Kernlogik und der Verwaltung der Daten.
 Die Anforderungen ergeben sich aus der Zielsetzung der Webanwendung.
-Dabei wird zwischen funktionalen und nicht-funktionalen Anforderungen unterschieden.
+Dabei wird zwischen funktionalen und nicht"=funktionalen Anforderungen unterschieden.
 Maximilian Lutz zitiert in seiner Arbeit \cite{lutz2022} aus dem Buch \cite{broy2021} die Definition von Anforderungen.
 Funktionale Anforderungen beschreiben, wie das System genutzt werden kann,
 und stellen die Funktionen an der Systemgrenze in den Mittelpunkt.
@@ -37,8 +37,8 @@ Leistung erbringt \parencite[S.~16]{lutz2022}.\\
 \Luca ist für die reine Entwicklung eines skalierbaren Backends zuständig.
 ``Skalierbar'' bedeutet in diesem Zusammenhang, dass das Backend modular aufgebaut ist und sich um neue Funktionen erweitern lässt, ohne bestehende Komponenten umzubauen.
 Die Kommunikation mit dem Frontend wird mit \Jakob konzeptioniert und erfolgt über eine klar definierte API.
-Die Kommunikation mit der Infrastruktur, wie z. B. Datenbanken oder Cloud-Diensten, wird mit \Jai konzeptioniert und über das ORM-Framework Django realisiert.
-Die Datenverwaltung und die Abbildung der Kernlogik und Speicherung der Lernergebnisse sind die Hauptaufgaben des Backends.
+Die Anbindung an die Infrastruktur, z. B. an Datenbanken oder Cloud-Dienste, wird mit \Jai konzeptioniert und über das ORM-Framework Django umgesetzt.
+Die Datenverwaltung sowie die Abbildung der Kernlogik und die Speicherung der Lernergebnisse sind die Hauptaufgaben des Backends.
 Die Entwicklung eines adaptiven Lernalgorithmus ist eine weitere wichtige Aufgabe des Backends.
 Die Twelve-Factor-Methodik betrachtet Dienste wie eine Datenbank als
 angebundene Ressourcen, die über eine in der Konfiguration hinterlegte Adresse
@@ -206,7 +206,7 @@ Typisches Risiko
 ohne gesonderten Quellenbeleg.
 \subsection{Vergleich der Frameworks}
 Relevante Frameworks für die Entwicklung des Backends sind Django, FastAPI und Flask.
-Die drei Frameworks werden miteinander verglichen. Die Vor- und Nachteile der drei Frameworks werden in Tabelle~\ref{tab:frameworkvergleich} gegenübergestellt.\\ \\
+Die Vor- und Nachteile der drei Frameworks werden in Tabelle~\ref{tab:frameworkvergleich} gegenübergestellt.\\ \\
 
 
 \begin{footnotesize}
@@ -324,17 +324,17 @@ Modularität betrifft also den Aufbau und die Erweiterbarkeit des Codes, Skalier
 \subsection{Auswahl von Framework und Architekturansatz}
 \label{subsec:auswahl-framework-architektur}
 
-Für das Backend der Lernplattform wurde Django als Framework gewählt. Die Anwendung wird als modularer Monolith umgesetzt. Grundlage der Entscheidung sind die Vergleiche der Frameworks in Tabelle~\ref{tab:framework-vergleich} und der Architekturansätze in Tabelle~\ref{tab:architektur-vergleich}.
+Für das Backend der Lernplattform wurde Django als Framework gewählt. Die Anwendung wird als modularer Monolith umgesetzt. Grundlage der Entscheidung sind die Vergleiche der Frameworks in Tabelle~\ref{tab:frameworkvergleich} und der Architekturansätze in Tabelle~\ref{tab:architekturvergleich}.
 
 \textbf{Auswahl des Frameworks.}
 
-Django ist ein Python-Framework, das bereits viele Funktionen für die Lernplattform mitbringt. Dazu gehören ein objektrelationales Mapping (ORM) für die relationale Datenbank, ein Authentifizierungs- und Berechtigungssystem, Schutzmechanismen gegen gängige Webangriffe wie CSRF sowie ein Administrationsbereich zur Verwaltung von Lerninhalten. Bei einem minimalistischen Framework müssten diese Funktionen aus einzelnen Bibliotheken zusammengesetzt werden. Das würde den Entwicklungsaufwand und das Wartungsrisiko erhöhen (vgl.~Tabelle~\ref{tab:framework-vergleich}).
+Django ist ein Python-Framework, das bereits viele Funktionen für die Lernplattform mitbringt. Dazu gehören ein objektrelationales Mapping (ORM) für die relationale Datenbank, ein Authentifizierungs- und Berechtigungssystem, Schutzmechanismen gegen gängige Webangriffe wie CSRF sowie ein Administrationsbereich zur Verwaltung von Lerninhalten. Bei einem minimalistischen Framework müssten diese Funktionen aus einzelnen Bibliotheken zusammengesetzt werden. Das würde den Entwicklungsaufwand und das Wartungsrisiko erhöhen (vgl.~Tabelle~\ref{tab:frameworkvergleich}).
 
 Ein weiterer Vorteil ist, dass der adaptive Lernalgorithmus direkt in Python umgesetzt und in das Backend integriert werden kann. Dadurch ist keine zusätzliche Schnittstelle zwischen dem Algorithmus und dem Backend erforderlich. Außerdem kann das Authentifizierungssystem von Django erweitert werden, um eine Anbindung an das schulische Active Directory zu ermöglichen.
 
 \textbf{Architekturentscheidung.}
 
-Für die Architektur wurde ein modularer Monolith gegenüber einer Microservice-Architektur bevorzugt (vgl.~Tabelle~\ref{tab:architektur-vergleich}). Dabei werden alle Module in einer gemeinsamen Codebasis entwickelt und als ein System bereitgestellt. Innerhalb dieser Anwendung sind die einzelnen fachlichen Bereiche jedoch klar voneinander getrennt.
+Für die Architektur wurde ein modularer Monolith gegenüber einer Microservices-Architektur bevorzugt (vgl.~Tabelle~\ref{tab:architekturvergleich}). Dabei werden alle Module in einer gemeinsamen Codebasis entwickelt und als ein System bereitgestellt. Innerhalb dieser Anwendung sind die einzelnen fachlichen Bereiche jedoch klar voneinander getrennt.
 
 Für diese Entscheidung sprechen mehrere Gründe. Kanu et al. verglichen die Anwendung Spring Petclinic als Monolith und als Microservices auf einem lokalen Rechner. Der Monolith erzielte unter den meisten untersuchten Lastbedingungen einen höheren Durchsatz, eine geringere Latenz und einen geringeren Ressourcenverbrauch. Bei Spitzenlast wiesen die Microservices deutlich höhere Fehlerraten auf, hauptsächlich aufgrund begrenzter CPU- und Speicherressourcen \parencite{zenodo2025petclinic}. Da die untersuchte Anwendung und die verwendeten Technologien nicht mit der Lernplattform übereinstimmen, lassen sich diese Ergebnisse allerdings nur eingeschränkt übertragen.
 
@@ -372,7 +372,7 @@ Dieser Abschnitt legt fest, welche Daten das Backend verwaltet, wie Lernergebnis
 \subsection{Fachliche Entitäten}
 \label{subsec:entitaeten}
 Django bildet Daten über Modelle ab. Ein Modell ist eine Python-Klasse, jedes Attribut entspricht einem Datenbankfeld, und ein Modell entspricht in der Regel einer Tabelle. Beziehungen, bei denen mehrere Datensätze zu genau einem anderen gehören, werden mit einem \texttt{ForeignKey} ausgedrückt \parencite{djangoModels}.
-Aus den funktionalen Anforderungen (Verwaltung von Benutzern, Lerninhalten, Lernkarten, Tests und Ergebnissen sowie Abbildung des Wiederholungsstatus) ergeben sich die Entitäten in Tabelle~\ref{tab:entitaeten}. Die Aufteilung ist ein eigener Entwurf.\\ \\
+Aus den funktionalen Anforderungen (Verwaltung von Benutzern, Lerninhalten, Lernkarten, Tests und Ergebnissen sowie Abbildung des Wiederholungsstatus) ergeben sich die in Tabelle~\ref{tab:entitaeten} dargestellten Entitäten. Die Aufteilung ist ein eigener Entwurf.\\ \\
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -454,7 +454,7 @@ Wenn ein Benutzer eine Antwort abgibt, laufen drei Schritte ab:
     \item Der Lernalgorithmus berechnet aus dem bisherigen Wiederholungsstatus und dem Ergebnis den neuen Status.
     \item Das Backend speichert den neuen Wiederholungsstatus.
 \end{enumerate}
-Alle drei Schritte werden in einer Datenbanktransaktion ausgeführt. Django stellt dafür den Block \texttt{atomic} bereit. Wird er ohne Fehler beendet, werden die Änderungen übernommen, bei einer Ausnahme werden sie zurückgerollt \parencite{djangoTransactions}. Dadurch wird nie ein Lernergebnis ohne den dazugehörigen Wiederholungsstatus gespeichert. Das setzt die gemeinsame relationale Datenbank voraus (Abschnitt~\ref{subsec:auswahl-framework-architektur}).\\ \\
+Alle drei Schritte werden in einer Datenbanktransaktion ausgeführt. Django stellt dafür den Block \texttt{atomic} bereit. Wird der Block ohne Fehler beendet, werden die Änderungen übernommen; bei einer Ausnahme werden sie zurückgerollt \parencite{djangoTransactions}. Dadurch wird nie ein Lernergebnis ohne den dazugehörigen Wiederholungsstatus gespeichert. Das setzt die gemeinsame relationale Datenbank voraus (Abschnitt~\ref{subsec:auswahl-framework-architektur}).\\ \\
 Zusätzlich gelten folgende Festlegungen (eigener Entwurf):
 \begin{itemize}
     \item Je Benutzer und Lernkarte gibt es höchstens einen Wiederholungsstatus. Die Datenbank sichert das über eine Eindeutigkeitsbedingung ab.
@@ -464,7 +464,7 @@ Zusätzlich gelten folgende Festlegungen (eigener Entwurf):
 
 \subsection{Projektstruktur in Django-Apps}
 \label{subsec:projektstruktur}
-Die Backend-Logik wird nach den Regeln aus Abschnitt~\ref{sec:skalierbarkeit-modularitaet} in Apps gegliedert. Jede App enthält ihre Modelle und Fachfunktionen. Andere Apps greifen nur über diese Fachfunktionen zu (eigene Festlegung). Tabelle~\ref{tab:apps} zeigt den Entwurf. Die Namen sind Vorschläge.\\ \\
+Die Backend-Logik wird anhand der Regeln in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} in Apps gegliedert. Jede App enthält ihre Modelle und Fachfunktionen. Andere Apps greifen nur über diese Fachfunktionen zu (eigene Festlegung). Tabelle~\ref{tab:apps} zeigt den Entwurf. Die Namen sind Vorschläge.\\ \\
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
