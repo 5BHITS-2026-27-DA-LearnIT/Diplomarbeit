@@ -65,7 +65,7 @@ die Skalierung, weil die Serverkomponenten einfacher werden
 
 \subsection{Architekturansätze im Vergleich}
 Relevante Architekturansätze für die Entwicklung des Backends sind der Monolith, der modulare Monolith und Microservices.
-Die Vor- und Nachteile der drei Ansätze werden in Tabelle~\ref{tab:architekturvergleich} gegenübergestellt.\\ \\
+Die Vor- und Nachteile der drei Ansätze werden in Tabelle~\ref{tab:architekturvergleich} gegenübergestellt.
 \begingroup
 \small
 \setlength{\tabcolsep}{2pt}
@@ -121,8 +121,8 @@ Datenhaltung
   & Meist je Service eine eigene Datenbank
   & \cite{faustino2022} \\
 
-Kommunikation
-  & Funktionsaufrufe im Prozess
+Kommuni\-kation
+  & Funktions\-aufrufe im Prozess
   & Funktionsaufrufe im Prozess (über Schnittstelle)
   & HTTP/REST oder Message Broker
   & \cite{faustino2022} \\
@@ -139,7 +139,7 @@ Latenz
   & Am höchsten (Netzwerk, Serialisierung)
   & \cite{faustino2022}, \cite{zenodo2025petclinic} \\
 
-Ressourcenbedarf
+Ressourcen\-bedarf
   & Gering
   & Gering
   & Höher (mehr Prozesse, mehr Speicher)
@@ -169,7 +169,7 @@ Gefahr falscher Modulgrenzen
   & Hoch
   & \cite{faustino2022} \\
 
-Team-Unabhängigkeit
+Team\-/Unabhängig\-keit
   & Gering
   & Mittel bis gut
   & Am besten (eigene Services pro Team)
@@ -181,7 +181,7 @@ Skalierung
   & Einzelne Services unabhängig skalierbar
   & Eig. \\
 
-Ausfallsicherheit
+Ausfall\-sicherheit
   & Ein Fehler kann die ganze Anwendung betreffen
   & Wie Monolith
   & Ausfall eines Services betrifft nicht automatisch alle
@@ -206,7 +206,7 @@ Typisches Risiko
 ohne gesonderten Quellenbeleg.
 \subsection{Vergleich der Frameworks}
 Relevante Frameworks für die Entwicklung des Backends sind Django, FastAPI und Flask.
-Die Vor- und Nachteile der drei Frameworks werden in Tabelle~\ref{tab:frameworkvergleich} gegenübergestellt.\\ \\
+Die Vor- und Nachteile der drei Frameworks werden in Tabelle~\ref{tab:frameworkvergleich} gegenübergestellt.
 
 
 \begin{footnotesize}
@@ -247,7 +247,7 @@ Charakter
   & \enquote{Microframework}: schlanker, erweiterbarer Kern, trifft wenige Vorgaben (z.\,B. zur Datenbank)
   & \cite{djangoOverview}, \cite{drfHome}; \cite{fastapiAlternatives}; \cite{flaskForeword} \\
 
-Datenbankzugriff
+Datenbank\-zugriff
   & Eigener ORM mit Migrationen; laut FastAPI-Doku eng an relationale Datenbanken gekoppelt
   & Kein eigener ORM; ORMs und ODMs von Drittanbietern auf Pydantic-Basis nutzbar
   & Keine Datenbankintegration im Kern; Anbindung über Erweiterungen (z.\,B. Flask-SQLAlchemy)
@@ -259,19 +259,19 @@ Admin-Oberfläche
   & Nicht Teil des Kerns
   & \cite{djangoOverview}; Eig. \\
 
-Authentifizierung und Sicherheit
-  & Benutzer- und Rechteverwaltung über \texttt{django.contrib.auth}; DRF ergänzt Authentifizierung, Berechtigungen und Throttling. Eingebauter Schutz u.\,a. gegen XSS, CSRF, SQL-Injection und Clickjacking
+Authentifi\-zierung\\ und Sicherheit
+  & Benutzer- und Rechteverwaltung über \texttt{django.contrib.\allowbreak auth}; DRF ergänzt Authentifizierung, Berechtigungen und Throttling. Eingebauter Schutz u.\,a. gegen XSS, CSRF, SQL-Injection und Clickjacking
   & Integrierte Werkzeuge für HTTP Basic, OAuth2 (mit JWT) und API-Keys
   & Nicht im Kern; per Plug-ins ergänzbar
   & \cite{drfHome}, \cite{djangoSecurity}; \cite{fastapiFeatures}; \cite{fastapiAlternatives} \\
 
-API-Dokumentation und Validierung
+API-Doku\-mentation\\ und Validierung
   & Serializer für ORM- und Nicht-ORM-Daten, \enquote{Browsable API}, Schema-Erzeugung als DRF-Funktion
   & Automatische interaktive Dokumentation (Swagger UI, ReDoc) auf Basis von OpenAPI; Validierung über Pydantic und Typ-Annotationen
   & Validierung und OpenAPI-Dokumentation über Zusatzpakete (z.\,B. Flask-apispec, Marshmallow, Webargs)
   & \cite{drfHome}; \cite{fastapiFeatures}; \cite{fastapiAlternatives} \\
 
-Asynchronität
+Asynchroni\-tät
   & Async-Views; ORM, Cache, Authentifizierung und Sessions mit Async-Schnittstellen. Volle Wirkung unter ASGI, unter WSGI mit Zusatzkosten. Async-Unterstützung von DRF nicht geprüft
   & Auf ASGI (Starlette, Uvicorn) ausgelegt, nativ asynchron
   & Async-Views seit Version 2.0, aber unter WSGI bindet jeder Request einen Worker; für überwiegend asynchronen Code verweist die Doku auf Quart
@@ -289,7 +289,7 @@ Antwortzeit (Benchmark)
   & Einzeln: 5,0 (SQLite) bzw. 8,5 (SQLAlchemy)\,ms; alle: 28,2 bzw. 69,2\,ms; Anlegen: 111,3 bzw. 116,0\,ms
   & \cite{bednarz2025} \\
 
-Projektstruktur
+Projekt\-struktur
   & Anwendung in Apps gegliedert (Beispiel-App \enquote{news} in der Doku)
   & Mehrere Dateien über Router möglich
   & Keine feste Projektstruktur vorgegeben
@@ -311,14 +311,14 @@ Framework optimiert; Django\,5.2.1 mit DRF, Flask\,3.1.0, FastAPI\,0.115.12).
 
 \subsection{Skalierbarkeit und Modularität}
 \label{sec:skalierbarkeit-modularitaet}
-Skalierbarkeit und Modularität sind zwei der nicht\"=funktionalen Anforderungen an das Backend. Für dieses Projekt werden beide Begriffe wie folgt verstanden.\\ \\
+Skalierbarkeit und Modularität sind zwei der nicht\"=funktionalen Anforderungen an das Backend. Für dieses Projekt werden beide Begriffe wie folgt verstanden.
 \textbf{Begriffe.}
 Skalierbarkeit bedeutet, dass das Backend mit einer wachsenden Anzahl an Benutzern und Daten zurechtkommt, ohne dass die Antwortzeiten unbrauchbar werden.
 Die Skalierung der Serverumgebung, vertikal durch stärkere Hardware oder horizontal durch mehrere Instanzen, übernimmt \Jai\ im Infrastrukturkapitel.
 Das Backend muss dafür so aufgebaut sein, dass mehrere Instanzen parallel laufen können. Es darf daher keine Sitzungs- oder Benutzerdaten im Prozess selbst speichern.
 Modularität bedeutet, dass die Backend-Logik in klar abgegrenzte Teile mit definierten Schnittstellen gegliedert ist.
 Neue Funktionen lassen sich so ergänzen, ohne bestehende Komponenten umzubauen.
-Modularität betrifft also den Aufbau und die Erweiterbarkeit des Codes, Skalierbarkeit das Verhalten unter Last.\\ \\
+Modularität betrifft also den Aufbau und die Erweiterbarkeit des Codes, Skalierbarkeit das Verhalten unter Last.
 
 
 \subsection{Auswahl von Framework und Architekturansatz}
@@ -372,7 +372,7 @@ Dieser Abschnitt legt fest, welche Daten das Backend verwaltet, wie Lernergebnis
 \subsection{Fachliche Entitäten}
 \label{subsec:entitaeten}
 Django bildet Daten über Modelle ab. Ein Modell ist eine Python-Klasse, jedes Attribut entspricht einem Datenbankfeld, und ein Modell entspricht in der Regel einer Tabelle. Beziehungen, bei denen mehrere Datensätze zu genau einem anderen gehören, werden mit einem \texttt{ForeignKey} ausgedrückt \parencite{djangoModels}.
-Aus den funktionalen Anforderungen (Verwaltung von Benutzern, Lerninhalten, Lernkarten, Tests und Ergebnissen sowie Abbildung des Wiederholungsstatus) ergeben sich die in Tabelle~\ref{tab:entitaeten} dargestellten Entitäten. Die Aufteilung ist ein eigener Entwurf.\\ \\
+Aus den funktionalen Anforderungen (Verwaltung von Benutzern, Lerninhalten, Lernkarten, Tests und Ergebnissen sowie Abbildung des Wiederholungsstatus) ergeben sich die in Tabelle~\ref{tab:entitaeten} dargestellten Entitäten. Die Aufteilung ist ein eigener Entwurf.
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -447,14 +447,14 @@ Das Backend speichert zwei Arten von Daten über den Lernprozess:
     \item \textbf{Lernergebnisse} halten fest, was geschehen ist. Jede bewertete Antwort wird mit Zeitpunkt als eigener Datensatz gespeichert und danach nicht mehr verändert.
     \item Der \textbf{Wiederholungsstatus} hält fest, wie es weitergeht. Er enthält je Benutzer und Lernkarte den letzten und den nächsten Wiederholungszeitpunkt sowie die Parameter des Verfahrens. Welche Parameter nötig sind, hängt vom gewählten Verfahren ab und wird in Abschnitt~\ref{sec:algorithmus} festgelegt.
 \end{itemize}
-Die Trennung hat aus eigener Einschätzung zwei Vorteile. Erstens bleibt die Historie erhalten. Der Lernfortschritt lässt sich daraus berechnen, und der Wiederholungsstatus kann bei einem geänderten Verfahren aus den Lernergebnissen neu berechnet werden. Das ist auch für das Testen des Algorithmus nützlich (Abschnitt~\ref{sec:tests}). Zweitens ist der Wiederholungsstatus klein und wird bei jeder Antwort gelesen, ohne dass die Historie ausgewertet werden muss.\\ \\
+Die Trennung hat aus eigener Einschätzung zwei Vorteile. Erstens bleibt die Historie erhalten. Der Lernfortschritt lässt sich daraus berechnen, und der Wiederholungsstatus kann bei einem geänderten Verfahren aus den Lernergebnissen neu berechnet werden. Das ist auch für das Testen des Algorithmus nützlich (Abschnitt~\ref{sec:tests}). Zweitens ist der Wiederholungsstatus klein und wird bei jeder Antwort gelesen, ohne dass die Historie ausgewertet werden muss.
 Wenn ein Benutzer eine Antwort abgibt, laufen drei Schritte ab:
 \begin{enumerate}
     \item Das Backend speichert das Lernergebnis.
     \item Der Lernalgorithmus berechnet aus dem bisherigen Wiederholungsstatus und dem Ergebnis den neuen Status.
     \item Das Backend speichert den neuen Wiederholungsstatus.
 \end{enumerate}
-Alle drei Schritte werden in einer Datenbanktransaktion ausgeführt. Django stellt dafür den Block \texttt{atomic} bereit. Wird der Block ohne Fehler beendet, werden die Änderungen übernommen; bei einer Ausnahme werden sie zurückgerollt \parencite{djangoTransactions}. Dadurch wird nie ein Lernergebnis ohne den dazugehörigen Wiederholungsstatus gespeichert. Das setzt die gemeinsame relationale Datenbank voraus (Abschnitt~\ref{subsec:auswahl-framework-architektur}).\\ \\
+Alle drei Schritte werden in einer Datenbanktransaktion ausgeführt. Django stellt dafür den Block \texttt{atomic} bereit. Wird der Block ohne Fehler beendet, werden die Änderungen übernommen; bei einer Ausnahme werden sie zurückgerollt \parencite{djangoTransactions}. Dadurch wird nie ein Lernergebnis ohne den dazugehörigen Wiederholungsstatus gespeichert. Das setzt die gemeinsame relationale Datenbank voraus (Abschnitt~\ref{subsec:auswahl-framework-architektur}).
 Zusätzlich gelten folgende Festlegungen (eigener Entwurf):
 \begin{itemize}
     \item Je Benutzer und Lernkarte gibt es höchstens einen Wiederholungsstatus. Die Datenbank sichert das über eine Eindeutigkeitsbedingung ab.
@@ -464,7 +464,7 @@ Zusätzlich gelten folgende Festlegungen (eigener Entwurf):
 
 \subsection{Projektstruktur in Django-Apps}
 \label{subsec:projektstruktur}
-Die Backend-Logik wird anhand der Regeln in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} in Apps gegliedert. Jede App enthält ihre Modelle und Fachfunktionen. Andere Apps greifen nur über diese Fachfunktionen zu (eigene Festlegung). Tabelle~\ref{tab:apps} zeigt den Entwurf. Die Namen sind Vorschläge.\\ \\
+Die Backend-Logik wird anhand der Regeln in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} in Apps gegliedert. Jede App enthält ihre Modelle und Fachfunktionen. Andere Apps greifen nur über diese Fachfunktionen zu (eigene Festlegung). Tabelle~\ref{tab:apps} zeigt den Entwurf. Die Namen sind Vorschläge.
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -495,7 +495,7 @@ Die Backend-Logik wird anhand der Regeln in Abschnitt~\ref{sec:skalierbarkeit-mo
 \bottomrule
 \endlastfoot
 
-Benutzerverwaltung
+Benutzer\-verwaltung
   & \texttt{accounts}
   & Benutzer und Rollen
   & keine \\
