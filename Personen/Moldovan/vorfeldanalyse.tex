@@ -601,3 +601,84 @@ Die Abhängigkeiten verlaufen nur in eine Richtung. Die App \texttt{adaptive} ke
 \subsection{Getroffene Entscheidungen}
 \subsection{Risiken und offene Fragen}
 \subsection{Verwendung von Künstlicher Intelligenz}
+\label{subsec:ki-verwendung}
+Für die Korrektur von Texten wurde ein KI-Agent von Copilot eingesetzt, der das Modell GPT~5.6-Luna verwendet \parencite{copilotKorrektur2026}. Die Kennzeichnung folgt dem Leitfaden des Bundesministeriums für Bildung, Wissenschaft und Forschung (BMBWF), nach dem das verwendete KI-System und die eingegebenen Prompts anzugeben sind \parencite[S.~3--4]{bmbwf2023ki}.
+Der Agent erhielt den in Listing~\ref{lst:ki-prompt} wiedergegebenen Prompt.
+
+\begin{lstlisting}[
+  caption={Prompt für die KI-gestützte Korrektur des Kapitels},
+  label={lst:ki-prompt},
+  basicstyle=\ttfamily\footnotesize,
+  upquote=true,
+  literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1 {ß}{{\ss}}1 {×}{{$\times$}}1
+]
+# Task: Review and polish Luca Moldovan's chapter of a diploma thesis (LaTeX)
+
+## Context
+This is the written part of a diploma thesis ("Diplomarbeit") at HTBLuVA Salzburg: a learning platform for the school subject software development. Three students each write their own chapter. You work ONLY on Luca Moldovan's chapter.
+
+- Repository: https://github.com/5BHITS-2026-27-DA-LearnIT/Diplomarbeit
+- File to review: `Personen/Moldovan/vorfeldanalyse.tex` (German, chapter "Vorfeldanalyse (Luca Moldovan)")
+- Shared files you may READ but must not change: `main.tex`, `preamble.tex`, `command.tex`, `literatur.bib`, and the chapters of the other authors (`Personen/Berger/`, `Personen/Kumar/`, `Personen/Gemeinsam/`).
+- Layout facts (from `preamble.tex`): `scrreprt`, A4, 12 pt, margins left 3 cm / right 2.5 cm (text width 15.5 cm), babel `ngerman`, biblatex with biber (numeric style), packages `longtable`, `booktabs`, `array`, `todonotes`.
+- The text is written in German. All your edits must stay in German. Use correct current German orthography as used in Austria (e.g. "ß" is correct).
+
+## Core rules
+1. Do not invent anything: no facts, numbers, sources, quotes, or bibliography entries. If something cannot be verified, flag it instead of "fixing" it.
+2. Do not claim that you checked, built, or tested something unless you actually did. State clearly what you could and could not run.
+3. Make minimal changes. Preserve the author's content, technical meaning, structure, and writing style. Do not add new sections, arguments, or features. Do not shorten or lengthen the text for its own sake.
+4. Keep existing conventions: `\"=` hyphenation shorthand, `\enquote{...}`, the abbreviation "Eig." for own assessments, the macros `\Luca`, `\Jakob`, `\Jai`, and all `\label` names that are referenced elsewhere.
+5. Do not delete `% TODO` comments or `\todo{...}` notes. List them in your report instead.
+6. Do not touch other authors' files. If you find problems there (e.g. a missing label), report them separately.
+
+## What to do
+### 1. Spelling and grammar
+Find and fix spelling, grammar, punctuation, capitalization, and typographic errors (e.g. quotation marks, dashes, spacing, abbreviations such as "z. B."). Fix broken sentences and inconsistent tense. Keep the generic masculine/terminology the chapter uses; if the terminology differs from other chapters (e.g. "Benutzer" vs. "Benutzer:innen"), do not change it, just report it.
+
+### 2. Unclear passages
+Identify unclear, ambiguous, or overly complicated sentences, undefined terms, abbreviations used before being explained, and claims without justification or source. For unclear wording, make a small rewrite that keeps the meaning. If the meaning itself is uncertain, do not guess: list the passage with a short question for the author.
+
+### 3. References and citations
+- Check that every `\cite`/`\parencite`/`\textcite` key exists in `literatur.bib`. List missing keys. Do NOT create bibliography entries yourself; propose them only if you can verify all fields from the actual source, and mark them as proposals.
+- Check that every `\ref`/`\autoref`/`\hyperref` target has a matching `\label` somewhere in the project (including the other authors' files). List undefined or mismatched labels (e.g. different spelling or hyphenation of the same label). Fix mismatches inside Luca's file only when the correct target is unambiguous.
+- Check `\parencite[...]` page/section notes for consistent style.
+- Where you have web access, check whether a cited source really supports the sentence it is attached to. Report only what you actually verified, and give a confidence level. Do not rewrite claims based on memory.
+- Report bibliography entries that are cited by this chapter but are incomplete or inconsistent (missing author, date, url).
+
+### 4. Tables
+All tables must be fully readable in the compiled PDF.
+- Make sure no table exceeds the text width of 15.5 cm (sum of `p{}` column widths plus 2×`\tabcolsep` per column).
+- Prevent text from running into neighboring columns or off the page. Add explicit hyphenation points (`\-`) for long compound words, adjust column widths, or adjust `\tabcolsep`/font size (`\small`, `\footnotesize`) as needed. Keep the font size readable (not smaller than `\footnotesize`).
+- Keep the existing look: `longtable` with `booktabs` rules, repeated header on page breaks, caption and label, "Fortsetzung"/"weiter auf der nächsten Seite" rows.
+- Avoid ugly page breaks (e.g. a header with a single row at the bottom of a page).
+- Keep all table content unchanged unless it contains a spelling error.
+- Check that every table is referenced in the text and that captions are consistent.
+
+### 5. Build check
+Try to compile the whole document (`main.tex`, biber backend, e.g. `latexmk -pdf main.tex`). Then check the log for errors, undefined references/citations, and overfull/underfull boxes that belong to Luca's chapter, and look at the rendered pages containing his tables. If the toolchain (biber, biblatex, German babel) is missing and you cannot install it, say so explicitly and describe which checks therefore remain unverified.
+
+## Working method
+- make changes lokal
+- Do not reformat the whole file or change line breaks unnecessarily, so the diff stays easy to review.
+
+## Output
+Deliver a report in English (quote German passages in German) with these sections:
+1. **Summary**: number of changes per category, build status.
+2. **Changes made**: a table with location (section/line), before, after, reason.
+3. **Open questions for the author**: unclear passages, unverifiable claims, with your proposed options.
+4. **References**: missing citation keys, undefined/mismatched labels, source-support findings with confidence.
+5. **Tables**: what was changed per table and what you checked in the rendered PDF.
+6. **Problems outside Luca's chapter**: found but not changed.
+7. **Not verified**: everything you could not check, and why.
+\end{lstlisting}
+
+\noindent Der Einsatz erfolgte, um die sprachliche Qualität des Kapitels zu verbessern. Die Änderungen betreffen hauptsächlich Rechtschreibung und Syntax. Alle Änderungen wurden in Git-Commits dokumentiert. Außerdem wurde der folgende Review-Bericht erstellt:
+\begin{enumerate}
+    \item \textbf{Summary:} Rechtschreibung, Grammatik, Querverweise und Tabellenlayout überarbeitet. Build erfolgreich.
+    \item \textbf{Changes made:} Tabellenbeschriftungen und Referenzen korrigiert, fehlende Trennstellen ergänzt, überflüssige \texttt{\textbackslash\textbackslash\ \textbackslash\textbackslash}-Umbrüche entfernt.
+    \item \textbf{Open questions:} Einige fachliche Aussagen und eigene Entwürfe müssen vom Autor inhaltlich bestätigt werden.
+    \item \textbf{References:} Die verwendeten Zitationsschlüssel sind vorhanden. Die fehlende Referenz \texttt{sec:skalierbarkeit-infra} wurde nicht erfunden, sondern durch einen Textverweis ersetzt.
+    \item \textbf{Tables:} Breiten, Umbrüche und lange Komposita wurden geprüft. Die Tabellen passen innerhalb der Dokumentbreite.
+    \item \textbf{Problems outside Luca's chapter:} Es wurden keine Dateien anderer Autoren verändert.
+    \item \textbf{Not verified:} Es erfolgte keine externe Prüfung, ob alle Quellen die jeweiligen Aussagen tatsächlich belegen. Die verbleibenden \texttt{Overfull}- und \texttt{Underfull}-Meldungen sind nicht fatal und betreffen überwiegend LaTeX-Tabellenköpfe bzw.\ andere Kapitel.
+\end{enumerate}
