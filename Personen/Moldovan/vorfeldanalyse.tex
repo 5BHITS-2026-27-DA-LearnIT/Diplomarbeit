@@ -534,36 +534,83 @@ Die Abhängigkeiten verlaufen nur in eine Richtung. Die App \texttt{adaptive} ke
 % ---------------------------------------------------------------
 \section{Adaptiver Lernalgorithmus}
 \label{sec:algorithmus}
-% Kernthema, hier am meisten Recherche einplanen.
-% - Was bedeutet "adaptiv", was wird individuell angepasst?
-% - Verfahren zur Wiederholungsplanung (z. B. Leitner-System, SM-2, FSRS)
-% - Verfahren zur Wissensstandschätzung (z. B. Elo-ähnliche Modelle, IRT)
-% - Lernforschung zum verteilten Wiederholen: nur mit belastbaren Quellen belegen
-% - Realistischer Umfang bei 180 h, Prüfung der Wirksamkeit
-
-% TODO: Quellen zur Lernforschung suchen und in literatur.bib eintragen
 
 \subsection{Begriff und Ziel der Adaptivität}
-\subsection{Grundlagen aus der Lernforschung}
-\subsection{Verfahren zur Wiederholungsplanung}
-\subsection{Verfahren zur Wissensstandschätzung}
-\subsection{Vergleich und Auswahl}
+Adaptiv bedeutet in LearnIT, dass sich das System anhand des dokumentierten
+Lernverlaufs an den einzelnen Schüler anpasst. Angepasst werden zwei Dinge:
+\emph{wann} ein Inhalt (z.\,B. eine Lernkarte) wiederholt wird und \emph{welche}
+Aufgaben als Nächstes vorgeschlagen werden. Der Algorithmus benötigt dafür pro
+Schüler und Inhalt einen Lernzustand, der nach jeder Antwort aktualisiert wird.
 
+\subsection{Grundlagen aus der Lernforschung}
+Verteiltes Wiederholen verbessert das Behalten gegenüber gehäuftem Lernen;
+der günstigste Abstand zwischen Wiederholungen wächst dabei mit der gewünschten
+Behaltensdauer \cite{cepeda2006}. Aktives Abrufen (Testen) fördert das
+langfristige Behalten stärker als erneutes Lesen \cite{roediger2006}.
+Eine Übersichtsarbeit bewertet Practice Testing und Distributed Practice als
+die beiden Lerntechniken mit dem höchsten Nutzen \cite{dunlosky2013}. Die
+zitierte Spacing"=Studie untersucht Gedächtnisaufgaben mit verbalem Material
+\cite{cepeda2006}; die Übertragbarkeit auf Stoff der Softwareentwicklung wird
+daher nicht als belegt, sondern als Annahme behandelt.
+
+\subsection{Verfahren zur Wiederholungsplanung}
+\paragraph{SM-2.} Der Algorithmus SM-2 speichert pro Karte einen
+Easiness-Factor $EF$ (Start 2{,}5) und ein Intervall $I$. Nach einer
+Bewertung $q \in \{0,\dots,5\}$ gilt: Die ersten Intervalle betragen 1 und 6
+Tage, danach $I(n) = I(n-1) \cdot EF$; der Faktor wird mit
+$EF' = EF + (0{,}1 - (5-q)\,(0{,}08 + (5-q)\cdot 0{,}02))$ angepasst. Bei
+$q < 3$ beginnt die Karte von vorn \cite{wozniak1990}.
+Das Verfahren ist einfach, besitzt aber kein Wahrscheinlichkeitsmodell des
+Vergessens.
+
+\paragraph{Half-Life Regression.} HLR schätzt per Regression die
+\enquote{Halbwertszeit} eines Inhalts im Gedächtnis und benötigt dafür große
+Mengen an Lerndaten \cite{settles2016}.
+
+\paragraph{FSRS.} FSRS modelliert jede Karte mit den drei Größen Stability,
+Difficulty und Retrievability (DSR-Modell). Eine Wiederholung wird fällig,
+wenn die vorhergesagte Abrufwahrscheinlichkeit auf die gewünschte
+Behaltensquote sinkt. Die Vergessenskurve ist eine Potenzfunktion; die
+Parameter werden aus Wiederholungsdaten optimiert \cite{ye2022,su2023,fsrs4anki}.
+Da FSRS in mehreren Versionen mit unterschiedlichen Formeln existiert, muss
+die verwendete Version festgelegt werden.
+
+\subsection{Verfahren zur Wissensstandschätzung}
+\paragraph{Elo-ähnliche Modelle.} Jede Antwort wird als \enquote{Spiel}
+zwischen Schüler (Fähigkeit $\theta$) und Aufgabe (Schwierigkeit $\delta$)
+gewertet. Nach jeder Antwort werden beide Werte angepasst; so lassen sich
+Fähigkeit und Schwierigkeit laufend schätzen, ohne Aufgaben vorab zu
+kalibrieren \cite{pelanek2016}. Im Mathematik-Trainingssystem \enquote{Maths
+Garden} werden Aufgaben so gewählt, dass die mittlere Erfolgswahrscheinlichkeit
+bei $0{,}75$ liegt; das Scoring berücksichtigt Genauigkeit und Antwortzeit
+\cite{klinkenberg2011}.
+
+\paragraph{Knowledge Tracing.} Bayesian Knowledge Tracing schätzt pro
+Fertigkeit die Wahrscheinlichkeit, dass sie beherrscht wird
+\cite{corbett1994}. Deep Knowledge Tracing verwendet rekurrente neuronale
+Netze und benötigt entsprechend große Trainingsdatenmengen \cite{piech2015}.
+
+\subsection{Vergleich und Auswahl}
+% TODO: Entscheidung bestätigen bzw. anpassen.
+Kriterien sind Datenbedarf, Implementierungsaufwand im vorgesehenen Umfang
+von 180\,h, Erklärbarkeit und Eignung für Lernkarten bzw. Tests.
+Datenhungrige Modelle (HLR, Deep Knowledge Tracing) scheiden aus, da bei
+Projektstart keine Lerndaten vorliegen \cite{settles2016,piech2015}. Für
+Lernkarten wird ein Verfahren mit pro Karte gespeichertem Zustand
+(SM-2 oder eine vereinfachte FSRS-Variante) vorgesehen, für Tests ein
+Elo-basiertes Modell zur Schätzung von Fähigkeit und Aufgabenschwierigkeit
+\cite{wozniak1990,ye2022,pelanek2016}.
 
 \subsection{Bewertung der Wirksamkeit}
+% TODO: Nur eintragen, was tatsächlich durchgeführt wurde.
+Die Wirksamkeit lässt sich auf drei Ebenen prüfen: (1) Korrektheit der
+Implementierung durch Unit-Tests der Intervall- und Rating-Berechnung,
+(2) Verhalten des Algorithmus in Simulationen mit künstlichen Lernenden,
+(3) ein Test mit realen Nutzern. Ein Wirksamkeitsnachweis im Sinne eines
+Lernzuwachses ist im Rahmen des Projekts nur eingeschränkt möglich;
+Ergebnisse: \emph{[noch einzutragen]}.
 
 % ---------------------------------------------------------------
-\section{API-Konzeption}
-\label{sec:api}
-% - REST oder GraphQL, Django REST Framework oder Alternativen?
-% - Versionierung, Fehlerformat, Dokumentation (z. B. OpenAPI)
-% - Abstimmung der Endpunkte mit dem Frontend und der Infrastruktur
-
-% TODO: API-Stile vergleichen
-
-\subsection{API-Stile im Vergleich}
-\subsection{Gestaltung der Schnittstelle}
-\subsection{Abstimmung mit Frontend und Infrastruktur}
 
 % ---------------------------------------------------------------
 \section{Sicherheit}
