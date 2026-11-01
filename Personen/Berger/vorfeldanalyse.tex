@@ -22,7 +22,6 @@ Die Zielgruppe sind Schüler der HTL Salzburg in der Abteilung Informationstechn
 \subsection{Abgrenzung zu Backend und Infrastruktur}
 
 Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Luca Moldovan entwickelt das Django-Backend, den adaptiven Lernalgorithmus und die API. Jai Kumar baut die Serverumgebung, die Datenbank und die Anmeldung über das Active Directory. Ich entwickle alles, was im Browser läuft.
-
 Bei den Lernkarten ist die Aufteilung zum Beispiel so: Welche Karte als nächstes kommt und wann sie wiederholt wird, entscheidet der Algorithmus im Backend. Ich zeige die Karte an, nehme die Antwort der Schüler entgegen und schicke sie an das Backend. Bei der Anmeldung zeige ich das Formular an. Die Prüfung der Daten läuft über das Backend und das Active Directory. Beim Lernfortschritt berechnet das Backend die Werte, und ich stelle sie als Diagramme und Balken dar. Die genauen Schnittstellen werden gemeinsam im Meilenstein am 15.11.2026 festgelegt.
 
 \section{Begrifflichkeiten}
@@ -72,17 +71,73 @@ SUS & System Usability Scale, ein Fragebogen mit zehn Fragen, der die Bedienbark
 \subsection{Frontend-Technologien}
 
 Für Weboberflächen gibt es zwei grundlegende Ansätze. Beim ersten wird die Seite am Server zusammengebaut. Bei Django passiert das mit den eingebauten Templates. Bei jedem Klick schickt der Server eine neue HTML-Seite. Das ist einfach und braucht wenig JavaScript. Der Nachteil ist, dass sich viele Interaktionen eher träge anfühlen, weil die Seite neu geladen wird. Beim zweiten Ansatz, der Single Page Application, lädt der Browser die Anwendung einmal. Danach holt sie sich nur noch Daten über die API und ändert die Anzeige direkt. Das fühlt sich schneller und mehr wie eine App an.
-
 Weil unser Backend eine eigene API anbietet und weil das Lernen viel Interaktion hat (Karten umdrehen, Antworten auswählen, Diagramme), passt für mich eine SPA besser. Es gibt dafür mehrere bekannte Technologien:
 
-\textbf{React} ist eine JavaScript-Bibliothek von Meta. Die Oberfläche wird aus Komponenten gebaut. React ist sehr weit verbreitet, es gibt extrem viele Bibliotheken und Anleitungen dazu. Es ist aber nur eine Bibliothek und kein komplettes Framework. Man muss sich zum Beispiel für das Routing und das State-Management selbst Zusatzpakete aussuchen.\footnote{Vgl. Meta Platforms: React Documentation. \url{https://react.dev}, abgerufen am TT.MM.2026.}
+\textbf{React} ist eine JavaScript-Bibliothek von Meta. Die Oberfläche wird aus Komponenten gebaut. React ist sehr weit verbreitet, es gibt extrem viele Bibliotheken und Anleitungen dazu. Es ist aber nur eine Bibliothek und kein komplettes Framework. Man muss sich zum Beispiel für das Routing und das State-Management selbst Zusatzpakete aussuchen.\footnote{Vgl. Meta Platforms: React Documentation. \url{https://react.dev}}
 
-\textbf{Vue} ist ein Framework, das als einsteigerfreundlich gilt. Die Dateien sind übersichtlich aufgebaut, und die Dokumentation ist gut. Die Community ist aber kleiner als bei React.\footnote{Vgl. Vue.js: Introduction. \url{https://vuejs.org/guide/introduction.html}, abgerufen am TT.MM.2026.}
+\textbf{Vue} ist ein Framework, das als einsteigerfreundlich gilt. Die Dateien sind übersichtlich aufgebaut, und die Dokumentation ist gut. Die Community ist aber kleiner als bei React.\footnote{Vgl. Vue.js: Introduction. \url{https://vuejs.org/guide/introduction.html}}
 
-\textbf{Angular} ist ein komplettes Framework von Google mit TypeScript. Es bringt fast alles mit, ist dafür aber umfangreich und hat eine steile Lernkurve. Für ein Projekt mit 180 Stunden pro Person ist das eher zu viel.\footnote{Vgl. Google: Angular Documentation. \url{https://angular.dev}, abgerufen am TT.MM.2026.}
+\textbf{Angular} ist ein komplettes Framework von Google mit TypeScript. Es bringt fast alles mit, ist dafür aber umfangreich und hat eine steile Lernkurve. Für ein Projekt mit 180 Stunden pro Person ist das eher zu viel.\footnote{Vgl. Google: Angular Documentation. \url{https://angular.dev}}
 
 \textbf{Svelte} wird beim Bauen zu normalem JavaScript übersetzt und ist dadurch sehr schlank. Es ist modern und angenehm zu schreiben, wird aber seltener eingesetzt.
 
 \textbf{Django-Templates mit HTMX} wäre eine Variante ohne eigenes JavaScript-Framework. HTMX lädt kleine HTML-Teile nach. Das ist für einfache Seiten sehr praktisch. Bei vielen Komponenten, Animationen und Diagrammen wird es aber unübersichtlich.
 
 Zusätzlich zu JavaScript wird TypeScript immer häufiger verwendet. TypeScript fügt Typen hinzu, dadurch findet man viele Fehler schon beim Schreiben und nicht erst im Browser. Das hilft besonders, wenn man mit einer API arbeitet, weil man genau festlegen kann, wie die Daten aussehen. Für das Aussehen braucht man außerdem CSS. Hier gibt es fertige Systeme wie Bootstrap oder Tailwind CSS, die viele Standardelemente bereits mitbringen.
+
+\subsection{ResponsiveDesign und Barrierefreiheit}
+
+Responsive Design bedeutet, dass sich die Oberfläche an die Bildschirmgröße der nutzenden Geräte anpasst. Das ist besonders wichtig, da viele der Zielgruppe die Plattform auf dem Handy nutzen werden. Technisch geht das mit flexiblen Layouts (Flexbox und CSS Grid) und mit Media Queries, die ab bestimmten Bildschirmbreiten das Layout ändern. Bei Mobile First fängt man mit dem Handy an. Das hat den Vorteil, dass man sich auf das Wichtigste konzentrieren muss, weil auf dem kleinen Bildschirm kein Platz für unnötige Sachen ist. Buttons müssen am Handy außerdem groß genug sein, damit sie mit dem Finger gedrückt werden können. Bei der Desktop-Ansicht kann man dann mehr Informationen und Funktionen anzeigen.
+Zur Barierefreiheit gibt es die Richtlinien WGAG des W3C. Sie sind in vier Prinzipien unterteilt: Wahrnehmbar, Bedienbar, Verständlich und Robust. \footnote{Vgl.W3C: Web Content Accessibility Guidelines (WGAG)2.2 \url{https://www.w3.org/TR/WGAG22/}.} Für unser Projekt bedeutet das konkrete Dinge. Der Kontrast zwischen Text und Hintergrund muss hoch genug sein(bei normalen Text mindestens 4.5 zu 1 für die Stufe AA). Die ganze Seite sollte sich auch mit der Tastatur bedienen lassen. Bilder und Diagramme brauchen eine Textbeschriebung. Außerdem sollte Information nie über die Farbe bvermittelt werden, weil manche Menschen Rot und Grün nicht unterscheiden können. Das ist bei richtigen und falschen Antworten wichtig. Öffentliche Stellen in Österreich müssen ihre Websietne barrierefrei gestalten. Auch wenn unsere Paltform villeicht nicht direkt darunter fällt, ist es eine gute Orientierung.
+
+\subsection{Usability und Navigation}
+
+Usability ist ein großes Geboet. Ein bekannter Einstige sind die zehn Heuristiken von Jakob Nielsen.\footnote{Vgl. Nielsen Norman Group: 10 Usability Heuristics for User Interface Design. \url{https://www.nngroup.com/articles/ten-usability-heuristics/}.} Für meine Arbeit sind vor allem diese Punkte wichtig:
+
+\begin{itemize}
+    \item \textbf{Sichtbarkeit des Sytemstatus:} Die Benutzer sollen immer wissen, was gerade passiert. Zum Beispiel zeigt ein Ladebalken,dass Daten geladen werden, und bei einem Test sieht man, bei welcher Frage man gerade ist. 
+    \item \textbf{Konsistenz:} Gleiche Dinge sehen gleich aus und funktionieren gleich. Ein Button zum Weitermachen ist überall an der selben Stelle.
+    \item \textbf{Erkennen satt Erinnern:} Mann muss sich nicht merken, wo etwas ist oder wie es funktioniert. Die Navigation ist immer sichtbar. 
+    \item \textbf{Fehler vermeiden und beheben:} Wenn jemand versehentlich einen Test beendet, sollte vorher eine Rückfrage kommen. 
+    \item \textbf{Minimalistisches Design:} Es wrd nur angezeigt, was wirklic gebraucht wird.
+\end{itemize}
+
+
+\subsection{Lernkarten,Tests und Lernfortschritt in der Oberfläche}
+
+
+\subsection{Gamification}
+
+\begin{itemize}
+    \item 
+\end{itemize}
+
+
+\subsection{Anbindung an das Backend}
+
+
+\subsection{Funktions- und Usability-Test}
+
+
+
+\section{Konkurrenzanalyse}
+
+
+\subsection{Positive Beispiele}
+
+\subsection{Duolingo}
+
+\subsection{Khan Academy}
+
+\subsection{Kahoot}
+
+
+\subsection{Negative Beispiele}
+
+\subsection{Moodle}
+
+\subsection{Anki}
+
+\subsection{Quizlet}
+
+
