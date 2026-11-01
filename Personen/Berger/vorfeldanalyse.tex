@@ -1,3 +1,88 @@
 % !TEX root = ../../main.tex
 
+\chapter{Vorfeldanalyse (Jakob Berger)}
 
+\section{Anforderungen und Abgrenzung}
+
+\subsection{Anforderungen an das Frontend}
+
+Das Frontend ist der Teil der Lernplattform, den die Schüler wirklich sehen und benutzen. Egal wie gut der Lernalgorithmus im Backend ist, wenn die Oberfläche unübersichtlich ist, benutzt sie keiner. Deshalb ist meine Aufgabe, eine Oberfläche zu entwickeln, mit der man schnell und ohne lange Erklärung lernen kann. Aus dem Projektantrag ergeben sich diese Anforderungen:
+
+\begin{itemize}
+    \item Die Weboberfläche ist responsive. Sie funktioniert am Handy, am Tablet und am Computer.
+    \item Es gibt Ansichten für Lerninhalte, Lernkarten und Tests.
+    \item Der Lernfortschritt wird übersichtlich dargestellt.
+    \item Es gibt Gamification-Elemente, die die Schüler motivieren sollen.
+    \item Das Frontend ist mit einer Schnittstelle an das Backend angebunden.
+    \item Funktionen und Bedienbarkeit werden getestet und die Ergebnisse dokumentiert.
+\end{itemize}
+
+Die Zielgruppe sind Schüler der HTL Salzburg in der Abteilung Informationstechnologie. Diese Gruppe ist technisch fit und hat schon viele Apps und Webseiten benutzt. Das heißt aber auch, dass sie schlechte Oberflächen sofort bemerkt und dann nicht mehr verwendet. Viele werden die Plattform am Handy öffnen, zum Beispiel in der Pause oder im Zug. Deshalb muss die mobile Ansicht von Anfang an mitgedacht werden.
+
+\subsection{Abgrenzung zu Backend und Infrastruktur}
+
+Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Luca Moldovan entwickelt das Django-Backend, den adaptiven Lernalgorithmus und die API. Jai Kumar baut die Serverumgebung, die Datenbank und die Anmeldung über das Active Directory. Ich entwickle alles, was im Browser läuft.
+
+Bei den Lernkarten ist die Aufteilung zum Beispiel so: Welche Karte als nächstes kommt und wann sie wiederholt wird, entscheidet der Algorithmus im Backend. Ich zeige die Karte an, nehme die Antwort der Schüler entgegen und schicke sie an das Backend. Bei der Anmeldung zeige ich das Formular an. Die Prüfung der Daten läuft über das Backend und das Active Directory. Beim Lernfortschritt berechnet das Backend die Werte, und ich stelle sie als Diagramme und Balken dar. Die genauen Schnittstellen werden gemeinsam im Meilenstein am 15.11.2026 festgelegt.
+
+\section{Begrifflichkeiten}
+
+\begin{center}
+\begin{tabular}{|p{4.2cm}|p{9.3cm}|}
+\hline
+\textbf{Begriff} & \textbf{Erklärung} \\
+\hline
+Frontend & Der Teil einer Anwendung, den man im Browser sieht und bedient \\
+\hline
+UI / UX & UI ist das Aussehen der Oberfläche. UX ist das Gesamterlebnis beim Benutzen \\
+\hline
+Usability & Wie einfach, schnell und angenehm eine Anwendung zu bedienen ist \\
+\hline
+Responsive Design & Die Oberfläche passt sich an die Bildschirmgröße an \\
+\hline
+Mobile First & Man plant zuerst die Handyansicht und erweitert sie dann für größere Bildschirme \\
+\hline
+Single Page Application (SPA) & Webseite, die nur einmal geladen wird und sich danach per JavaScript verändert, ohne neu zu laden \\
+\hline
+Komponente & Ein wiederverwendbarer Baustein der Oberfläche, zum Beispiel eine Lernkarte oder ein Button \\
+\hline
+Framework / Bibliothek & Fertiger Code, der die Entwicklung einer Oberfläche einfacher macht \\
+\hline
+REST-API & Schnittstelle, über die das Frontend mit dem Backend Daten austauscht, meistens im JSON-Format \\
+\hline
+JSON & Textformat, um Daten zwischen Programmen auszutauschen \\
+\hline
+Gamification & Spielelemente wie Punkte oder Abzeichen in einer Anwendung, die kein Spiel ist \\
+\hline
+Streak & Anzahl der Tage in Folge, an denen man gelernt hat \\
+\hline
+Barrierefreiheit & Die Seite kann auch von Menschen mit Einschränkungen benutzt werden \\
+\hline
+WCAG & Richtlinien des W3C für barrierefreie Webinhalte \\
+\hline
+Lernkarte (Flashcard) & Karte mit einer Frage auf der Vorderseite und der Antwort auf der Rückseite \\
+\hline
+SUS & System Usability Scale, ein Fragebogen mit zehn Fragen, der die Bedienbarkeit als Zahl von 0 bis 100 bewertet \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Hintergründe zur Aufgabe}
+
+\subsection{Frontend-Technologien}
+
+Für Weboberflächen gibt es zwei grundlegende Ansätze. Beim ersten wird die Seite am Server zusammengebaut. Bei Django passiert das mit den eingebauten Templates. Bei jedem Klick schickt der Server eine neue HTML-Seite. Das ist einfach und braucht wenig JavaScript. Der Nachteil ist, dass sich viele Interaktionen eher träge anfühlen, weil die Seite neu geladen wird. Beim zweiten Ansatz, der Single Page Application, lädt der Browser die Anwendung einmal. Danach holt sie sich nur noch Daten über die API und ändert die Anzeige direkt. Das fühlt sich schneller und mehr wie eine App an.
+
+Weil unser Backend eine eigene API anbietet und weil das Lernen viel Interaktion hat (Karten umdrehen, Antworten auswählen, Diagramme), passt für mich eine SPA besser. Es gibt dafür mehrere bekannte Technologien:
+
+\textbf{React} ist eine JavaScript-Bibliothek von Meta. Die Oberfläche wird aus Komponenten gebaut. React ist sehr weit verbreitet, es gibt extrem viele Bibliotheken und Anleitungen dazu. Es ist aber nur eine Bibliothek und kein komplettes Framework. Man muss sich zum Beispiel für das Routing und das State-Management selbst Zusatzpakete aussuchen.\footnote{Vgl. Meta Platforms: React Documentation. \url{https://react.dev}, abgerufen am TT.MM.2026.}
+
+\textbf{Vue} ist ein Framework, das als einsteigerfreundlich gilt. Die Dateien sind übersichtlich aufgebaut, und die Dokumentation ist gut. Die Community ist aber kleiner als bei React.\footnote{Vgl. Vue.js: Introduction. \url{https://vuejs.org/guide/introduction.html}, abgerufen am TT.MM.2026.}
+
+\textbf{Angular} ist ein komplettes Framework von Google mit TypeScript. Es bringt fast alles mit, ist dafür aber umfangreich und hat eine steile Lernkurve. Für ein Projekt mit 180 Stunden pro Person ist das eher zu viel.\footnote{Vgl. Google: Angular Documentation. \url{https://angular.dev}, abgerufen am TT.MM.2026.}
+
+\textbf{Svelte} wird beim Bauen zu normalem JavaScript übersetzt und ist dadurch sehr schlank. Es ist modern und angenehm zu schreiben, wird aber seltener eingesetzt.
+
+\textbf{Django-Templates mit HTMX} wäre eine Variante ohne eigenes JavaScript-Framework. HTMX lädt kleine HTML-Teile nach. Das ist für einfache Seiten sehr praktisch. Bei vielen Komponenten, Animationen und Diagrammen wird es aber unübersichtlich.
+
+Zusätzlich zu JavaScript wird TypeScript immer häufiger verwendet. TypeScript fügt Typen hinzu, dadurch findet man viele Fehler schon beim Schreiben und nicht erst im Browser. Das hilft besonders, wenn man mit einer API arbeitet, weil man genau festlegen kann, wie die Daten aussehen. Für das Aussehen braucht man außerdem CSS. Hier gibt es fertige Systeme wie Bootstrap oder Tailwind CSS, die viele Standardelemente bereits mitbringen.
