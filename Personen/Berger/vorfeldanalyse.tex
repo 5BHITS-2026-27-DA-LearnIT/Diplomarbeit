@@ -102,23 +102,41 @@ Usability ist ein großes Geboet. Ein bekannter Einstige sind die zehn Heuristik
     \item \textbf{Minimalistisches Design:} Es wrd nur angezeigt, was wirklic gebraucht wird.
 \end{itemize}
 
+Der letzte Punkt hängt mit der Coognitive Load Theory von John Sweller zusammen. sie besagt, dass unser Arbeitsgedächtnis nur begrenzt viel gleichzeitig aufnehmen kann.\footnote{Vgl. Sweller, John:Cognitive Load During Problem Solving: Effects on Learnin. In:Cognitive Science 12(1988),S.257-285.} Wenn eine Lernseite voll mit Buttons, Werbung und Menüs ist, bleibt weniger Aufmerksamkeit für dden eigentlichen Lernstoff Übrig. Für eine Lernplatform ist das besonders wichtig, denn die Oberfläche soll dem Lernen helfen und nicht davon ablenken. 
+Bei der Navigation gilt: Wichtige Bereiche sollen mit wenigen Klicks erreichbar sein. Auf dem Handy bietet sich eine Leiste am unteren Rand mit drei bis fünf Punkten an, weil man sie mit dem Daumen gut erreicht. Am Computer ist eine Seitenleiste oder eine Leiste oben üblich. Für die Lernplatfrom kommen als Hauptbereiche zum Beipiel Startseite, Lernen, Tests, Fortschritt und Profil in Frage.
 
 \subsection{Lernkarten,Tests und Lernfortschritt in der Oberfläche}
 
 
+
 \subsection{Gamification}
 
+Gamification bedeutet, dass man Spielelemente in einem Zusammenhang verwendet, der kein Spiel ist.\footnote{Vgl. Deterding, Sebastian et al.: From Game Design to Gameful Design Elements to Gamfulness: Defining ``Gammification''. In Proceedings of the 15th International Academic MindTrek Conference. New York: ACM 2011, S.9-15.} Typische Elemente sind:
+
 \begin{itemize}
+    \item Punkte(zum Beispiel XP für gelernte Karten)
+    \item Level, die man mit genug Punkten erreicht
+    \item Abzeichen für bestimmte Leistungen
+    \item Streaks (Anzahl der Tage in Folge, an denen man gelernt hat)
+    \item Fortschrittsbalken und Ziele
+    \item Ranglisten, bei denen man sich mit anderen vergleichen kann
     \item 
 \end{itemize}
 
+Warum das funktionieren kann, erklärt die Selbstbestimmungstheorie von Deci und Ryan. Danach sind Menschen motiviert, wenn drei Bedürfnisse erfüllt sind: Autonomie(man entscheidet selbst), Kompetenz(man merkt, dass man besser wird) und soziale Eingebundeheit.\footnote{Vgl. Ryan, Richard M.; Deci, Edward L.: Self-Determination Theory and the Faciliation of Intrinsic Motivation, Social Development and Well-Being. In: American Psychologist 55(2000),S.68-78}
+Gamification hat aber auch Risiken. Wenn Schüler nur noch wegen der Punkte lernen und nicht mehr wegen dem Stoff, spricht man vom Überrechtfertigungseffekt. Ranglisten können außerdem Schüler demotivieren, die immer weit unten stehen. Streaks können Druck machen, wenn man sich schlecht fühlt, sobald man einen Tag verpasst. Deshalb sollte Gamification bei uns eher unterstützen als im Mittelpunkt stehen.
 
 \subsection{Anbindung an das Backend}
 
+Das Frontend spricht mit dem Backend über eine REST-API. Die Daten werden als JSON übertragen. Für die Anfragen kann man die Fetch-API des Browsers oder eine Bibliothek wie Axios verwenden. Dabei muss das Frontend mit mehreren Dingen umgehen können: Die Daten brauchen Zeit zum Laden, es kann Fehler geben (zum Beispiel wenn die Verbindung abbricht oder die Anmeldung abgelaufen ist), und die Daten müssen sauber im Frontend gespeichert werden. Dafür gibt es Bibliotheken wie TanStack Query, die das Laden und Zwischenspeichern übernehmen.
+
+Wichtig ist auch die Abstimmung mit dem Backend. Wenn sich das Format einer Antwort ändert, geht im Frontend schnell etwas kaputt. Deshalb sollte die API gut dokumentiert sein, zum Beispiel mit OpenAPI, und wir müssen uns in der Gruppe früh auf die Datenformate einigen. Mit TypeScript können die Typen für die Daten festgelegt werden, so fallen Unterschiede früh auf. Zur Anmeldung gilt, dass der Benutzer bei uns das Formular im Frontend sieht und die Prüfung über das Backend läuft. Es muss darauf geachtet werden, dass keine Passwörter im Frontend gespeichert werden.
 
 \subsection{Funktions- und Usability-Test}
 
+Beim Testen des Frontends gibt es zwei Bereiche. Funktionstests prüfen, ob alles wie geplant funktioniert. Dazu gehören Unit-Tests für einzelne Komponenten und End-to-End-Tests, die das Klicken eines Benutzers im Browser nachmachen (zum Beispiel mit Playwright oder Cypress). Zusätzlich muss man die Oberfläche in verschiedenen Browsern und auf verschiedenen Bildschirmgrößen ausprobieren.
 
+Usability-Tests prüfen, ob echte Menschen mit der Oberfläche zurechtkommen. Dafür gibt man Testpersonen Aufgaben, zum Beispiel ''Finde herraus in welchem Thema du am schwächsten bist'', und beobachtet, wo sie Probleme haben. Nielsen schreibt, dass schon wenige Testpersonen die meisten Probleme finden. Deshalb sind mehrere kleine Testrunden besser als ein großer Test am Ende.\footnote{Vgl. Nielsen, Jakob:Why You Only Need to Test with 5 Users. Nielsen Norman Group. \url{https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/}.} Danach kann man einen Fragebogen wie die System Usability Scale verwenden, bei dem die Testpersonen zehn Aussagen bewwerten.\footnote{Vgl.Brooke,John:SUS:A''Quick and Dirty'' Usability Scale. In:Jordan,P.W. et al.(Hrsg.):Usability Evaluation in Industry. London:Taylor\& Francis 1996,S.189-194.} Das Ergebnis ist eine Zahl zwischen 0 und 100. Als Testpersonen eignen sich Mitschüler aus der Klasse,weil sie genau die Zielgruppe sind. 
 
 \section{Konkurrenzanalyse}
 
@@ -140,4 +158,12 @@ Usability ist ein großes Geboet. Ein bekannter Einstige sind die zehn Heuristik
 
 \subsection{Quizlet}
 
+\subsection{Vergleich und Erkenntnisse}
+
+
+\section{Fazit mit Designentscheidungen}
+
+\subsection{Getroffene Entscheidungen}
+
+\subsection{Risiken und offene Fragen}
 
