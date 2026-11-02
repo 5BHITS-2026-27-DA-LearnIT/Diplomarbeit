@@ -447,7 +447,7 @@ Das Backend speichert zwei Arten von Daten über den Lernprozess:
     \item \textbf{Lernergebnisse} halten fest, was geschehen ist. Jede bewertete Antwort wird mit Zeitpunkt als eigener Datensatz gespeichert und danach nicht mehr verändert.
     \item Der \textbf{Wiederholungsstatus} hält fest, wie es weitergeht. Er enthält je Benutzer und Lernkarte den letzten und den nächsten Wiederholungszeitpunkt sowie die Parameter des Verfahrens. Welche Parameter nötig sind, hängt vom gewählten Verfahren ab und wird in Abschnitt~\ref{sec:algorithmus} festgelegt.
 \end{itemize}
-Die Trennung hat aus eigener Einschätzung zwei Vorteile. Erstens bleibt die Historie erhalten. Der Lernfortschritt lässt sich daraus berechnen, und der Wiederholungsstatus kann bei einem geänderten Verfahren aus den Lernergebnissen neu berechnet werden. Das ist auch für das Testen des Algorithmus nützlich (Abschnitt~\ref{sec:tests}). Zweitens ist der Wiederholungsstatus klein und wird bei jeder Antwort gelesen, ohne dass die Historie ausgewertet werden muss.
+Die Trennung hat aus eigener Einschätzung zwei Vorteile. Erstens bleibt die Historie erhalten. Der Lernfortschritt lässt sich daraus berechnen, und der Wiederholungsstatus kann bei einem geänderten Verfahren aus den Lernergebnissen neu berechnet werden. Das ist auch für das Testen des Algorithmus nützlich. Zweitens ist der Wiederholungsstatus klein und wird bei jeder Antwort gelesen, ohne dass die Historie ausgewertet werden muss.
 Wenn ein Benutzer eine Antwort abgibt, laufen drei Schritte ab:
 \begin{enumerate}
     \item Das Backend speichert das Lernergebnis.
@@ -522,13 +522,13 @@ Adaptiver Lernalgorithmus
 
 API
   & \texttt{api}
-  & REST-Schnittstelle zum Frontend (Abschnitt~\ref{sec:api}), ohne eigene Fachlogik
+  & REST-Schnittstelle zum Frontend, ohne eigene Fachlogik
   & alle Fachapps \\
 
 \end{longtable}
 \endgroup
 
-Die Abhängigkeiten verlaufen nur in eine Richtung. Die App \texttt{adaptive} kennt weder die Datenbank noch die API. Sie erhält Status und Ergebnis als einfache Daten und liefert den neuen Status zurück. Dadurch lässt sie sich ohne Datenbank testen (Abschnitt~\ref{sec:tests}). Die App \texttt{api} enthält keine eigene Fachlogik, damit sich die Schnittstelle ändern lässt, ohne die Fachlogik anzupassen.
+Die Abhängigkeiten verlaufen nur in eine Richtung. Die App \texttt{adaptive} kennt weder die Datenbank noch die API. Sie erhält Status und Ergebnis als einfache Daten und liefert den neuen Status zurück. Dadurch lässt sie sich ohne Datenbank testen. Die App \texttt{api} enthält keine eigene Fachlogik, damit sich die Schnittstelle ändern lässt, ohne die Fachlogik anzupassen.
 \todo[inline]{Appnamen, Abhängigkeiten und die Rolle der Gamification (siehe oben) nach der Implementierung der ersten Modelle (Meilenstein 29.11.2026) mit dem tatsächlichen Code abgleichen.}
 
 % ---------------------------------------------------------------
@@ -742,7 +742,7 @@ Aus der Vorfeldanalyse ergeben sich diese Entscheidungen. Einige sind vorläufig
   \item[BE-4 Algorithmen.] Datenhungrige Verfahren (Half-Life Regression, Deep Knowledge Tracing) scheiden aus. Für Lernkarten ist SM-2 oder eine vereinfachte FSRS-Variante vorgesehen, für Tests ein Elo-basiertes Modell (Abschnitt~\ref{sec:algorithmus}). Die endgültige Wahl zwischen SM-2 und FSRS ist noch offen.
   \item[BE-5 Sicherheit.] Anonymer Zugriff ist standardmäßig verweigert, Rollen und Objektberechtigungen werden im Backend geprüft, und Schüler sehen nur ihre eigenen Daten. Vorgesehen ist die sitzungsbasierte Authentifizierung mit CSRF-Schutz, sofern Frontend und API unter derselben Adresse laufen (Abschnitt~\ref{subsec:authentifizierung}).
   \item[BE-6 Datenschutz.] Es werden nur die für die Lernfunktionen nötigen Daten gespeichert. Lernstände werden nicht standardmäßig exportiert, und für Entwicklung und Tests werden keine echten Schülerdaten verwendet (Abschnitt~\ref{subsec:datenschutz}).
-  \item[BE-7 Tests.] Es werden das Testframework von Django und die Testklassen des Django REST Framework verwendet. Der Lernalgorithmus wird durch Unit-Tests, eine Simulation und einen Test mit Mitschülern geprüft (Abschnitte~\ref{subsec:testarten} und~\ref{subsec:test-algorithmus}).
+  \item[BE-7 Tests.] Es werden das Testframework von Django und die Testklassen des Django REST Framework verwendet. Der Lernalgorithmus wird durch Unit-Tests, eine Simulation und einen Test mit Mitschülern geprüft.
 \end{description}
  
 \subsection{Risiken und offene Fragen}
