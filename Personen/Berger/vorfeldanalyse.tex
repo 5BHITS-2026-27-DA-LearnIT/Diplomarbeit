@@ -8,7 +8,8 @@
  
 \subsection{Anforderungen an das Frontend}
  
-Das Frontend ist der Teil der Lernplattform, den die Schüler wirklich sehen und benutzen. Egal wie gut der Lernalgorithmus im Backend ist, wenn die Oberfläche unübersichtlich ist, benutzt sie keiner. Deshalb ist meine Aufgabe, eine Oberfläche zu entwickeln, mit der man schnell und ohne lange Erklärung lernen kann. Aus dem Projektantrag ergeben sich diese Anforderungen:
+
+Das Frontend ist der Teil der Lernplattform, den die Schüler wirklich sehen und benutzen. Egal wie gut der Lernalgorithmus im Backend ist, wenn die Oberfläche unübersichtlich ist, benutzt sie keiner. Deshalb ist es meine Aufgabe, eine Oberfläche zu entwickeln, mit der man schnell und ohne lange Erklärung lernen kann. Aus dem Projektantrag ergeben sich diese Anforderungen:
  
 \begin{itemize}
     \item Die Weboberfläche ist responsive. Sie funktioniert am Handy, am Tablet und am Computer.
@@ -25,7 +26,8 @@ Die Zielgruppe sind Schüler der HTL Salzburg in der Abteilung Informationstechn
  
 Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. \Luca entwickelt das Django-Backend, den adaptiven Lernalgorithmus und die API. \Jai baut die Serverumgebung, die Datenbank und die Anmeldung über das Active Directory. Ich entwickle alles, was im Browser läuft.
  
-Bei den Lernkarten ist die Aufteilung zum Beispiel so: Welche Karte als nächstes kommt und wann sie wiederholt wird, entscheidet der Algorithmus im Backend. Ich zeige die Karte an, nehme die Antwort der Schüler entgegen und schicke sie an das Backend. Bei der Anmeldung zeige ich das Formular an. Die Prüfung der Daten läuft über das Backend und das Active Directory. Beim Lernfortschritt berechnet das Backend die Werte, und ich stelle sie als Diagramme und Balken dar. Die genauen Schnittstellen werden gemeinsam im Meilenstein am 15.11.2026 festgelegt.
+
+Bei den Lernkarten ist die Aufteilung zum Beispiel so: Welche Karte als Nächstes kommt und wann sie wiederholt wird, entscheidet der Algorithmus im Backend. Ich zeige die Karte an, nehme die Antwort der Schüler entgegen und schicke sie an das Backend. Bei der Anmeldung zeige ich das Formular an. Die Prüfung der Daten läuft über das Backend und das Active Directory. Beim Lernfortschritt berechnet das Backend die Werte, und ich stelle sie als Diagramme und Balken dar. Die genauen Schnittstellen werden gemeinsam im Meilenstein am 15.11.2026 festgelegt.
  
 \section{Begrifflichkeiten}
 \label{sec:begriffe-frontend}
@@ -91,31 +93,34 @@ Zusätzlich zu JavaScript wird TypeScript immer häufiger verwendet \parencite{s
  
 \section{Responsive Design und Barrierefreiheit}
  
-Responsive Design bedeutet, dass sich die Oberfläche an die Bildschirmgröße der nutzenden Geräte anpasst. Das ist besonders wichtig, da viele der Zielgruppe die Plattform auf dem Handy nutzen werden (Eig.). Technisch geht das mit flexiblen Layouts (Flexbox und CSS Grid \parencite{mdnLayout}) und mit Media Queries, die ab bestimmten Bildschirmbreiten das Layout ändern \parencite{marcotte2010}. Bei Mobile First fängt man mit dem Handy an \parencite{wroblewski2011}. Das hat den Vorteil, dass man sich auf das Wichtigste konzentrieren muss, weil auf dem kleinen Bildschirm kein Platz für unnötige Sachen ist. Buttons müssen am Handy außerdem groß genug sein, damit sie mit dem Finger gedrückt werden können \parencite{wcag22}. Bei der Desktop-Ansicht kann man dann mehr Informationen und Funktionen anzeigen.
- 
-Zur Barierefreiheit gibt es die Richtlinien WGAG des W3C. Sie sind in vier Prinzipien unterteilt: Wahrnehmbar, Bedienbar, Verständlich und Robust \parencite{wcag22}. Für unser Projekt bedeutet das konkrete Dinge. Der Kontrast zwischen Text und Hintergrund muss hoch genug sein(bei normalen Text mindestens 4.5 zu 1 für die Stufe AA). Die ganze Seite sollte sich auch mit der Tastatur bedienen lassen. Bilder und Diagramme brauchen eine Textbeschriebung. Außerdem sollte Information nie nur über die Farbe bvermittelt werden, weil manche Menschen Rot und Grün nicht unterscheiden können. Das ist bei richtigen und falschen Antworten wichtig. Öffentliche Stellen in Österreich müssen ihre Websietne barrierefrei gestalten \parencite{wzg2019}. Auch wenn unsere Paltform villeicht nicht direkt darunter fällt, ist es eine gute Orientierung.
+
+Responsive Design bedeutet, dass sich die Oberfläche an die Bildschirmgröße der genutzten Geräte anpasst. Das ist besonders wichtig, da viele aus der Zielgruppe die Plattform auf dem Handy nutzen werden (Eig.). Technisch geht das mit flexiblen Layouts (Flexbox und CSS Grid \parencite{mdnLayout}) und mit Media Queries, die ab bestimmten Bildschirmbreiten das Layout ändern \parencite{marcotte2010}. Bei Mobile First fängt man mit dem Handy an \parencite{wroblewski2011}. Das hat den Vorteil, dass man sich auf das Wichtigste konzentrieren muss, weil auf dem kleinen Bildschirm kein Platz für unnötige Sachen ist. Buttons müssen am Handy außerdem groß genug sein, damit sie mit dem Finger gedrückt werden können \parencite{wcag22}. Bei der Desktop-Ansicht kann man dann mehr Informationen und Funktionen anzeigen.
+
+Zur Barrierefreiheit gibt es die Richtlinien WCAG des W3C. Sie sind in vier Prinzipien unterteilt: Wahrnehmbar, Bedienbar, Verständlich und Robust \parencite{wcag22}. Für unser Projekt bedeutet das konkrete Dinge. Der Kontrast zwischen Text und Hintergrund muss hoch genug sein (bei normalen Text mindestens 4,5 zu 1 für die Stufe AA). Die ganze Seite sollte sich auch mit der Tastatur bedienen lassen. Bilder und Diagramme brauchen eine Textbeschreibung. Außerdem sollte Information nie nur über die Farbe vermittelt werden, weil manche Menschen Rot und Grün nicht unterscheiden können. Das ist bei richtigen und falschen Antworten wichtig. Öffentliche Stellen in Österreich müssen ihre Websites barrierefrei gestalten \parencite{wzg2019}. Auch wenn unsere Plattform vielleicht nicht direkt darunter fällt, ist es eine gute Orientierung.
  
 \section{Usability und Navigation}
  
-Usability ist ein großes Geboet. Ein bekannter Einstige sind die zehn Heuristiken von Jakob Nielsen \parencite{nielsen1994}. Für meine Arbeit sind vor allem diese Punkte wichtig:
+
+Usability ist ein großes Gebiet. Ein bekannter Einstieg sind die zehn Heuristiken von Jakob Nielsen \parencite{nielsen1994}. Für meine Arbeit sind vor allem diese Punkte wichtig:
  
 \begin{itemize}
-    \item \textbf{Sichtbarkeit des Sytemstatus:} Die Benutzer sollen immer wissen, was gerade passiert. Zum Beispiel zeigt ein Ladebalken,dass Daten geladen werden, und bei einem Test sieht man, bei welcher Frage man gerade ist.
-    \item \textbf{Konsistenz:} Gleiche Dinge sehen gleich aus und funktionieren gleich. Ein Button zum Weitermachen ist überall an der selben Stelle.
-    \item \textbf{Erkennen satt Erinnern:} Mann muss sich nicht merken, wo etwas ist oder wie es funktioniert. Die Navigation ist immer sichtbar.
+    \item \textbf{Sichtbarkeit des Systemstatus:} Die Benutzer sollen immer wissen, was gerade passiert. Zum Beispiel zeigt ein Ladebalken, dass Daten geladen werden, und bei einem Test sieht man, bei welcher Frage man gerade ist.
+    \item \textbf{Konsistenz:} Gleiche Dinge sehen gleich aus und funktionieren gleich. Ein Button zum Weitermachen ist überall an derselben Stelle.
+    \item \textbf{Erkennen statt Erinnern:} Man muss sich nicht merken, wo etwas ist oder wie es funktioniert. Die Navigation ist immer sichtbar.
     \item \textbf{Fehler vermeiden und beheben:} Wenn jemand versehentlich einen Test beendet, sollte vorher eine Rückfrage kommen.
-    \item \textbf{Minimalistisches Design:} Es wrd nur angezeigt, was wirklic gebraucht wird.
+    \item \textbf{Minimalistisches Design:} Es wird nur angezeigt, was wirklich gebraucht wird.
 \end{itemize}
  
-Der letzte Punkt hängt mit der Coognitive Load Theory von John Sweller zusammen. sie besagt, dass unser Arbeitsgedächtnis nur begrenzt viel gleichzeitig aufnehmen kann \parencite{sweller1988}. Wenn eine Lernseite voll mit Buttons, Werbung und Menüs ist, bleibt weniger Aufmerksamkeit für dden eigentlichen Lernstoff Übrig (Eig.). Für eine Lernplatform ist das besonders wichtig, denn die Oberfläche soll dem Lernen helfen und nicht davon ablenken.
+
+Der letzte Punkt hängt mit der Cognitive Load Theory von John Sweller zusammen. Sie besagt, dass unser Arbeitsgedächtnis nur begrenzt viel gleichzeitig aufnehmen kann \parencite{sweller1988}. Wenn eine Lernseite voll mit Buttons, Werbung und Menüs ist, bleibt weniger Aufmerksamkeit für den eigentlichen Lernstoff übrig (Eig.). Für eine Lernplattform ist das besonders wichtig, denn die Oberfläche soll dem Lernen helfen und nicht davon ablenken.
  
-Bei der Navigation gilt: Wichtige Bereiche sollen mit wenigen Klicks erreichbar sein. Auf dem Handy bietet sich eine Leiste am unteren Rand mit drei bis fünf Punkten an, weil man sie mit dem Daumen gut erreicht \parencite{materialBottomNav}. Am Computer ist eine Seitenleiste oder eine Leiste oben üblich (Eig.). Für die Lernplatfrom kommen als Hauptbereiche zum Beipiel Startseite, Lernen, Tests, Fortschritt und Profil in Frage.
+Bei der Navigation gilt: Wichtige Bereiche sollen mit wenigen Klicks erreichbar sein. Auf dem Handy bietet sich eine Leiste am unteren Rand mit drei bis fünf Punkten an, weil man sie mit dem Daumen gut erreicht \parencite{materialBottomNav}. Am Computer ist eine Seitenleiste oder eine Leiste oben üblich (Eig.). Für die Lernplattfrom kommen als Hauptbereiche zum Beispiel Startseite, Lernen, Tests, Fortschritt und Profil in Frage.
  
-\section{Lernkarten,Tests und Lernfortschritt in der Oberfläche}
+\section{Lernkarten, Tests und Lernfortschritt in der Oberfläche}
+
+Eine Lernkarte hat eine Vorderseite mit der Frage und eine Rückseite mit der Antwort. Der Ablauf ist in fast allen Programmen ähnlich: Man liest die Frage, überlegt sich die Antwort, dreht die Karte um und bewertet dann selbst, wie gut man sie gewusst hat \parencite{anki2026}. Diese Bewertung schickt das Frontend an das Backend, das daraus den nächsten Wiederholungstermin berechnet. Wichtig für die Oberfläche ist, dass diese Abfolge sehr schnell geht. Deshalb sind große Buttons und Tastenkürzel sinnvoll \parencite{anki2026}. Außerdem sollte zu sehen sein, wie viele Karten noch offen sind \parencite{nielsen1994}.
  
-Eine Lernkarte hat eine Vorderseite mit der Frage und eine Rückseite mit der Antwort. Der Ablauf ist in fast allen Programmen ähnlich: Man liest die Frage, überlegt sich die Antwort, dreht die Karte um und bewertet dann selbst, wie gut man sie gewusst hat \parencite{anki2026}. Diese Bewertung schickt das Frontend an das Backend, das daraus den nächsten Wiederholungstermin berechnet. Wichtig für die Oberfläche ist, dass diese Abfolge sehr schnell geht. Wer hundert Karten durchgehen will, darf nicht bei jeder Karte lange suchen müssen. Deshalb sind große Buttons und Tastenkürzel sinnvoll \parencite{anki2026}. Außerdem sollte zu sehen sein, wie viele Karten noch offen sind \parencite{nielsen1994}.
- 
-Bei Tests geht es um andere Dinge. Es gibt verschiedene Fragetypen, zum Beispiel Multiple Choice, Lückentext oder Freitext. Jeder Typ braucht eine eigene Komponente (Eig.). Die Schüler sollen sehen, wie weit sie im Test sind, und müssen zwischen Fragen springen können. Nach dem Test ist eine verständliche Auswertung wichtig. Es reicht nicht, nur eine Note oder Prozentzahl zu zeigen. Besser ist es, auch zu erklären, welche Themen schwach waren und was man als nächstes lernen kann (Eig.). Nur so bekommt man ein Feedback, das beim Lernen hilft.
+Bei Tests geht es um andere Dinge. Es gibt verschiedene Fragetypen, zum Beispiel Multiple Choice, Lückentext oder Freitext. Jeder Typ braucht eine eigene Komponente (Eig.). Die Schüler sollen sehen, wie weit sie im Test sind, und müssen zwischen Fragen springen können. Nach dem Test ist eine verständliche Auswertung wichtig. Es reicht nicht, nur eine Note oder Prozentzahl zu zeigen. Besser ist es, auch zu erklären, welche Themen schwach waren und was man als Nächstes lernen kann (Eig.). Nur so bekommt man ein Feedback, das beim Lernen hilft.
  
 Der Lernfortschritt ist der Bereich, der die Plattform von einer einfachen Sammlung an Karten unterscheidet. Die Schüler sollen auf einen Blick sehen, wo sie stehen. Dafür eignen sich Fortschrittsbalken pro Thema, Diagramme für die Entwicklung über die Zeit und Hinweise, was heute zu wiederholen ist \parencite{khanMastery2026}. Wichtig ist, dass die Darstellung verständlich bleibt. Zu viele Zahlen und Diagramme verwirren eher (Eig.). Eine Heatmap oder ein Kalender mit den Lerntagen ist eine bekannte Möglichkeit, regelmäßiges Lernen zu zeigen (Eig.). Die Berechnung der Werte kommt, wie oben beschrieben, vom Backend.
   
@@ -124,7 +129,7 @@ Der Lernfortschritt ist der Bereich, der die Plattform von einer einfachen Samml
 Gamification bedeutet, dass man Spielelemente in einem Zusammenhang verwendet, der kein Spiel ist \parencite{deterding2011}. Typische Elemente sind:
  
 \begin{itemize}
-    \item Punkte(zum Beispiel XP für gelernte Karten)
+    \item Punkte (zum Beispiel XP für gelernte Karten)
     \item Level, die man mit genug Punkten erreicht
     \item Abzeichen für bestimmte Leistungen
     \item Streaks (Anzahl der Tage in Folge, an denen man gelernt hat)
@@ -132,10 +137,11 @@ Gamification bedeutet, dass man Spielelemente in einem Zusammenhang verwendet, d
     \item Ranglisten, bei denen man sich mit anderen vergleichen kann
 \end{itemize}
  
-Warum das funktionieren kann, erklärt die Selbstbestimmungstheorie von Deci und Ryan. Danach sind Menschen motiviert, wenn drei Bedürfnisse erfüllt sind: Autonomie(man entscheidet selbst), Kompetenz(man merkt, dass man besser wird) und soziale Eingebundeheit \parencite{ryan2000}.
+Warum das funktionieren kann, erklärt die Selbstbestimmungstheorie von Deci und Ryan. Danach sind Menschen motiviert, wenn drei Bedürfnisse erfüllt sind: Autonomie (man entscheidet selbst), Kompetenz (man merkt, dass man besser wird) und soziale Eingebundenheit \parencite{ryan2000}.
 Punkte und Level geben ein Gefühl von Kompetenz. Ranglisten können Eingebundenheit bringen.
  
-Gamification hat aber auch Risiken. Wenn Schüler nur noch wegen der Punkte lernen und nicht mehr wegen dem Stoff, spricht man vom Überrechtfertigungseffekt \parencite{lepper1973}. Ranglisten können außerdem Schüler demotivieren, die immer weit unten stehen (Eig.). Streaks können Druck machen, wenn man sich schlecht fühlt, sobald man einen Tag verpasst (Eig.). Deshalb sollte Gamification bei uns eher unterstützen als im Mittelpunkt stehen.
+
+Gamification hat aber auch Risiken. Wenn Schüler nur noch wegen der Punkte lernen und nicht mehr wegen des Stoffs, spricht man vom Überrechtfertigungseffekt \parencite{lepper1973}. Ranglisten können außerdem Schüler demotivieren, die immer weit unten stehen (Eig.). Streaks können Druck machen, wenn man sich schlecht fühlt, sobald man einen Tag verpasst (Eig.). Deshalb sollte Gamification bei uns eher unterstützen als im Mittelpunkt stehen.
  
 \section{Anbindung an das Backend}
  
@@ -152,7 +158,7 @@ Beim Testen des Frontends gibt es zwei Bereiche. Funktionstests prüfen, ob alle
  
 \subsection{Usability-Tests}
  
-Usability-Tests prüfen, ob echte Menschen mit der Oberfläche zurechtkommen. Dafür gibt man Testpersonen Aufgaben, zum Beispiel \enquote{Finde herraus in welchem Thema du am schwächsten bist}, und beobachtet, wo sie Probleme haben. Nielsen schreibt, dass schon wenige Testpersonen die meisten Probleme finden. Deshalb sind mehrere kleine Testrunden besser als ein großer Test am Ende \parencite{nielsen2000}. Danach kann man einen Fragebogen wie die System Usability Scale verwenden, bei dem die Testpersonen zehn Aussagen bewwerten \parencite{brooke1996}. Das Ergebnis ist eine Zahl zwischen 0 und 100. Als Testpersonen eignen sich Mitschüler aus der Klasse,weil sie genau die Zielgruppe sind (Eig.).
+Usability-Tests prüfen, ob echte Menschen mit der Oberfläche zurechtkommen. Dafür gibt man Testpersonen Aufgaben, zum Beispiel \enquote{Finde herraus, in welchem Thema du am schwächsten bist}, und beobachtet, wo sie Probleme haben. Nielsen schreibt, dass schon wenige Testpersonen die meisten Probleme finden. Deshalb sind mehrere kleine Testrunden besser als ein großer Test am Ende \parencite{nielsen2000}. Danach kann man einen Fragebogen wie die System Usability Scale verwenden, bei dem die Testpersonen zehn Aussagen bewerten \parencite{brooke1996}. Das Ergebnis ist eine Zahl zwischen 0 und 100. Als Testpersonen eignen sich Mitschüler aus der Klasse, weil sie genau die Zielgruppe sind (Eig.).
  
 \section{Konkurrenzanalyse}
 \label{sec:konkurrenz-frontend}
@@ -192,7 +198,7 @@ Die Bedienung ist extrem einfach, man braucht keine Erklärung. Die großen Butt
  
 \subsubsection{Moodle}
  
-Moodle ist eine Open-Source-Lernplattform und wird an vielen Schulen und Universitäten verwendet. Sie kann sehr viel: Kurse, Tests, Abgaben, Foren. Genau das ist aber auch das Problem. Die Oberfläche ist vollgepackt mit Menüs und Einstellungen, und wie sie aussieht, hängt stark davon ab, wie die Schule sie eingerichtet hat \parencite{lancaster2024}. Oft braucht man viele Klicks, um zu einem bestimmten Material zu kommen. Am Handy ist die Bedienung je nach Einrichtung eher mühsam \parencite{hasan2018}. Einen persönlichen Lernfortschritt, der einem sagt, was man als nächstes lernen soll, gibt es nicht von Haus aus.
+Moodle ist eine Open-Source-Lernplattform und wird an vielen Schulen und Universitäten verwendet. Sie kann sehr viel: Kurse, Tests, Abgaben, Foren. Genau das ist aber auch das Problem. Die Oberfläche ist vollgepackt mit Menüs und Einstellungen, und wie sie aussieht, hängt stark davon ab, wie die Schule sie eingerichtet hat \parencite{lancaster2024}. Oft braucht man viele Klicks, um zu einem bestimmten Material zu kommen. Am Handy ist die Bedienung je nach Einrichtung eher mühsam \parencite{hasan2018}. Einen persönlichen Lernfortschritt, der einem sagt, was man als Nächstes lernen soll, gibt es nicht von Haus aus.
  
 Moodle zeigt für mich gut, was bei unserer Plattform vermieden werden soll: zu viele Funktionen auf einmal und eine Navigation, in der man sich verläuft \parencite{moodle2026}.
  
@@ -242,7 +248,7 @@ Aus der Vorfeldanalyse, den Anforderungen aus dem Projektantrag und der Konkurre
 \subsection{Getroffene Entscheidungen}
  
 \begin{itemize}
-    \item \textbf{Technologie:} Das Frontend wird als Single Page Application mit React und TypeScript gebaut. React wird verwendet, weil es sehr verbreitet ist, es viele Bibliotheken und Hilfe gibt und die Oberfläche gut aus Komponenten (Lernkarte, Testfrage, Fortschrittsbalken) aufgebaut werden kann. Angular ist für den Umfang zu groß, und Django-Templates mit HTMX wären bei der vielen Interaktion zu umständlich. TypeScript hilft, Fehler bei den API-Daten früh zu finden.
+    \item \textbf{Technologie:} Das Frontend wird als Single Page Application mit React und TypeScript gebaut. React wird verwendet, weil es sehr verbreitet ist, es viele Bibliotheken und Hilfe gibt und die Oberfläche gut aus Komponenten (Lernkarte, Testfrage, Fortschrittsbalken) aufgebaut werden kann. Angular ist für den Umfang zu groß, und Django-Templates mit HTMX wären bei so viel Interaktion zu umständlich. TypeScript hilft, Fehler bei den API-Daten früh zu finden.
     \item \textbf{Aussehen:} Für das Styling wird Tailwind CSS verwendet. Die Farben und Abstände werden einmal festgelegt, damit alles einheitlich aussieht.
     \item \textbf{Mobile First:} Die Oberfläche wird zuerst für das Handy entworfen und dann für Tablet und Computer erweitert. Auf dem Handy gibt es eine Navigationsleiste unten, am Computer eine Seitenleiste. Die Hauptbereiche sind Start, Lernen, Tests, Fortschritt und Profil.
     \item \textbf{Ein Fokus pro Bildschirm:} Beim Lernen und bei Tests wird immer nur eine Karte oder Frage angezeigt, mit einem Fortschrittsbalken. Ablenkungen wie Werbung gibt es nicht.
@@ -256,6 +262,7 @@ Aus der Vorfeldanalyse, den Anforderungen aus dem Projektantrag und der Konkurre
  
 \subsection{Risiken und offene Fragen}
  
-Es gibt einige Punkte, die noch offen sind oder schiefgehen könnten. Das größte Risiko sehe ich in der Abstimmung mit dem Backend. Wenn sich die API ändert, muss ich das Frontend anpassen. Deshalb müssen wir früh klare Datenformate festlegen und Änderungen in der Gruppe besprechen. Außerdem ist offen, wie viel Gamification sinnvoll ist. Das muss ich in den Usability-Tests herausfinden. Dazu kommt, dass ich noch nicht alle Technologien gleich gut kenne, zum Beispiel TypeScript und TanStack Query. Hier muss ich am Anfang Zeit zum Einarbeiten einplanen. Zuletzt hängt die Anmeldung vom Active Directory ab, das \Jai umsetzt. Bis dahin brauche ich eine einfache Testanmeldung, damit ich das Frontend entwickeln kann.
- 
+Es gibt einige Punkte, die noch offen sind oder schiefgehen könnten. Das größte Risiko sehe ich in der Abstimmung mit dem Backend. Wenn sich die API ändert, muss ich das Frontend anpassen. Deshalb müssen wir früh klare Datenformate festlegen und Änderungen in der Gruppe besprechen. Außerdem ist offen, wie viel Gamification sinnvoll ist. Das muss ich in den Usability-Tests herausfinden. Dazu kommt, dass ich noch nicht alle Technologien gleich gut kenne, zum Beispiel TypeScript und TanStack Query. Hier muss ich am Anfang Zeit zum Einarbeiten einplanen. 
+
+Offen ist außerdem, ob die Daten der Gamification (Punkte, Level, Abzeichen und Streak) im Backend gespeichert werden. Das muss ich mit \Luca klären, weil es sein Datenmodell betrifft. Auch die Bewertung der Lernkarten hängt vom Backend ab: SM-2 rechnet mit einer Bewertung von 0 bis 5, FSRS mit vier Stufen (siehe Abschnitt~\ref{sec:algorithmus}). Wie viele Buttons die Oberfläche anbietet, richtet sich danach, welches Verfahren gewählt wird. Im Backend sind außerdem die Rollen Schüler, Lehrkraft und Administrator vorgesehen. Welche eigenen Ansichten Lehrkräfte brauchen, zum Beispiel zum Anlegen von Lernkarten oder für den Import, ist noch offen. Zuletzt hängt die Anmeldung vom Active Directory ab, das \Jai umsetzt. Bis dahin brauche ich eine einfache Testanmeldung, damit ich das Frontend entwickeln kann.
  
