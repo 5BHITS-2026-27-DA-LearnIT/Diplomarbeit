@@ -1,13 +1,15 @@
 % !TEX root = ../../main.tex
-
-\chapter{Vorfeldanalyse (Jakob Berger)}
-
+ 
+\chapter{Vorfeldanalyse (\Jakob)}
+\label{chap:vorfeld-berger}
+ 
 \section{Anforderungen und Abgrenzung}
-
+\label{sec:anforderungen-frontend}
+ 
 \subsection{Anforderungen an das Frontend}
-
+ 
 Das Frontend ist der Teil der Lernplattform, den die Schüler wirklich sehen und benutzen. Egal wie gut der Lernalgorithmus im Backend ist, wenn die Oberfläche unübersichtlich ist, benutzt sie keiner. Deshalb ist meine Aufgabe, eine Oberfläche zu entwickeln, mit der man schnell und ohne lange Erklärung lernen kann. Aus dem Projektantrag ergeben sich diese Anforderungen:
-
+ 
 \begin{itemize}
     \item Die Weboberfläche ist responsive. Sie funktioniert am Handy, am Tablet und am Computer.
     \item Es gibt Ansichten für Lerninhalte, Lernkarten und Tests.
@@ -16,16 +18,18 @@ Das Frontend ist der Teil der Lernplattform, den die Schüler wirklich sehen und
     \item Das Frontend ist mit einer Schnittstelle an das Backend angebunden.
     \item Funktionen und Bedienbarkeit werden getestet und die Ergebnisse dokumentiert.
 \end{itemize}
-
-Die Zielgruppe sind Schüler der HTL Salzburg in der Abteilung Informationstechnologie. Diese Gruppe ist technisch fit und hat schon viele Apps und Webseiten benutzt. Das heißt aber auch, dass sie schlechte Oberflächen sofort bemerkt und dann nicht mehr verwendet. Viele werden die Plattform am Handy öffnen, zum Beispiel in der Pause oder im Zug. Deshalb muss die mobile Ansicht von Anfang an mitgedacht werden.
-
+ 
+Die Zielgruppe sind Schüler der HTL Salzburg in der Abteilung Informationstechnologie. Diese Gruppe ist technisch fit und hat schon viele Apps und Webseiten benutzt. Das heißt aber auch, dass sie schlechte Oberflächen sofort bemerkt und dann nicht mehr verwendet (Eig.)\footnote{\enquote{Eig.} kennzeichnet in diesem Kapitel eigene Einschätzungen ohne gesonderten Quellenbeleg.}. Viele werden die Plattform am Handy öffnen, zum Beispiel in der Pause oder im Zug. Deshalb muss die mobile Ansicht von Anfang an mitgedacht werden.
+ 
 \subsection{Abgrenzung zu Backend und Infrastruktur}
-
-Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. Luca Moldovan entwickelt das Django-Backend, den adaptiven Lernalgorithmus und die API. Jai Kumar baut die Serverumgebung, die Datenbank und die Anmeldung über das Active Directory. Ich entwickle alles, was im Browser läuft.
+ 
+Das Gesamtprojekt besteht aus Backend, Frontend und Infrastruktur. \Luca entwickelt das Django-Backend, den adaptiven Lernalgorithmus und die API. \Jai baut die Serverumgebung, die Datenbank und die Anmeldung über das Active Directory. Ich entwickle alles, was im Browser läuft.
+ 
 Bei den Lernkarten ist die Aufteilung zum Beispiel so: Welche Karte als nächstes kommt und wann sie wiederholt wird, entscheidet der Algorithmus im Backend. Ich zeige die Karte an, nehme die Antwort der Schüler entgegen und schicke sie an das Backend. Bei der Anmeldung zeige ich das Formular an. Die Prüfung der Daten läuft über das Backend und das Active Directory. Beim Lernfortschritt berechnet das Backend die Werte, und ich stelle sie als Diagramme und Balken dar. Die genauen Schnittstellen werden gemeinsam im Meilenstein am 15.11.2026 festgelegt.
-
+ 
 \section{Begrifflichkeiten}
-
+\label{sec:begriffe-frontend}
+ 
 \begin{center}
 \begin{tabular}{|p{4.2cm}|p{9.3cm}|}
 \hline
@@ -65,54 +69,60 @@ SUS & System Usability Scale, ein Fragebogen mit zehn Fragen, der die Bedienbark
 \hline
 \end{tabular}
 \end{center}
-
-\section{Hintergründe zur Aufgabe}
-
-\subsection{Frontend-Technologien}
-
-Für Weboberflächen gibt es zwei grundlegende Ansätze. Beim ersten wird die Seite am Server zusammengebaut. Bei Django passiert das mit den eingebauten Templates. Bei jedem Klick schickt der Server eine neue HTML-Seite. Das ist einfach und braucht wenig JavaScript. Der Nachteil ist, dass sich viele Interaktionen eher träge anfühlen, weil die Seite neu geladen wird. Beim zweiten Ansatz, der Single Page Application, lädt der Browser die Anwendung einmal. Danach holt sie sich nur noch Daten über die API und ändert die Anzeige direkt. Das fühlt sich schneller und mehr wie eine App an.
+ 
+ 
+\section{Frontend-Technologien}
+ 
+Für Weboberflächen gibt es zwei grundlegende Ansätze. Beim ersten wird die Seite am Server zusammengebaut. Bei Django passiert das mit den eingebauten Templates \parencite{djangoOverview}. Bei jedem Klick schickt der Server eine neue HTML-Seite. Das ist einfach und braucht wenig JavaScript. Der Nachteil ist, dass sich viele Interaktionen eher träge anfühlen, weil die Seite neu geladen wird (Eig.). Beim zweiten Ansatz, der Single Page Application, lädt der Browser die Anwendung einmal. Danach holt sie sich nur noch Daten über die API und ändert die Anzeige direkt. Das fühlt sich schneller und mehr wie eine App an (Eig.).
+ 
 Weil unser Backend eine eigene API anbietet und weil das Lernen viel Interaktion hat (Karten umdrehen, Antworten auswählen, Diagramme), passt für mich eine SPA besser. Es gibt dafür mehrere bekannte Technologien:
-
-\textbf{React} ist eine JavaScript-Bibliothek von Meta. Die Oberfläche wird aus Komponenten gebaut. React ist sehr weit verbreitet, es gibt extrem viele Bibliotheken und Anleitungen dazu. Es ist aber nur eine Bibliothek und kein komplettes Framework. Man muss sich zum Beispiel für das Routing und das State-Management selbst Zusatzpakete aussuchen.\footnote{Vgl. Meta Platforms: React Documentation. \url{https://react.dev}}
-
-\textbf{Vue} ist ein Framework, das als einsteigerfreundlich gilt. Die Dateien sind übersichtlich aufgebaut, und die Dokumentation ist gut. Die Community ist aber kleiner als bei React.\footnote{Vgl. Vue.js: Introduction. \url{https://vuejs.org/guide/introduction.html}}
-
-\textbf{Angular} ist ein komplettes Framework von Google mit TypeScript. Es bringt fast alles mit, ist dafür aber umfangreich und hat eine steile Lernkurve. Für ein Projekt mit 180 Stunden pro Person ist das eher zu viel.\footnote{Vgl. Google: Angular Documentation. \url{https://angular.dev}}
-
-\textbf{Svelte} wird beim Bauen zu normalem JavaScript übersetzt und ist dadurch sehr schlank. Es ist modern und angenehm zu schreiben, wird aber seltener eingesetzt.
-
-\textbf{Django-Templates mit HTMX} wäre eine Variante ohne eigenes JavaScript-Framework. HTMX lädt kleine HTML-Teile nach. Das ist für einfache Seiten sehr praktisch. Bei vielen Komponenten, Animationen und Diagrammen wird es aber unübersichtlich.
-
-Zusätzlich zu JavaScript wird TypeScript immer häufiger verwendet. TypeScript fügt Typen hinzu, dadurch findet man viele Fehler schon beim Schreiben und nicht erst im Browser. Das hilft besonders, wenn man mit einer API arbeitet, weil man genau festlegen kann, wie die Daten aussehen. Für das Aussehen braucht man außerdem CSS. Hier gibt es fertige Systeme wie Bootstrap oder Tailwind CSS, die viele Standardelemente bereits mitbringen.
-
-\subsection{ResponsiveDesign und Barrierefreiheit}
-
-Responsive Design bedeutet, dass sich die Oberfläche an die Bildschirmgröße der nutzenden Geräte anpasst. Das ist besonders wichtig, da viele der Zielgruppe die Plattform auf dem Handy nutzen werden. Technisch geht das mit flexiblen Layouts (Flexbox und CSS Grid) und mit Media Queries, die ab bestimmten Bildschirmbreiten das Layout ändern. Bei Mobile First fängt man mit dem Handy an. Das hat den Vorteil, dass man sich auf das Wichtigste konzentrieren muss, weil auf dem kleinen Bildschirm kein Platz für unnötige Sachen ist. Buttons müssen am Handy außerdem groß genug sein, damit sie mit dem Finger gedrückt werden können. Bei der Desktop-Ansicht kann man dann mehr Informationen und Funktionen anzeigen.
-Zur Barierefreiheit gibt es die Richtlinien WGAG des W3C. Sie sind in vier Prinzipien unterteilt: Wahrnehmbar, Bedienbar, Verständlich und Robust. \footnote{Vgl.W3C: Web Content Accessibility Guidelines (WGAG)2.2 \url{https://www.w3.org/TR/WGAG22/}.} Für unser Projekt bedeutet das konkrete Dinge. Der Kontrast zwischen Text und Hintergrund muss hoch genug sein(bei normalen Text mindestens 4.5 zu 1 für die Stufe AA). Die ganze Seite sollte sich auch mit der Tastatur bedienen lassen. Bilder und Diagramme brauchen eine Textbeschriebung. Außerdem sollte Information nie über die Farbe bvermittelt werden, weil manche Menschen Rot und Grün nicht unterscheiden können. Das ist bei richtigen und falschen Antworten wichtig. Öffentliche Stellen in Österreich müssen ihre Websietne barrierefrei gestalten. Auch wenn unsere Paltform villeicht nicht direkt darunter fällt, ist es eine gute Orientierung.
-
-\subsection{Usability und Navigation}
-
-Usability ist ein großes Geboet. Ein bekannter Einstige sind die zehn Heuristiken von Jakob Nielsen.\footnote{Vgl. Nielsen Norman Group: 10 Usability Heuristics for User Interface Design. \url{https://www.nngroup.com/articles/ten-usability-heuristics/}.} Für meine Arbeit sind vor allem diese Punkte wichtig:
-
+ 
+\textbf{React} ist eine JavaScript-Bibliothek von Meta. Die Oberfläche wird aus Komponenten gebaut. React ist sehr weit verbreitet \parencite{stackoverflow2025}, es gibt extrem viele Bibliotheken und Anleitungen dazu (Eig.). Es ist aber nur eine Bibliothek und kein komplettes Framework. Man muss sich zum Beispiel für das Routing und das State-Management selbst Zusatzpakete aussuchen \parencite{react2026}.
+ 
+\textbf{Vue} ist ein Framework, das als einsteigerfreundlich gilt \parencite{vue2026}. Die Dateien sind übersichtlich aufgebaut, und die Dokumentation ist gut (Eig.). Vue ist aber weniger verbreitet als React \parencite{stackoverflow2025}.
+ 
+\textbf{Angular} ist ein komplettes Framework von Google mit TypeScript. Es bringt fast alles mit \parencite{angular2026}, ist dafür aber umfangreich und hat nach meiner Einschätzung eine steile Lernkurve. Für ein Projekt mit 180 Stunden pro Person ist das eher zu viel (Eig.).
+ 
+\textbf{Svelte} wird beim Bauen zu normalem JavaScript übersetzt und ist dadurch sehr schlank \parencite{svelte2026}. Es ist modern und angenehm zu schreiben, wird aber seltener eingesetzt \parencite{stackoverflow2025}.
+ 
+\textbf{Django-Templates mit HTMX} wäre eine Variante ohne eigenes JavaScript-Framework. HTMX lädt kleine HTML-Teile nach \parencite{htmx2026}. Das ist für einfache Seiten sehr praktisch. Bei vielen Komponenten, Animationen und Diagrammen wird es aber unübersichtlich (Eig.).
+ 
+Zusätzlich zu JavaScript wird TypeScript immer häufiger verwendet \parencite{stateofjs2025}. TypeScript fügt Typen hinzu, dadurch findet man viele Fehler schon beim Schreiben und nicht erst im Browser \parencite{typescript}. Das hilft besonders, wenn man mit einer API arbeitet, weil man genau festlegen kann, wie die Daten aussehen. Für das Aussehen braucht man außerdem CSS. Hier gibt es fertige Systeme wie Bootstrap oder Tailwind CSS \parencite{tailwind}, die viele Standardelemente bereits mitbringen.
+ 
+\section{Responsive Design und Barrierefreiheit}
+ 
+Responsive Design bedeutet, dass sich die Oberfläche an die Bildschirmgröße der nutzenden Geräte anpasst. Das ist besonders wichtig, da viele der Zielgruppe die Plattform auf dem Handy nutzen werden (Eig.). Technisch geht das mit flexiblen Layouts (Flexbox und CSS Grid \parencite{mdnLayout}) und mit Media Queries, die ab bestimmten Bildschirmbreiten das Layout ändern \parencite{marcotte2010}. Bei Mobile First fängt man mit dem Handy an \parencite{wroblewski2011}. Das hat den Vorteil, dass man sich auf das Wichtigste konzentrieren muss, weil auf dem kleinen Bildschirm kein Platz für unnötige Sachen ist. Buttons müssen am Handy außerdem groß genug sein, damit sie mit dem Finger gedrückt werden können \parencite{wcag22}. Bei der Desktop-Ansicht kann man dann mehr Informationen und Funktionen anzeigen.
+ 
+Zur Barierefreiheit gibt es die Richtlinien WGAG des W3C. Sie sind in vier Prinzipien unterteilt: Wahrnehmbar, Bedienbar, Verständlich und Robust \parencite{wcag22}. Für unser Projekt bedeutet das konkrete Dinge. Der Kontrast zwischen Text und Hintergrund muss hoch genug sein(bei normalen Text mindestens 4.5 zu 1 für die Stufe AA). Die ganze Seite sollte sich auch mit der Tastatur bedienen lassen. Bilder und Diagramme brauchen eine Textbeschriebung. Außerdem sollte Information nie nur über die Farbe bvermittelt werden, weil manche Menschen Rot und Grün nicht unterscheiden können. Das ist bei richtigen und falschen Antworten wichtig. Öffentliche Stellen in Österreich müssen ihre Websietne barrierefrei gestalten \parencite{wzg2019}. Auch wenn unsere Paltform villeicht nicht direkt darunter fällt, ist es eine gute Orientierung.
+ 
+\section{Usability und Navigation}
+ 
+Usability ist ein großes Geboet. Ein bekannter Einstige sind die zehn Heuristiken von Jakob Nielsen \parencite{nielsen1994}. Für meine Arbeit sind vor allem diese Punkte wichtig:
+ 
 \begin{itemize}
-    \item \textbf{Sichtbarkeit des Sytemstatus:} Die Benutzer sollen immer wissen, was gerade passiert. Zum Beispiel zeigt ein Ladebalken,dass Daten geladen werden, und bei einem Test sieht man, bei welcher Frage man gerade ist. 
+    \item \textbf{Sichtbarkeit des Sytemstatus:} Die Benutzer sollen immer wissen, was gerade passiert. Zum Beispiel zeigt ein Ladebalken,dass Daten geladen werden, und bei einem Test sieht man, bei welcher Frage man gerade ist.
     \item \textbf{Konsistenz:} Gleiche Dinge sehen gleich aus und funktionieren gleich. Ein Button zum Weitermachen ist überall an der selben Stelle.
-    \item \textbf{Erkennen satt Erinnern:} Mann muss sich nicht merken, wo etwas ist oder wie es funktioniert. Die Navigation ist immer sichtbar. 
-    \item \textbf{Fehler vermeiden und beheben:} Wenn jemand versehentlich einen Test beendet, sollte vorher eine Rückfrage kommen. 
+    \item \textbf{Erkennen satt Erinnern:} Mann muss sich nicht merken, wo etwas ist oder wie es funktioniert. Die Navigation ist immer sichtbar.
+    \item \textbf{Fehler vermeiden und beheben:} Wenn jemand versehentlich einen Test beendet, sollte vorher eine Rückfrage kommen.
     \item \textbf{Minimalistisches Design:} Es wrd nur angezeigt, was wirklic gebraucht wird.
 \end{itemize}
-
-Der letzte Punkt hängt mit der Coognitive Load Theory von John Sweller zusammen. sie besagt, dass unser Arbeitsgedächtnis nur begrenzt viel gleichzeitig aufnehmen kann.\footnote{Vgl. Sweller, John:Cognitive Load During Problem Solving: Effects on Learnin. In:Cognitive Science 12(1988),S.257-285.} Wenn eine Lernseite voll mit Buttons, Werbung und Menüs ist, bleibt weniger Aufmerksamkeit für dden eigentlichen Lernstoff Übrig. Für eine Lernplatform ist das besonders wichtig, denn die Oberfläche soll dem Lernen helfen und nicht davon ablenken. 
-Bei der Navigation gilt: Wichtige Bereiche sollen mit wenigen Klicks erreichbar sein. Auf dem Handy bietet sich eine Leiste am unteren Rand mit drei bis fünf Punkten an, weil man sie mit dem Daumen gut erreicht. Am Computer ist eine Seitenleiste oder eine Leiste oben üblich. Für die Lernplatfrom kommen als Hauptbereiche zum Beipiel Startseite, Lernen, Tests, Fortschritt und Profil in Frage.
-
-\subsection{Lernkarten,Tests und Lernfortschritt in der Oberfläche}
-
-
-
-\subsection{Gamification}
-
-Gamification bedeutet, dass man Spielelemente in einem Zusammenhang verwendet, der kein Spiel ist.\footnote{Vgl. Deterding, Sebastian et al.: From Game Design to Gameful Design Elements to Gamfulness: Defining ``Gammification''. In Proceedings of the 15th International Academic MindTrek Conference. New York: ACM 2011, S.9-15.} Typische Elemente sind:
-
+ 
+Der letzte Punkt hängt mit der Coognitive Load Theory von John Sweller zusammen. sie besagt, dass unser Arbeitsgedächtnis nur begrenzt viel gleichzeitig aufnehmen kann \parencite{sweller1988}. Wenn eine Lernseite voll mit Buttons, Werbung und Menüs ist, bleibt weniger Aufmerksamkeit für dden eigentlichen Lernstoff Übrig (Eig.). Für eine Lernplatform ist das besonders wichtig, denn die Oberfläche soll dem Lernen helfen und nicht davon ablenken.
+ 
+Bei der Navigation gilt: Wichtige Bereiche sollen mit wenigen Klicks erreichbar sein. Auf dem Handy bietet sich eine Leiste am unteren Rand mit drei bis fünf Punkten an, weil man sie mit dem Daumen gut erreicht \parencite{materialBottomNav}. Am Computer ist eine Seitenleiste oder eine Leiste oben üblich (Eig.). Für die Lernplatfrom kommen als Hauptbereiche zum Beipiel Startseite, Lernen, Tests, Fortschritt und Profil in Frage.
+ 
+\section{Lernkarten,Tests und Lernfortschritt in der Oberfläche}
+ 
+Eine Lernkarte hat eine Vorderseite mit der Frage und eine Rückseite mit der Antwort. Der Ablauf ist in fast allen Programmen ähnlich: Man liest die Frage, überlegt sich die Antwort, dreht die Karte um und bewertet dann selbst, wie gut man sie gewusst hat \parencite{anki2026}. Diese Bewertung schickt das Frontend an das Backend, das daraus den nächsten Wiederholungstermin berechnet. Wichtig für die Oberfläche ist, dass diese Abfolge sehr schnell geht. Wer hundert Karten durchgehen will, darf nicht bei jeder Karte lange suchen müssen. Deshalb sind große Buttons und Tastenkürzel sinnvoll \parencite{anki2026}. Außerdem sollte zu sehen sein, wie viele Karten noch offen sind \parencite{nielsen1994}.
+ 
+Bei Tests geht es um andere Dinge. Es gibt verschiedene Fragetypen, zum Beispiel Multiple Choice, Lückentext oder Freitext. Jeder Typ braucht eine eigene Komponente (Eig.). Die Schüler sollen sehen, wie weit sie im Test sind, und müssen zwischen Fragen springen können. Nach dem Test ist eine verständliche Auswertung wichtig. Es reicht nicht, nur eine Note oder Prozentzahl zu zeigen. Besser ist es, auch zu erklären, welche Themen schwach waren und was man als nächstes lernen kann (Eig.). Nur so bekommt man ein Feedback, das beim Lernen hilft.
+ 
+Der Lernfortschritt ist der Bereich, der die Plattform von einer einfachen Sammlung an Karten unterscheidet. Die Schüler sollen auf einen Blick sehen, wo sie stehen. Dafür eignen sich Fortschrittsbalken pro Thema, Diagramme für die Entwicklung über die Zeit und Hinweise, was heute zu wiederholen ist \parencite{khanMastery2026}. Wichtig ist, dass die Darstellung verständlich bleibt. Zu viele Zahlen und Diagramme verwirren eher (Eig.). Eine Heatmap oder ein Kalender mit den Lerntagen ist eine bekannte Möglichkeit, regelmäßiges Lernen zu zeigen (Eig.). Die Berechnung der Werte kommt, wie oben beschrieben, vom Backend.
+  
+\section{Gamification}
+ 
+Gamification bedeutet, dass man Spielelemente in einem Zusammenhang verwendet, der kein Spiel ist \parencite{deterding2011}. Typische Elemente sind:
+ 
 \begin{itemize}
     \item Punkte(zum Beispiel XP für gelernte Karten)
     \item Level, die man mit genug Punkten erreicht
@@ -120,50 +130,132 @@ Gamification bedeutet, dass man Spielelemente in einem Zusammenhang verwendet, d
     \item Streaks (Anzahl der Tage in Folge, an denen man gelernt hat)
     \item Fortschrittsbalken und Ziele
     \item Ranglisten, bei denen man sich mit anderen vergleichen kann
-    \item 
 \end{itemize}
-
-Warum das funktionieren kann, erklärt die Selbstbestimmungstheorie von Deci und Ryan. Danach sind Menschen motiviert, wenn drei Bedürfnisse erfüllt sind: Autonomie(man entscheidet selbst), Kompetenz(man merkt, dass man besser wird) und soziale Eingebundeheit.\footnote{Vgl. Ryan, Richard M.; Deci, Edward L.: Self-Determination Theory and the Faciliation of Intrinsic Motivation, Social Development and Well-Being. In: American Psychologist 55(2000),S.68-78}
-Gamification hat aber auch Risiken. Wenn Schüler nur noch wegen der Punkte lernen und nicht mehr wegen dem Stoff, spricht man vom Überrechtfertigungseffekt. Ranglisten können außerdem Schüler demotivieren, die immer weit unten stehen. Streaks können Druck machen, wenn man sich schlecht fühlt, sobald man einen Tag verpasst. Deshalb sollte Gamification bei uns eher unterstützen als im Mittelpunkt stehen.
-
-\subsection{Anbindung an das Backend}
-
-Das Frontend spricht mit dem Backend über eine REST-API. Die Daten werden als JSON übertragen. Für die Anfragen kann man die Fetch-API des Browsers oder eine Bibliothek wie Axios verwenden. Dabei muss das Frontend mit mehreren Dingen umgehen können: Die Daten brauchen Zeit zum Laden, es kann Fehler geben (zum Beispiel wenn die Verbindung abbricht oder die Anmeldung abgelaufen ist), und die Daten müssen sauber im Frontend gespeichert werden. Dafür gibt es Bibliotheken wie TanStack Query, die das Laden und Zwischenspeichern übernehmen.
-
-Wichtig ist auch die Abstimmung mit dem Backend. Wenn sich das Format einer Antwort ändert, geht im Frontend schnell etwas kaputt. Deshalb sollte die API gut dokumentiert sein, zum Beispiel mit OpenAPI, und wir müssen uns in der Gruppe früh auf die Datenformate einigen. Mit TypeScript können die Typen für die Daten festgelegt werden, so fallen Unterschiede früh auf. Zur Anmeldung gilt, dass der Benutzer bei uns das Formular im Frontend sieht und die Prüfung über das Backend läuft. Es muss darauf geachtet werden, dass keine Passwörter im Frontend gespeichert werden.
-
-\subsection{Funktions- und Usability-Test}
-
-Beim Testen des Frontends gibt es zwei Bereiche. Funktionstests prüfen, ob alles wie geplant funktioniert. Dazu gehören Unit-Tests für einzelne Komponenten und End-to-End-Tests, die das Klicken eines Benutzers im Browser nachmachen (zum Beispiel mit Playwright oder Cypress). Zusätzlich muss man die Oberfläche in verschiedenen Browsern und auf verschiedenen Bildschirmgrößen ausprobieren.
-
-Usability-Tests prüfen, ob echte Menschen mit der Oberfläche zurechtkommen. Dafür gibt man Testpersonen Aufgaben, zum Beispiel ''Finde herraus in welchem Thema du am schwächsten bist'', und beobachtet, wo sie Probleme haben. Nielsen schreibt, dass schon wenige Testpersonen die meisten Probleme finden. Deshalb sind mehrere kleine Testrunden besser als ein großer Test am Ende.\footnote{Vgl. Nielsen, Jakob:Why You Only Need to Test with 5 Users. Nielsen Norman Group. \url{https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/}.} Danach kann man einen Fragebogen wie die System Usability Scale verwenden, bei dem die Testpersonen zehn Aussagen bewwerten.\footnote{Vgl.Brooke,John:SUS:A''Quick and Dirty'' Usability Scale. In:Jordan,P.W. et al.(Hrsg.):Usability Evaluation in Industry. London:Taylor\& Francis 1996,S.189-194.} Das Ergebnis ist eine Zahl zwischen 0 und 100. Als Testpersonen eignen sich Mitschüler aus der Klasse,weil sie genau die Zielgruppe sind. 
-
+ 
+Warum das funktionieren kann, erklärt die Selbstbestimmungstheorie von Deci und Ryan. Danach sind Menschen motiviert, wenn drei Bedürfnisse erfüllt sind: Autonomie(man entscheidet selbst), Kompetenz(man merkt, dass man besser wird) und soziale Eingebundeheit \parencite{ryan2000}.
+Punkte und Level geben ein Gefühl von Kompetenz. Ranglisten können Eingebundenheit bringen.
+ 
+Gamification hat aber auch Risiken. Wenn Schüler nur noch wegen der Punkte lernen und nicht mehr wegen dem Stoff, spricht man vom Überrechtfertigungseffekt \parencite{lepper1973}. Ranglisten können außerdem Schüler demotivieren, die immer weit unten stehen (Eig.). Streaks können Druck machen, wenn man sich schlecht fühlt, sobald man einen Tag verpasst (Eig.). Deshalb sollte Gamification bei uns eher unterstützen als im Mittelpunkt stehen.
+ 
+\section{Anbindung an das Backend}
+ 
+Das Frontend spricht mit dem Backend über eine REST-API. Die Daten werden als JSON übertragen. Für die Anfragen kann man die Fetch-API des Browsers oder eine Bibliothek wie Axios \parencite{axios} verwenden. Dabei muss das Frontend mit mehreren Dingen umgehen können: Die Daten brauchen Zeit zum Laden, es kann Fehler geben (zum Beispiel wenn die Verbindung abbricht oder die Anmeldung abgelaufen ist), und die Daten müssen sauber im Frontend gespeichert werden. Dafür gibt es Bibliotheken wie TanStack Query, die das Laden und Zwischenspeichern übernehmen \parencite{tanstack2026}.
+ 
+Wichtig ist auch die Abstimmung mit dem Backend. Wenn sich das Format einer Antwort ändert, geht im Frontend schnell etwas kaputt. Deshalb sollte die API gut dokumentiert sein, zum Beispiel mit OpenAPI \parencite{openapi}, und wir müssen uns in der Gruppe früh auf die Datenformate einigen. Mit TypeScript können die Typen für die Daten festgelegt werden, so fallen Unterschiede früh auf \parencite{typescript}. Zur Anmeldung gilt, dass der Benutzer bei uns das Formular im Frontend sieht und die Prüfung über das Backend läuft. Es muss darauf geachtet werden, dass keine Passwörter im Frontend gespeichert werden.
+ 
+\section{Teststrategie}
+\label{sec:tests-frontend}
+ 
+\subsection{Testarten und Werkzeuge}
+ 
+Beim Testen des Frontends gibt es zwei Bereiche. Funktionstests prüfen, ob alles wie geplant funktioniert. Dazu gehören Unit-Tests für einzelne Komponenten (zum Beispiel mit Vitest \parencite{vitest}) und End-to-End-Tests, die das Klicken eines Benutzers im Browser nachmachen (zum Beispiel mit Playwright \parencite{playwright} oder Cypress). Zusätzlich muss man die Oberfläche in verschiedenen Browsern und auf verschiedenen Bildschirmgrößen ausprobieren.
+ 
+\subsection{Usability-Tests}
+ 
+Usability-Tests prüfen, ob echte Menschen mit der Oberfläche zurechtkommen. Dafür gibt man Testpersonen Aufgaben, zum Beispiel \enquote{Finde herraus in welchem Thema du am schwächsten bist}, und beobachtet, wo sie Probleme haben. Nielsen schreibt, dass schon wenige Testpersonen die meisten Probleme finden. Deshalb sind mehrere kleine Testrunden besser als ein großer Test am Ende \parencite{nielsen2000}. Danach kann man einen Fragebogen wie die System Usability Scale verwenden, bei dem die Testpersonen zehn Aussagen bewwerten \parencite{brooke1996}. Das Ergebnis ist eine Zahl zwischen 0 und 100. Als Testpersonen eignen sich Mitschüler aus der Klasse,weil sie genau die Zielgruppe sind (Eig.).
+ 
 \section{Konkurrenzanalyse}
-
-
+\label{sec:konkurrenz-frontend}
+ 
+\subsection{Positionierung, Ziele und Kriterien}
+ 
+Für die Konkurrenzanalyse habe ich mir bestehende Lernplattformen und Lernapps angeschaut. Mich interessiert dabei immer, wie einfach man sich zurechtfindet, wie der Lernfortschritt gezeigt wird und wie die Plattform motiviert.
+ 
+\subsection{Auswahl der Konkurrenz}
+ 
+Ich habe drei Beispiele gesucht, die ich gut finde, und drei, bei denen mir Probleme aufgefallen sind. Die Bewertungen sind meine eigene Einschätzung und beruhen auf der Benutzung der Plattformen sowie den offiziellen Webseiten.
+ 
+ 
 \subsection{Positive Beispiele}
-
-\subsection{Duolingo}
-
-\subsection{Khan Academy}
-
-\subsection{Kahoot}
-
-
+ 
+\subsubsection{Duolingo}
+ 
+Duolingo ist eine Sprachlern-App und wahrscheinlich das bekannteste Beispiel für Gamification beim Lernen. Man lernt in kurzen Lektionen von wenigen Minuten und bekommt dafür Erfahrungspunkte. Dazu gibt es Streaks, Ranglisten in Ligen und tägliche Ziele \parencite{duolingo101,duolingoLigen2026}. Die Oberfläche ist sehr klar. Pro Lektion gibt es immer nur eine Aufgabe auf dem Bildschirm, und der Fortschrittsbalken oben zeigt, wie weit man ist. Falsche und richtige Antworten bekommen sofort ein Feedback mit Farbe und Text.
+ 
+Gut finde ich, dass man die App sehr leicht bedienen kann. Die Lektionen sind kurz, und man kann jederzeit aufhören und später weitermachen. Die App ist außerdem sehr motivierend, weil man sofort sieht, wie gut man ist und wie weit man noch kommt. Ein Nachteil ist, dass die App nur für Sprachen ist. Außerdem gibt es Werbung und kostenpflichtige Inhalte \parencite{superDuolingo}.
+ 
+\subsubsection{Khan Academy}
+ 
+Khan Academy ist eine kostenlose Lernplattform mit Videos, Übungen und Tests. Das Besondere ist die Darstellung des Lernstands. Jedes Thema hat Stufen wie \enquote{Versucht}, \enquote{Vertraut}, \enquote{Gekonnt} und \enquote{Gemeistert} (englisch: Attempted, Familiar, Proficient, Mastered) \parencite{khanMastery2026}. Man sieht dadurch auf einen Blick, in welchen Themen man schon sicher ist und wo noch etwas fehlt. Es gibt auch Punkte und Abzeichen, sie stehen aber nicht so stark im Vordergrund wie bei Duolingo.
+ 
+Das Konzept der Stufen pro Thema finde ich sehr gut, weil es genau das zeigt, was der Lernfortschritt in unserer Plattform zeigen soll. Die Oberfläche ist außerdem übersichtlich aufgebaut und mit klaren Bereichen gegliedert. Weniger gut finde ich, dass die Plattform mit sehr vielen Inhalten schnell groß wirkt, wenn man neu ist \parencite{khanacademy2026}.
+ 
+ 
+\subsubsection{Kahoot}
+ 
+Kahoot ist eine Quiz-Plattform, die viele aus der Schule kennen. Die Lehrperson startet ein Quiz, und alle antworten gleichzeitig auf ihrem Handy. Die Antwortmöglichkeiten sind große, bunte Felder mit Symbolen. Für schnelle richtige Antworten gibt es mehr Punkte, und am Ende kommt ein Siegerpodest \parencite{kahootPoints2026}.
+ 
+Die Bedienung ist extrem einfach, man braucht keine Erklärung. Die großen Buttons funktionieren sehr gut am Handy. Außerdem macht der Wettbewerb Spaß. Als Lernwerkzeug für längeres Wiederholen ist Kahoot aber nicht gedacht. Es gibt keinen persönlichen Wissensstand und keine Wiederholungsplanung. Der Zeitdruck kann außerdem dazu führen, dass man rät und nicht nachdenkt \parencite{kahoot2026}.
+ 
+ 
 \subsection{Negative Beispiele}
-
-\subsection{Moodle}
-
-\subsection{Anki}
-
-\subsection{Quizlet}
-
+ 
+\subsubsection{Moodle}
+ 
+Moodle ist eine Open-Source-Lernplattform und wird an vielen Schulen und Universitäten verwendet. Sie kann sehr viel: Kurse, Tests, Abgaben, Foren. Genau das ist aber auch das Problem. Die Oberfläche ist vollgepackt mit Menüs und Einstellungen, und wie sie aussieht, hängt stark davon ab, wie die Schule sie eingerichtet hat \parencite{lancaster2024}. Oft braucht man viele Klicks, um zu einem bestimmten Material zu kommen. Am Handy ist die Bedienung je nach Einrichtung eher mühsam \parencite{hasan2018}. Einen persönlichen Lernfortschritt, der einem sagt, was man als nächstes lernen soll, gibt es nicht von Haus aus.
+ 
+Moodle zeigt für mich gut, was bei unserer Plattform vermieden werden soll: zu viele Funktionen auf einmal und eine Navigation, in der man sich verläuft \parencite{moodle2026}.
+ 
+ 
+\subsubsection{Anki}
+ 
+Anki ist ein Programm für Lernkarten, das auf Spaced Repetition aufbaut und sehr beliebt bei Studenten ist (Eig.). Der Lernalgorithmus ist stark. Die Oberfläche ist dafür sehr schlicht und wirkt altmodisch. Neue Benutzer müssen sich erst in Begriffe wie \enquote{Stapel}, \enquote{Notiztypen} und viele Einstellungen einarbeiten. Es gibt kaum Gamification und keine übersichtliche Darstellung des Lernfortschritts, nur Statistiken, die man erst finden muss. Die Bedienung ist nicht für Einsteiger gedacht.
+ 
+ 
+Das zeigt, dass ein guter Algorithmus allein nicht reicht. Wenn die Oberfläche abschreckt, probieren viele Schüler es vermutlich gar nicht aus. Positiv ist die Bewertung der Karte mit vier Buttons, die sehr schnell geht. Diese Idee kann man übernehmen \parencite{anki2026}.
+ 
+ 
+\subsubsection{Quizlet}
+ 
+Quizlet ist eine bekannte Plattform für Lernkarten mit Modi wie Karteikarten, Lernen und Test. Das Umdrehen der Karten und die Modi sind einfach zu bedienen und gut gemacht. Das Problem ist die Menge an Einschränkungen. Viele Funktionen sind nur mit einem bezahlten Abo verfügbar \parencite{quizletPlus}, und in der kostenlosen Version gibt es Werbung. Das unterbricht den Lernfluss und lenkt ab, was nach der Cognitive Load Theory ungünstig ist (Eig.). Außerdem ist es nicht auf einen Lehrplan oder ein bestimmtes Fach ausgelegt, und die Inhalte stammen von verschiedenen Nutzern und sind nicht immer richtig \parencite{quizletErrors,quizlet2026}.
+ 
+ 
 \subsection{Vergleich und Erkenntnisse}
-
-
-\section{Fazit mit Designentscheidungen}
-
+ 
+\begin{center}
+\begin{tabular}{|p{2.6cm}|p{3.2cm}|p{3.4cm}|p{3.6cm}|}
+\hline
+\textbf{Plattform} & \textbf{Navigation} & \textbf{Fortschritt} & \textbf{Motivation} \\
+\hline
+Duolingo & sehr einfach & Balken, Streak & sehr stark \\
+\hline
+Khan Academy & klar, aber groß & Stufen pro Thema & mittel \\
+\hline
+Kahoot & sehr einfach & kein persönlicher Stand & stark, aber nur kurz \\
+\hline
+Moodle & unübersichtlich & kaum vorhanden & kaum vorhanden \\
+\hline
+Anki & schlicht, schwer für Einsteiger & nur Statistiken & keine \\
+\hline
+Quizlet & einfach, aber Werbung & kaum vorhanden & gering \\
+\hline
+\end{tabular}
+\end{center}
+ 
+Aus dem Vergleich nehme ich mehrere Dinge mit. Erstens sind die Plattformen mit der besten Bedienung fast immer die, die pro Bildschirm nur eine Sache zeigen (Duolingo, Kahoot). Zweitens ist ein Fortschritt pro Thema mit Stufen, wie bei Khan Academy, anschaulicher als eine einzelne Prozentzahl. Drittens reicht ein guter Algorithmus nicht aus, wenn die Oberfläche schlecht ist, wie das Beispiel Anki zeigt. Viertens soll Gamification eingesetzt werden, aber nicht zu aufdringlich. Und fünftens darf die Navigation nicht so unübersichtlich werden wie bei Moodle. Keine der untersuchten Plattformen verbindet Lernkarten, Tests, einen klaren Lernfortschritt und Motivation speziell für das Fach Softwareentwicklung. Genau hier setzt unser Projekt an.
+ 
+\section{Fazit der Vorfeldanalyse}
+\label{sec:fazit-frontend}
+ 
+Aus der Vorfeldanalyse, den Anforderungen aus dem Projektantrag und der Konkurrenzanalyse treffe ich folgende Entscheidungen für die Umsetzung des Frontends.
+ 
 \subsection{Getroffene Entscheidungen}
-
+ 
+\begin{itemize}
+    \item \textbf{Technologie:} Das Frontend wird als Single Page Application mit React und TypeScript gebaut. React wird verwendet, weil es sehr verbreitet ist, es viele Bibliotheken und Hilfe gibt und die Oberfläche gut aus Komponenten (Lernkarte, Testfrage, Fortschrittsbalken) aufgebaut werden kann. Angular ist für den Umfang zu groß, und Django-Templates mit HTMX wären bei der vielen Interaktion zu umständlich. TypeScript hilft, Fehler bei den API-Daten früh zu finden.
+    \item \textbf{Aussehen:} Für das Styling wird Tailwind CSS verwendet. Die Farben und Abstände werden einmal festgelegt, damit alles einheitlich aussieht.
+    \item \textbf{Mobile First:} Die Oberfläche wird zuerst für das Handy entworfen und dann für Tablet und Computer erweitert. Auf dem Handy gibt es eine Navigationsleiste unten, am Computer eine Seitenleiste. Die Hauptbereiche sind Start, Lernen, Tests, Fortschritt und Profil.
+    \item \textbf{Ein Fokus pro Bildschirm:} Beim Lernen und bei Tests wird immer nur eine Karte oder Frage angezeigt, mit einem Fortschrittsbalken. Ablenkungen wie Werbung gibt es nicht.
+    \item \textbf{Lernkarten:} Die Karte wird per Klick oder Taste umgedreht. Danach bewertet man sie mit wenigen Buttons (nach dem Vorbild von Anki, aber mit einem schöneren Design). Die Bewertung wird an das Backend geschickt.
+    \item \textbf{Lernfortschritt:} Der Fortschritt wird pro Thema mit Stufen und Balken dargestellt (Vorbild Khan Academy). Dazu kommen ein Verlaufsdiagramm und ein Hinweis, was heute zu wiederholen ist.
+    \item \textbf{Gamification:} Es werden Punkte, Level, Abzeichen und ein Streak umgesetzt. Auf Ranglisten wird zumindest am Anfang verzichtet, damit niemand demotiviert wird. Der Streak soll freundlich bleiben, zum Beispiel mit einer Möglichkeit, einen verpassten Tag auszugleichen.
+    \item \textbf{Barrierefreiheit:} Die Oberfläche orientiert sich an WCAG 2.2 Stufe AA. Das heißt ausreichender Kontrast, Bedienung mit der Tastatur und Information nie nur über Farbe.
+    \item \textbf{API-Anbindung:} Die Kommunikation mit dem Backend läuft über die REST-API mit JSON. Die Datenformate werden mit \Luca abgestimmt und dokumentiert. Das Laden der Daten wird mit TanStack Query gelöst. Fehler und Ladezeiten werden dem Benutzer immer angezeigt.
+    \item \textbf{Tests:} Komponenten werden mit Vitest getestet und die wichtigsten Abläufe mit Playwright. Für die Usability werden Testrunden mit Mitschülern gemacht und mit der System Usability Scale ausgewertet. Die Ergebnisse werden dokumentiert und fließen in Verbesserungen ein.
+\end{itemize}
+ 
 \subsection{Risiken und offene Fragen}
-
+ 
+Es gibt einige Punkte, die noch offen sind oder schiefgehen könnten. Das größte Risiko sehe ich in der Abstimmung mit dem Backend. Wenn sich die API ändert, muss ich das Frontend anpassen. Deshalb müssen wir früh klare Datenformate festlegen und Änderungen in der Gruppe besprechen. Außerdem ist offen, wie viel Gamification sinnvoll ist. Das muss ich in den Usability-Tests herausfinden. Dazu kommt, dass ich noch nicht alle Technologien gleich gut kenne, zum Beispiel TypeScript und TanStack Query. Hier muss ich am Anfang Zeit zum Einarbeiten einplanen. Zuletzt hängt die Anmeldung vom Active Directory ab, das \Jai umsetzt. Bis dahin brauche ich eine einfache Testanmeldung, damit ich das Frontend entwickeln kann.
+ 
+ 
