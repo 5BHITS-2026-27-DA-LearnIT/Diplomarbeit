@@ -618,39 +618,151 @@ Lernzuwachses ist im Rahmen des Projekts nur eingeschränkt möglich.
 % - Rollen und Berechtigungen (Schüler, Lehrer, Admin)
 % - Risiken laut OWASP Top 10 für ein Django-Backend
 % - DSGVO bei Lernfortschrittsdaten von Schülern
-
+ 
 % TODO: Anforderungen zur Authentifizierung mit Kumar abstimmen
-
+ 
+Dieser Abschnitt beschreibt, wie das Backend Anmeldung, Zugriffsrechte und Daten schützt. Netzwerk, Verschlüsselung der Verbindungen, Server und Datensicherung gehören zur Infrastruktur und werden von \Jai\ behandelt. Das Backend setzt die Regeln auf Anwendungsebene um. Die Festlegungen sind ein Entwurf aus der Vorfeldanalyse (eigene Festlegung) und werden mit der Implementierung überprüft.
+ 
 \subsection{Authentifizierung und Autorisierung}
-
+\label{subsec:authentifizierung}
+Authentifizierung stellt fest, wer ein Benutzer ist. Autorisierung legt fest, was dieser Benutzer tun darf.
+ 
+\textbf{Verfahren der Anmeldung.} Das Django REST Framework unterstützt sitzungsbasierte und tokenbasierte Authentifizierung. Laut Dokumentation verwenden Anfragen, die im selben Kontext wie die API gestellt werden, typischerweise die \texttt{SessionAuthentication}. Anfragen von einer anderen Seite brauchen typischerweise ein Verfahren ohne Sitzung, etwa die \texttt{TokenAuthentication}. Bei Sitzungen muss jede unsichere Anfrage (\texttt{POST}, \texttt{PUT}, \texttt{PATCH}, \texttt{DELETE}) ein gültiges CSRF-Token enthalten \parencite{drfAjaxCsrf}.
+ 
+Vorgesehen ist die sitzungsbasierte Authentifizierung, sofern Frontend und API unter derselben Adresse ausgeliefert werden. Dafür sprechen zwei Gründe (eigene Einschätzung):
+\begin{itemize}
+    \item Die Anmeldung über das Active Directory läuft nach der Entscheidung im Infrastrukturkapitel über das Authentifizierungssystem von Django. Die Benutzer werden beim ersten Login lokal angelegt und sind für die API gewöhnliche Django-Benutzer.
+    \item Django speichert Sitzungen standardmäßig in der Datenbank \parencite{djangoSessions}. Jede Instanz kann sie lesen, und es werden wie in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} gefordert keine Sitzungsdaten im Prozess gehalten.
+\end{itemize}
+Läuft das Frontend auf einer anderen Adresse als die API, muss stattdessen ein tokenbasiertes Verfahren gewählt werden \parencite{drfAjaxCsrf}.
+\todo[inline]{Offen: Werden Frontend und API unter derselben Adresse ausgeliefert? Mit \Jakob und \Jai klären. Davon hängt ab, ob Sitzungen mit CSRF-Schutz oder Tokens verwendet werden.}
+ 
+\textbf{Passwörter.} Für lokale Konten, etwa den Administrationszugang als Notfallweg, speichert Django Passwörter nur als Hash. Standard ist PBKDF2. Anmeldedaten sollen nur über HTTPS übertragen werden \parencite{djangoPasswords}. Bei Konten aus dem Active Directory prüft das Verzeichnis die Anmeldedaten (Infrastrukturkapitel von \Jai).
+ 
+\textbf{Rollen und Zugriffsregeln.} Vorgesehen sind die Rollen Schüler, Lehrkraft und Administrator (Tabelle~\ref{tab:entitaeten}). Laut Infrastrukturkapitel werden Gruppen aus dem Active Directory diesen Rollen zugeordnet. Die Zugriffsregeln gelten im Backend, weil eine Prüfung allein in der Benutzeroberfläche vom Benutzer umgangen werden kann (eigene Festlegung):
+\begin{itemize}
+    \item Anonymer Zugriff ist standardmäßig verweigert. Das Django REST Framework erlaubt ohne Einstellung uneingeschränkten Zugriff (\texttt{AllowAny}). Daher wird global \texttt{IsAuthenticated} gesetzt, und Ausnahmen werden ausdrücklich festgelegt \parencite{drfPermissions}.
+    \item Ein Schüler darf nur seine eigenen Lernergebnisse, Testversuche und Wiederholungsstatus lesen und erzeugen.
+    \item Objektberechtigungen wirken laut Dokumentation bei Listenabfragen nicht automatisch auf jeden einzelnen Eintrag \parencite{drfPermissions}. Abfragen werden deshalb schon beim Laden der Daten auf den angemeldeten Benutzer eingeschränkt.
+    \item Verwaltungsfunktionen (Benutzer, Rollen, Lerninhalte) sind höheren Rollen vorbehalten. Der Administrationsbereich von Django ist nur für Administratoren zugänglich.
+\end{itemize}
+\todo[inline]{Offen: Welche Rolle darf welche Verwaltungsfunktion nutzen (z.\,B. Lerninhalte anlegen)? Dürfen Lehrkräfte Lernergebnisse einzelner Schüler einsehen? Die zweite Frage ist datenschutzrelevant (Abschnitt~\ref{subsec:datenschutz}).}
+ 
+\textbf{Weitere Risiken.} Die OWASP Top 10 sind ein Konsensdokument zu den kritischsten Sicherheitsrisiken für Webanwendungen. Die Ausgabe 2025 nennt unter anderem Broken Access Control, Security Misconfiguration und Authentication Failures \parencite{owaspTop102025}. Tabelle~\ref{tab:owasp} ordnet die für das Backend relevanten Risiken den geplanten Maßnahmen zu. Die Sicherheitsprüfung der Gesamtumgebung nach den OWASP Top 10 führt \Jai durch.
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{3.4cm}
+  >{\raggedright\arraybackslash}p{7.3cm}
+  >{\raggedright\arraybackslash}p{3.2cm}}
+ 
+\caption{Relevante OWASP-Risiken und geplante Maßnahmen im Backend (Entwurf)}
+\label{tab:owasp} \\
+ 
+\toprule
+\textbf{Risiko} & \textbf{Maßnahme im Backend} & \textbf{Beleg} \\
+\midrule
+\endfirsthead
+ 
+\multicolumn{3}{l}{\small\itshape Fortsetzung von Tabelle~\ref{tab:owasp}} \\
+\toprule
+\textbf{Risiko} & \textbf{Maßnahme im Backend} & \textbf{Beleg} \\
+\midrule
+\endhead
+ 
+\midrule
+\multicolumn{3}{r}{\small\itshape weiter auf der nächsten Seite} \\
+\endfoot
+ 
+\bottomrule
+\endlastfoot
+ 
+A01 Broken Access Control
+  & Anonymer Zugriff standardmäßig verweigert, Rollen- und Objektprüfung im Backend, Abfragen auf eigene Daten eingeschränkt
+  & \cite{drfPermissions}; Eig. \\
+ 
+A02 Security Misconfiguration
+  & Einstellungen und Geheimnisse (Schlüssel, Zugangsdaten) liegen in der Konfiguration und nicht im Code, abgestimmt mit \Jai
+  & \cite[vgl.][]{wiggins12factor}; Eig. \\
+ 
+A03 Software Supply Chain Failures
+  & Wenige Abhängigkeiten, Paketversionen sind festgelegt
+  & Eig. \\
+ 
+A05 Injection
+  & Datenbankzugriff über das ORM, Prüfung eingehender Daten über Serializer
+  & \cite{djangoSecurity}, \cite{drfHome} \\
+ 
+A07 Authentication Failures
+  & Passwort-Hash bei lokalen Konten, Anmeldung über das Active Directory, Begrenzung der Anfragerate (Throttling)
+  & \cite{djangoPasswords}, \cite{drfHome}; Eig. \\
+ 
+A09 Security Logging and Alerting Failures
+  & Anmeldungen, fehlgeschlagene Anmeldungen und Berechtigungsfehler werden protokolliert
+  & Eig. \\
+ 
+\end{longtable}
+\endgroup
+ 
 \subsection{Datenschutz}
+\label{subsec:datenschutz}
+Das Backend speichert personenbezogene Daten von Schülern: Kennung und Rolle der Benutzer sowie Lernergebnisse, Testversuche und Wiederholungsstatus mit Zeitpunkten (Tabelle~\ref{tab:entitaeten}). Daraus lässt sich ablesen, welchen Stoff ein Schüler wann und mit welchem Erfolg bearbeitet hat. Für die Verarbeitung gilt die Datenschutz-Grundverordnung (DSGVO). Für das Backend sind vor allem diese Vorgaben relevant: Datenminimierung (Art.~5 Abs.~1 lit.~c), Speicherbegrenzung (lit.~e), Integrität und Vertraulichkeit (lit.~f), Datenschutz durch Technikgestaltung und durch datenschutzfreundliche Voreinstellungen (Art.~25) und Sicherheit der Verarbeitung (Art.~32) \parencite{eurlexDsgvo}.
+ 
+Daraus werden folgende Festlegungen abgeleitet (eigener Entwurf):
+\begin{itemize}
+    \item \textbf{Datenminimierung:} Das Backend speichert nur Daten, die für die Lernfunktionen nötig sind. Aus dem Active Directory werden nur die Angaben übernommen, die für Anmeldung und Rollenzuordnung gebraucht werden. Die genaue Auswahl wird mit \Jai abgestimmt.
+    \item \textbf{Speicherbegrenzung:} Wird ein Benutzer gelöscht, werden seine Lernergebnisse, Testversuche und Wiederholungsstatus mitgelöscht oder anonymisiert. Wie lange Daten sonst aufbewahrt werden, ist noch nicht festgelegt.
+    \item \textbf{Zugriff:} Schüler sehen nur ihre eigenen Daten (Abschnitt~\ref{subsec:authentifizierung}). Protokolldateien enthalten keine Antworten und keine Lernergebnisse.
+    \item \textbf{Weitergabe:} Der Export von Lerninhalten enthält standardmäßig keine persönlichen Lernstände (Entscheidung im Infrastrukturkapitel).
+    \item \textbf{Entwicklung und Tests:} Es werden keine echten Schülerdaten verwendet, sondern Testkonten aus dem eigenen Active Directory.
+    \item \textbf{Ranglisten:} Falls die Oberfläche Ranglisten anzeigt, würden Daten anderer Benutzer sichtbar. Die Zugriffsregeln müssten dann angepasst werden, etwa durch Pseudonyme. Das wird mit \Jakob geklärt.
+\end{itemize}
+Nicht Teil dieser Analyse ist die rechtliche Einordnung. Wer Verantwortlicher im Sinne der DSGVO ist und auf welcher Rechtsgrundlage Schülerdaten verarbeitet werden, muss mit den Betreuern bzw.\ der Schule geklärt werden.
+\todo[inline]{Offen: Verantwortlicher und Rechtsgrundlage klären. Aufbewahrungsdauer festlegen. Prüfen, ob die Artikelangaben der DSGVO vor der Abgabe am Originaltext (EUR-Lex) kontrolliert sind.}
+ 
 
-% ---------------------------------------------------------------
-\section{Teststrategie}
-\label{sec:tests}
-% - Unit-, Integrations- und API-Tests, Werkzeuge (z. B. Django-Tests, pytest)
-% - Bewertung der Qualität des Lernalgorithmus
-
-% TODO: Testarten und Werkzeuge festlegen
-
-\subsection{Testarten und Werkzeuge}
-\subsection{Testen des Lernalgorithmus}
 
 % ---------------------------------------------------------------
 \section{Fazit der Vorfeldanalyse}
 \label{sec:fazit-vorfeld}
 % - Abgeleitete Entscheidungen (Technologie, Architektur, Algorithmus)
 % - Verbleibende Risiken und offene Fragen
-
+ 
 % TODO: Erst nach Abschluss der Recherche schreiben
-
+ 
 \subsection{Getroffene Entscheidungen}
+\label{subsec:entscheidungen}
+Aus der Vorfeldanalyse ergeben sich diese Entscheidungen. Einige sind vorläufig und werden mit der Implementierung überprüft.
+ 
+\begin{description}
+  \item[BE-1 Django als Framework.] Das Backend wird mit Django umgesetzt. Ausschlaggebend sind der mitgelieferte Funktionsumfang (ORM, Authentifizierung, Schutzmechanismen, Administrationsbereich) und dass der adaptive Lernalgorithmus direkt in Python integriert werden kann (Abschnitt~\ref{subsec:auswahl-framework-architektur}).
+  \item[BE-2 Modularer Monolith.] Das Backend ist ein modularer Monolith mit den Apps \texttt{accounts}, \texttt{content}, \texttt{assessments}, \texttt{progress}, \texttt{adaptive} und \texttt{api}. Abhängigkeiten verlaufen nur in eine Richtung, und \texttt{adaptive} kennt weder Datenbank noch API (Abschnitt~\ref{subsec:projektstruktur}). Die Namen sind vorläufig.
+  \item[BE-3 Trennung von Lernergebnis und Wiederholungsstatus.] Lernergebnisse werden unveränderlich gespeichert, der Wiederholungsstatus wird je Benutzer und Lernkarte fortgeschrieben. Beide werden in einer Transaktion geschrieben. Der Lernfortschritt wird berechnet und nicht gespeichert (Abschnitt~\ref{subsec:ergebnisse-speichern}).
+  \item[BE-4 Algorithmen.] Datenhungrige Verfahren (Half-Life Regression, Deep Knowledge Tracing) scheiden aus. Für Lernkarten ist SM-2 oder eine vereinfachte FSRS-Variante vorgesehen, für Tests ein Elo-basiertes Modell (Abschnitt~\ref{sec:algorithmus}). Die endgültige Wahl zwischen SM-2 und FSRS ist noch offen.
+  \item[BE-5 Sicherheit.] Anonymer Zugriff ist standardmäßig verweigert, Rollen und Objektberechtigungen werden im Backend geprüft, und Schüler sehen nur ihre eigenen Daten. Vorgesehen ist die sitzungsbasierte Authentifizierung mit CSRF-Schutz, sofern Frontend und API unter derselben Adresse laufen (Abschnitt~\ref{subsec:authentifizierung}).
+  \item[BE-6 Datenschutz.] Es werden nur die für die Lernfunktionen nötigen Daten gespeichert. Lernstände werden nicht standardmäßig exportiert, und für Entwicklung und Tests werden keine echten Schülerdaten verwendet (Abschnitt~\ref{subsec:datenschutz}).
+  \item[BE-7 Tests.] Es werden das Testframework von Django und die Testklassen des Django REST Framework verwendet. Der Lernalgorithmus wird durch Unit-Tests, eine Simulation und einen Test mit Mitschülern geprüft (Abschnitte~\ref{subsec:testarten} und~\ref{subsec:test-algorithmus}).
+\end{description}
+ 
 \subsection{Risiken und offene Fragen}
+\label{subsec:risiken}
+\begin{itemize}
+  \item \textbf{Auswahl des Algorithmus:} Die Entscheidung zwischen SM-2 und FSRS ist offen. Bei FSRS muss die Version festgelegt werden. Die zitierte Spacing-Studie untersucht verbales Material. Dass die Ergebnisse auf Stoff der Softwareentwicklung übertragbar sind, ist eine Annahme und nicht belegt.
+  \item \textbf{Wirksamkeit:} Ein Nachweis eines Lernzuwachses ist im Rahmen des Projekts nur eingeschränkt möglich. Simulation und Nutzertest zeigen das Verhalten des Algorithmus, aber keine Wirksamkeit.
+  \item \textbf{Datenmodell:} Offen ist, ob auch Testaufgaben einen Wiederholungsstatus erhalten, wie das Lernergebnis technisch umgesetzt wird und ob Daten der Gamification-Elemente im Backend gespeichert werden (siehe Abschnitt~\ref{subsec:entitaeten}).
+  \item \textbf{Schnittstelle zum Frontend:} Das Format der API und ihre Dokumentation sind noch mit \Jakob abzustimmen. Welche Technologie für die REST-API verwendet wird, ist in diesem Kapitel noch nicht ausdrücklich festgelegt.
+  \item \textbf{Authentifizierung:} Ob Sitzungen oder Tokens verwendet werden, hängt davon ab, ob Frontend und API unter derselben Adresse laufen. Die Anbindung an das Active Directory ist mit \Jai abzustimmen. Laut Infrastrukturkapitel wird dafür ein eigenes Active Directory mit Testkonten verwendet.
+  \item \textbf{Datenschutz:} Verantwortlicher, Rechtsgrundlage und Aufbewahrungsdauer sind ungeklärt. Ebenso offen ist, ob Lehrkräfte Lernergebnisse einzelner Schüler sehen dürfen und ob es Ranglisten gibt.
+  \item \textbf{Leistung und Skalierung:} Ob die Architektur die erwartete Benutzerzahl bewältigt, ist nicht gemessen. Die Vergleichswerte stammen aus Untersuchungen mit anderen Anwendungen und Technologien und sind nur eingeschränkt übertragbar. Die Last- und Performancetests von \Jai liefern erst später Ergebnisse.
+  \item \textbf{Belege:} Einige Aussagen sind als eigene Einschätzung gekennzeichnet (Eig.) und nicht durch Quellen belegt. Die Artikelangaben der DSGVO und die Aussagen der Dokumentationen sind vor der Abgabe nochmals zu prüfen.
+  \item \textbf{Zeitplan:} Der Umfang beträgt 180 Stunden. Ein startfähiges System ist bis 29.11.2026 geplant. Simulation und Nutzertest müssen sich in diesen Rahmen einfügen.
+\end{itemize}
 \subsection{Verwendung von Künstlicher Intelligenz}
 \label{subsec:ki-verwendung}
 Für die Korrektur von Texten wurde ein KI-Agent von Copilot eingesetzt, der das Modell GPT~5.6-Luna verwendet \parencite{copilotKorrektur2026}. Die Kennzeichnung folgt dem Leitfaden des Bundesministeriums für Bildung, Wissenschaft und Forschung (BMBWF), nach dem das verwendete KI-System und die eingegebenen Prompts anzugeben sind \parencite[S.~3--4]{bmbwf2023ki}.
 Der Agent erhielt den in Listing~\ref{lst:ki-prompt} wiedergegebenen Prompt.
-
+ 
 \begin{lstlisting}[
   caption={Prompt für die KI-gestützte Korrektur des Kapitels},
   label={lst:ki-prompt},
@@ -659,16 +771,16 @@ Der Agent erhielt den in Listing~\ref{lst:ki-prompt} wiedergegebenen Prompt.
   literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1 {ß}{{\ss}}1 {×}{{$\times$}}1
 ]
 # Task: Review and polish Luca Moldovan's chapter of a diploma thesis (LaTeX)
-
+ 
 ## Context
 This is the written part of a diploma thesis ("Diplomarbeit") at HTBLuVA Salzburg: a learning platform for the school subject software development. Three students each write their own chapter. You work ONLY on Luca Moldovan's chapter.
-
+ 
 - Repository: https://github.com/5BHITS-2026-27-DA-LearnIT/Diplomarbeit
 - File to review: `Personen/Moldovan/vorfeldanalyse.tex` (German, chapter "Vorfeldanalyse (Luca Moldovan)")
 - Shared files you may READ but must not change: `main.tex`, `preamble.tex`, `command.tex`, `literatur.bib`, and the chapters of the other authors (`Personen/Berger/`, `Personen/Kumar/`, `Personen/Gemeinsam/`).
 - Layout facts (from `preamble.tex`): `scrreprt`, A4, 12 pt, margins left 3 cm / right 2.5 cm (text width 15.5 cm), babel `ngerman`, biblatex with biber (numeric style), packages `longtable`, `booktabs`, `array`, `todonotes`.
 - The text is written in German. All your edits must stay in German. Use correct current German orthography as used in Austria (e.g. "ß" is correct).
-
+ 
 ## Core rules
 1. Do not invent anything: no facts, numbers, sources, quotes, or bibliography entries. If something cannot be verified, flag it instead of "fixing" it.
 2. Do not claim that you checked, built, or tested something unless you actually did. State clearly what you could and could not run.
@@ -676,21 +788,21 @@ This is the written part of a diploma thesis ("Diplomarbeit") at HTBLuVA Salzbur
 4. Keep existing conventions: `\"=` hyphenation shorthand, `\enquote{...}`, the abbreviation "Eig." for own assessments, the macros `\Luca`, `\Jakob`, `\Jai`, and all `\label` names that are referenced elsewhere.
 5. Do not delete `% TODO` comments or `\todo{...}` notes. List them in your report instead.
 6. Do not touch other authors' files. If you find problems there (e.g. a missing label), report them separately.
-
+ 
 ## What to do
 ### 1. Spelling and grammar
 Find and fix spelling, grammar, punctuation, capitalization, and typographic errors (e.g. quotation marks, dashes, spacing, abbreviations such as "z. B."). Fix broken sentences and inconsistent tense. Keep the generic masculine/terminology the chapter uses; if the terminology differs from other chapters (e.g. "Benutzer" vs. "Benutzer:innen"), do not change it, just report it.
-
+ 
 ### 2. Unclear passages
 Identify unclear, ambiguous, or overly complicated sentences, undefined terms, abbreviations used before being explained, and claims without justification or source. For unclear wording, make a small rewrite that keeps the meaning. If the meaning itself is uncertain, do not guess: list the passage with a short question for the author.
-
+ 
 ### 3. References and citations
 - Check that every `\cite`/`\parencite`/`\textcite` key exists in `literatur.bib`. List missing keys. Do NOT create bibliography entries yourself; propose them only if you can verify all fields from the actual source, and mark them as proposals.
 - Check that every `\ref`/`\autoref`/`\hyperref` target has a matching `\label` somewhere in the project (including the other authors' files). List undefined or mismatched labels (e.g. different spelling or hyphenation of the same label). Fix mismatches inside Luca's file only when the correct target is unambiguous.
 - Check `\parencite[...]` page/section notes for consistent style.
 - Where you have web access, check whether a cited source really supports the sentence it is attached to. Report only what you actually verified, and give a confidence level. Do not rewrite claims based on memory.
 - Report bibliography entries that are cited by this chapter but are incomplete or inconsistent (missing author, date, url).
-
+ 
 ### 4. Tables
 All tables must be fully readable in the compiled PDF.
 - Make sure no table exceeds the text width of 15.5 cm (sum of `p{}` column widths plus 2×`\tabcolsep` per column).
@@ -699,14 +811,14 @@ All tables must be fully readable in the compiled PDF.
 - Avoid ugly page breaks (e.g. a header with a single row at the bottom of a page).
 - Keep all table content unchanged unless it contains a spelling error.
 - Check that every table is referenced in the text and that captions are consistent.
-
+ 
 ### 5. Build check
 Try to compile the whole document (`main.tex`, biber backend, e.g. `latexmk -pdf main.tex`). Then check the log for errors, undefined references/citations, and overfull/underfull boxes that belong to Luca's chapter, and look at the rendered pages containing his tables. If the toolchain (biber, biblatex, German babel) is missing and you cannot install it, say so explicitly and describe which checks therefore remain unverified.
-
+ 
 ## Working method
 - make changes lokal
 - Do not reformat the whole file or change line breaks unnecessarily, so the diff stays easy to review.
-
+ 
 ## Output
 Deliver a report in English (quote German passages in German) with these sections:
 1. **Summary**: number of changes per category, build status.
@@ -717,7 +829,7 @@ Deliver a report in English (quote German passages in German) with these section
 6. **Problems outside Luca's chapter**: found but not changed.
 7. **Not verified**: everything you could not check, and why.
 \end{lstlisting}
-
+ 
 \noindent Der Einsatz erfolgte, um die sprachliche Qualität des Kapitels zu verbessern. Die Änderungen betreffen hauptsächlich Rechtschreibung und Syntax. Alle Änderungen wurden in Git-Commits dokumentiert. Außerdem wurde der folgende Review-Bericht erstellt:
 \begin{enumerate}
     \item \textbf{Summary:} Rechtschreibung, Grammatik, Querverweise und Tabellenlayout überarbeitet. Build erfolgreich.
