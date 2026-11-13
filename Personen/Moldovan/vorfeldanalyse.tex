@@ -34,8 +34,7 @@ Leistung erbringt \parencite[S.~16]{lutz2022}.\\
 \end{itemize}
 
 \subsection{Abgrenzung zu Frontend und Infrastruktur}
-\Luca ist für die reine Entwicklung eines skalierbaren Backends zuständig.
-``Skalierbar'' bedeutet in diesem Zusammenhang, dass das Backend modular aufgebaut ist und sich um neue Funktionen erweitern lässt, ohne bestehende Komponenten umzubauen.
+\Luca ist für die Entwicklung eines skalierbaren und modularen Backends zuständig. Beide Begriffe werden in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} genauer erklärt.
 Die Kommunikation mit dem Frontend wird mit \Jakob konzeptioniert und erfolgt über eine klar definierte API.
 Die Anbindung an die Infrastruktur, z. B. an Datenbanken oder Cloud-Dienste, wird mit \Jai konzeptioniert und über das ORM-Framework Django umgesetzt.
 Die Datenverwaltung sowie die Abbildung der Kernlogik und die Speicherung der Lernergebnisse sind die Hauptaufgaben des Backends.
@@ -49,8 +48,7 @@ Die Trennung der Zuständigkeiten von Benutzeroberfläche und Datenhaltung
 macht die Oberfläche auf mehreren Plattformen besser einsetzbar und erleichtert
 die Skalierung, weil die Serverkomponenten einfacher werden
 \parencite[vgl.][Abschn.~5.1.2]{fielding2000}.
-\Jakob ist zuständig für die Entwicklung der Benutzeroberfläche sowie Umsetzung der Benutzerinteraktion für Lernkarten, Tests und die Darstellung des individuellen Lernfortschritts.
-\Jai ist zuständig für die Konzeption und Umsetzung einer skalierbaren Serverinfrastruktur und Datenbankinfrastruktur mit Active Directory, Lerninhalte-Import/-Export sowie Durchführung von Sicherheits- und Performancetests.
+Die Aufgaben von \Jakob und \Jai sind in der Einleitung beschrieben.
 
 %todo:zitate sinnvoll einfügen, abgrenzen, was jai und jakob machen.
 
@@ -102,12 +100,6 @@ Deployment
   & Eine Einheit
   & Pro Service einzeln deploybar
   & \cite{zenodo2025petclinic}, \cite{faustino2022} \\
-
-Code-Struktur
-  & Eine Codebasis, Zugriffe überall möglich
-  & Eine Codebasis, Module mit Schnittstellen
-  & Getrennte Codebasen bzw. Projekte
-  & \cite{faustino2022}, Eig. \\
 
 Kopplung
   & Oft eng (direkter Zugriff auf alle Modelle)
@@ -163,40 +155,16 @@ Modulgrenzen später ändern
   & Schwer (API-Änderungen über Prozessgrenzen)
   & \cite{faustino2022}, Eig. \\
 
-Gefahr falscher Modulgrenzen
-  & Gering, da keine festen Grenzen
-  & Mittel
-  & Hoch
-  & \cite{faustino2022} \\
-
-Team\-/Unabhängig\-keit
-  & Gering
-  & Mittel bis gut
-  & Am besten (eigene Services pro Team)
-  & \cite{faustino2022} \\
-
 Skalierung
   & Gesamte Anwendung als Ganzes (z.\,B. mehr Worker)
   & Wie Monolith
   & Einzelne Services unabhängig skalierbar
   & Eig. \\
 
-Ausfall\-sicherheit
-  & Ein Fehler kann die ganze Anwendung betreffen
-  & Wie Monolith
-  & Ausfall eines Services betrifft nicht automatisch alle
-  & \cite{aldebagy2018} \\
-
 Testbarkeit
   & Einfach (ein Prozess)
   & Einfach, Module einzeln testbar
   & Aufwendiger (Integrationstests über Services)
-  & Eig. \\
-
-Typisches Risiko
-  & \enquote{Big Ball of Mud}, wenn keine Struktur eingehalten wird
-  & Grenzen werden im Alltag aufgeweicht
-  & Overengineering, Betriebsaufwand
   & Eig. \\
 
 \end{longtable}
@@ -277,18 +245,6 @@ Asynchroni\-tät
   & Async-Views seit Version 2.0, aber unter WSGI bindet jeder Request einen Worker; für überwiegend asynchronen Code verweist die Doku auf Quart
   & \cite{djangoAsync}; \cite{fastapiAlternatives}, \cite{bednarz2025}; \cite{flaskAsync} \\
 
-Durchsatz (Benchmark)
-  & GET: 1\,660\,req/s; Echo: 1\,551\,req/s
-  & GET: 4\,783 (SQLite) bzw. 4\,417 (SQLModel)\,req/s; Echo: 4\,024 bzw. 3\,627\,req/s
-  & GET: ca.\ 2\,700\,req/s; Echo: 2\,194 (SQLite) bzw. 2\,143 (SQLAlchemy)\,req/s
-  & \cite{bednarz2025} \\
-
-Antwortzeit (Benchmark)
-  & Einzelner Datensatz: 13,4\,ms; alle Datensätze: 75,0\,ms; Anlegen: 99,6\,ms
-  & Einzeln: 2,5 (SQLite) bzw. 7,6 (SQLModel)\,ms; alle: 67,4 bzw. 168,8\,ms; Anlegen: 78,6 bzw. 92,4\,ms
-  & Einzeln: 5,0 (SQLite) bzw. 8,5 (SQLAlchemy)\,ms; alle: 28,2 bzw. 69,2\,ms; Anlegen: 111,3 bzw. 116,0\,ms
-  & \cite{bednarz2025} \\
-
 Projekt\-struktur
   & Anwendung in Apps gegliedert (Beispiel-App \enquote{news} in der Doku)
   & Mehrere Dateien über Router möglich
@@ -303,10 +259,7 @@ Genannter Haupteinsatz
 
 \end{longtable}
 
-\noindent\textit{Anmerkung:} Die Benchmark-Werte stammen aus \cite{bednarz2025}
-(Windows\,10, SQLite, Gunicorn mit 2 Workern und 2 Threads, nicht auf das jeweilige
-Framework optimiert; Django\,5.2.1 mit DRF, Flask\,3.1.0, FastAPI\,0.115.12).
-\enquote{Eig.} kennzeichnet eigene Einschätzungen ohne gesonderten Quellenbeleg.
+\noindent\textit{Anmerkung:} \enquote{Eig.} kennzeichnet eigene Einschätzungen ohne gesonderten Quellenbeleg.
 \end{footnotesize}
 
 \subsection{Skalierbarkeit und Modularität}
@@ -329,6 +282,7 @@ Für das Backend der Lernplattform wurde Django als Framework gewählt. Die Anwe
 \textbf{Auswahl des Frameworks.}
 
 Django ist ein Python-Framework, das bereits viele Funktionen für die Lernplattform mitbringt. Dazu gehören ein objektrelationales Mapping (ORM) für die relationale Datenbank, ein Authentifizierungs- und Berechtigungssystem, Schutzmechanismen gegen gängige Webangriffe wie CSRF sowie ein Administrationsbereich zur Verwaltung von Lerninhalten. Bei einem minimalistischen Framework müssten diese Funktionen aus einzelnen Bibliotheken zusammengesetzt werden. Das würde den Entwicklungsaufwand und das Wartungsrisiko erhöhen (vgl.~Tabelle~\ref{tab:frameworkvergleich}).
+In einem Benchmark erreichte Django von den drei Frameworks den geringsten Durchsatz \parencite{bednarz2025}. Für die Lernplattform wird der mitgelieferte Funktionsumfang höher gewichtet als der Durchsatz. Ob die Leistung ausreicht, zeigen die Performancetests von \Jai.
 
 Ein weiterer Vorteil ist, dass der adaptive Lernalgorithmus direkt in Python umgesetzt und in das Backend integriert werden kann. Dadurch ist keine zusätzliche Schnittstelle zwischen dem Algorithmus und dem Backend erforderlich. Außerdem kann das Authentifizierungssystem von Django erweitert werden, um eine Anbindung an das schulische Active Directory zu ermöglichen.
 
@@ -346,7 +300,7 @@ Bei drei Projektmitgliedern mit jeweils 180 Stunden Arbeitsaufwand und festen Me
 
 Django ermöglicht die Gliederung eines Projekts in Apps. Eine App ist ein Python-Paket, das einen bestimmten Funktionsbereich bereitstellt und beispielsweise Modelle, Views und URL-Konfigurationen enthalten kann. Die Einbindung erfolgt über die Einstellung \texttt{INSTALLED\_APPS} \parencite{djangoApplications}.
 
-Die Lernplattform wird in fachlich getrennte Apps aufgeteilt. Vorgesehen sind Bereiche für die Benutzerverwaltung, Lerninhalte und Lernkarten, Tests, Lernergebnisse und Lernfortschritt sowie den adaptiven Lernalgorithmus. Die Kommunikation mit dem Frontend erfolgt über eine strukturierte REST-API. Die genaue Aufteilung der Backend-Logik wird in Abschnitt~\ref{sec:backend-logik} beschrieben.
+Die Lernplattform wird in fachlich getrennte Apps aufgeteilt, die über eine REST-API mit dem Frontend kommunizieren. Die genaue Aufteilung wird in Abschnitt~\ref{sec:backend-logik} beschrieben.
 
 Da Django-Apps technisch eigenständige Python-Pakete sind, werden Zugriffe auf andere Apps nicht automatisch eingeschränkt. Die Modularität muss daher durch verbindliche Regeln sichergestellt werden:
 
@@ -438,7 +392,6 @@ Wieder\-holungs\-status
 \endgroup
 
 Der Wiederholungsstatus verbindet Benutzer und Lernkarte und trägt zusätzliche Daten. Er ist damit die Zuordnungsentität zwischen beiden. Der Lernfortschritt wird nicht als eigene Entität gespeichert, sondern aus den Lernergebnissen und dem Wiederholungsstatus berechnet. So kann er den gespeicherten Daten nicht widersprechen (eigene Festlegung). Sollten diese Abfragen zu langsam sein, kann später ein Zwischenspeicher ergänzt werden.
-\todo[inline]{Offen: (1) Hat auch die Testaufgabe einen Wiederholungsstatus? Der Meilenstein vom 24.01.2027 nennt \enquote{adaptive Wiederholung anhand der Ergebnisse}. (2) Technische Umsetzung des Lernergebnisses festlegen (zwei getrennte Modelle oder ein Modell mit Verweis auf beide). (3) Mit \Jakob klären, ob Daten der Gamification-Elemente im Backend gespeichert werden.}
 
 \subsection{Speicherung von Lernergebnissen und Wiederholungsstatus}
 \label{subsec:ergebnisse-speichern}
@@ -464,7 +417,7 @@ Zusätzlich gelten folgende Festlegungen (eigener Entwurf):
 
 \subsection{Projektstruktur in Django-Apps}
 \label{subsec:projektstruktur}
-Die Backend-Logik wird anhand der Regeln in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} in Apps gegliedert. Jede App enthält ihre Modelle und Fachfunktionen. Andere Apps greifen nur über diese Fachfunktionen zu (eigene Festlegung). Tabelle~\ref{tab:apps} zeigt den Entwurf. Die Namen sind Vorschläge.
+Tabelle~\ref{tab:apps} zeigt die Gliederung in Apps nach den Regeln aus Abschnitt~\ref{subsec:auswahl-framework-architektur}. Jede App enthält ihre Modelle und Fachfunktionen. Die Namen sind Vorschläge.
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -528,8 +481,7 @@ API
 \end{longtable}
 \endgroup
 
-Die Abhängigkeiten verlaufen nur in eine Richtung. Die App \texttt{adaptive} kennt weder die Datenbank noch die API. Sie erhält Status und Ergebnis als einfache Daten und liefert den neuen Status zurück. Dadurch lässt sie sich ohne Datenbank testen. Die App \texttt{api} enthält keine eigene Fachlogik, damit sich die Schnittstelle ändern lässt, ohne die Fachlogik anzupassen.
-\todo[inline]{Appnamen, Abhängigkeiten und die Rolle der Gamification (siehe oben) nach der Implementierung der ersten Modelle (Meilenstein 29.11.2026) mit dem tatsächlichen Code abgleichen.}
+Die App \texttt{adaptive} erhält Status und Ergebnis als einfache Daten und liefert den neuen Status zurück. Sie kennt weder die Datenbank noch die API und lässt sich daher ohne Datenbank testen. Die App \texttt{api} enthält keine eigene Fachlogik, damit sich die Schnittstelle ändern lässt, ohne die Fachlogik anzupassen.
 
 % ---------------------------------------------------------------
 \section{Adaptiver Lernalgorithmus}
@@ -543,6 +495,7 @@ Aufgaben als Nächstes vorgeschlagen werden. Der Algorithmus benötigt dafür pr
 Schüler und Inhalt einen Lernzustand, der nach jeder Antwort aktualisiert wird.
 
 \subsection{Grundlagen aus der Lernforschung}
+\label{subsec:lernforschung}
 Verteiltes Wiederholen verbessert das Behalten im Vergleich zu gehäuftem Lernen. Der günstigste Abstand zwischen den Wiederholungen wächst dabei mit der gewünschten Behaltensdauer \parencite{cepeda2006}.
 Aktives Abrufen (Testen) fördert das langfristige Behalten stärker als erneutes Lesen \parencite{roediger2006}.
 Eine Übersichtsarbeit bewertet Practice Testing und Distributed Practice als die beiden Lerntechniken mit dem höchsten Nutzen \parencite{dunlosky2013}.
@@ -599,21 +552,19 @@ Ein Wirksamkeitsnachweis im Sinne eines Lernzuwachses ist im Rahmen des Projekts
  
 % TODO: Anforderungen zur Authentifizierung mit Kumar abstimmen
  
-Dieser Abschnitt beschreibt, wie das Backend Anmeldung, Zugriffsrechte und Daten schützt. Netzwerk, Verschlüsselung der Verbindungen, Server und Datensicherung gehören zur Infrastruktur und werden von \Jai\ behandelt. Das Backend setzt die Regeln auf Anwendungsebene um. Die Festlegungen sind ein Entwurf aus der Vorfeldanalyse (eigene Festlegung) und werden mit der Implementierung überprüft.
+Dieser Abschnitt beschreibt, wie das Backend Anmeldung, Zugriffsrechte und Daten schützt. Netzwerk, Verschlüsselung der Verbindungen, Server und Datensicherung gehören zur Infrastruktur und werden von \Jai\ behandelt. Das Backend setzt die Regeln auf Anwendungsebene um.
  
 \subsection{Authentifizierung und Autorisierung}
 \label{subsec:authentifizierung}
 Authentifizierung stellt fest, wer ein Benutzer ist. Autorisierung legt fest, was dieser Benutzer tun darf.
  
-\textbf{Verfahren der Anmeldung.} Das Django REST Framework unterstützt sitzungsbasierte und tokenbasierte Authentifizierung. Laut Dokumentation verwenden Anfragen, die im selben Kontext wie die API gestellt werden, typischerweise die \texttt{SessionAuthentication}. Anfragen von einer anderen Seite brauchen typischerweise ein Verfahren ohne Sitzung, etwa die \texttt{TokenAuthentication}. Bei Sitzungen muss jede unsichere Anfrage (\texttt{POST}, \texttt{PUT}, \texttt{PATCH}, \texttt{DELETE}) ein gültiges CSRF-Token enthalten \parencite{drfAjaxCsrf}.
+\textbf{Verfahren der Anmeldung.} Das Django REST Framework unterstützt sitzungsbasierte und tokenbasierte Authentifizierung. Laut Dokumentation verwenden Anfragen aus demselben Kontext wie die API typischerweise die \texttt{SessionAuthentication}, Anfragen von einer anderen Seite ein Verfahren ohne Sitzung wie die \texttt{TokenAuthentication}. Bei Sitzungen muss jede unsichere Anfrage (\texttt{POST}, \texttt{PUT}, \texttt{PATCH}, \texttt{DELETE}) ein gültiges CSRF-Token enthalten \parencite{drfAjaxCsrf}.
  
-Vorgesehen ist die sitzungsbasierte Authentifizierung, sofern Frontend und API unter derselben Adresse ausgeliefert werden. Dafür sprechen zwei Gründe (eigene Einschätzung):
+Vorgesehen ist die sitzungsbasierte Authentifizierung, sofern Frontend und API unter derselben Adresse ausgeliefert werden, andernfalls ein tokenbasiertes Verfahren \parencite{drfAjaxCsrf}. Für Sitzungen sprechen zwei Gründe (eigene Einschätzung):
 \begin{itemize}
     \item Die Anmeldung über das Active Directory läuft nach der Entscheidung im Infrastrukturkapitel über das Authentifizierungssystem von Django. Die Benutzer werden beim ersten Login lokal angelegt und sind für die API gewöhnliche Django-Benutzer.
     \item Django speichert Sitzungen standardmäßig in der Datenbank \parencite{djangoSessions}. Jede Instanz kann sie lesen, und es werden wie in Abschnitt~\ref{sec:skalierbarkeit-modularitaet} gefordert keine Sitzungsdaten im Prozess gehalten.
 \end{itemize}
-Läuft das Frontend auf einer anderen Adresse als die API, muss stattdessen ein tokenbasiertes Verfahren gewählt werden \parencite{drfAjaxCsrf}.
-\todo[inline]{Offen: Werden Frontend und API unter derselben Adresse ausgeliefert? Mit \Jakob und \Jai klären. Davon hängt ab, ob Sitzungen mit CSRF-Schutz oder Tokens verwendet werden.}
  
 \textbf{Passwörter.} Für lokale Konten, etwa den Administrationszugang als Notfallweg, speichert Django Passwörter nur als Hash. Standard ist PBKDF2. Anmeldedaten sollen nur über HTTPS übertragen werden \parencite{djangoPasswords}. Bei Konten aus dem Active Directory prüft das Verzeichnis die Anmeldedaten (Infrastrukturkapitel von \Jai).
  
@@ -624,9 +575,8 @@ Läuft das Frontend auf einer anderen Adresse als die API, muss stattdessen ein 
     \item Objektberechtigungen wirken laut Dokumentation bei Listenabfragen nicht automatisch auf jeden einzelnen Eintrag \parencite{drfPermissions}. Abfragen werden deshalb schon beim Laden der Daten auf den angemeldeten Benutzer eingeschränkt.
     \item Verwaltungsfunktionen (Benutzer, Rollen, Lerninhalte) sind höheren Rollen vorbehalten. Der Administrationsbereich von Django ist nur für Administratoren zugänglich.
 \end{itemize}
-\todo[inline]{Offen: Welche Rolle darf welche Verwaltungsfunktion nutzen (z.\,B. Lerninhalte anlegen)? Dürfen Lehrkräfte Lernergebnisse einzelner Schüler einsehen? Die zweite Frage ist datenschutzrelevant (Abschnitt~\ref{subsec:datenschutz}).}
  
-\textbf{Weitere Risiken.} Die OWASP Top 10 sind ein Konsensdokument zu den kritischsten Sicherheitsrisiken für Webanwendungen. Die Ausgabe 2025 nennt unter anderem Broken Access Control, Security Misconfiguration und Authentication Failures \parencite{owaspTop102025}. Tabelle~\ref{tab:owasp} ordnet die für das Backend relevanten Risiken den geplanten Maßnahmen zu. Die Sicherheitsprüfung der Gesamtumgebung nach den OWASP Top 10 führt \Jai durch.
+\textbf{Weitere Risiken.} Die OWASP Top 10 sind ein Konsensdokument zu den kritischsten Sicherheitsrisiken für Webanwendungen \parencite{owaspTop102025}. Tabelle~\ref{tab:owasp} ordnet die für das Backend relevanten Risiken den geplanten Maßnahmen zu. Die Sicherheitsprüfung der Gesamtumgebung nach den OWASP Top 10 führt \Jai durch.
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -657,7 +607,7 @@ Läuft das Frontend auf einer anderen Adresse als die API, muss stattdessen ein 
 \endlastfoot
  
 A01 Broken Access Control
-  & Anonymer Zugriff standardmäßig verweigert, Rollen- und Objektprüfung im Backend, Abfragen auf eigene Daten eingeschränkt
+  & Zugriffsregeln wie unter \enquote{Rollen und Zugriffsregeln} beschrieben
   & \cite{drfPermissions}; Eig. \\
  
 A02 Security Misconfiguration
@@ -673,7 +623,7 @@ A05 Injection
   & \cite{djangoSecurity}, \cite{drfHome} \\
  
 A07 Authentication Failures
-  & Passwort-Hash bei lokalen Konten, Anmeldung über das Active Directory, Begrenzung der Anfragerate (Throttling)
+  & Passwort-Hash und Active Directory (siehe \enquote{Passwörter}), Begrenzung der Anfragerate (Throttling)
   & \cite{djangoPasswords}, \cite{drfHome}; Eig. \\
  
 A09 Security Logging and Alerting Failures
@@ -697,7 +647,6 @@ Daraus werden folgende Festlegungen abgeleitet (eigener Entwurf):
     \item \textbf{Ranglisten:} Falls die Oberfläche Ranglisten anzeigt, würden Daten anderer Benutzer sichtbar. Die Zugriffsregeln müssten dann angepasst werden, etwa durch Pseudonyme. Das wird mit \Jakob geklärt.
 \end{itemize}
 Nicht Teil dieser Analyse ist die rechtliche Einordnung. Wer Verantwortlicher im Sinne der DSGVO ist und auf welcher Rechtsgrundlage Schülerdaten verarbeitet werden, muss mit den Betreuern bzw.\ der Schule geklärt werden.
-\todo[inline]{Offen: Verantwortlicher und Rechtsgrundlage klären. Aufbewahrungsdauer festlegen. Prüfen, ob die Artikelangaben der DSGVO vor der Abgabe am Originaltext (EUR-Lex) kontrolliert sind.}
  
 
 
@@ -726,15 +675,13 @@ Aus der Vorfeldanalyse ergeben sich diese Entscheidungen. Einige sind vorläufig
 \subsection{Risiken und offene Fragen}
 \label{subsec:risiken}
 \begin{itemize}
-  \item \textbf{Auswahl des Algorithmus:} Die Entscheidung zwischen SM-2 und FSRS ist offen. Bei FSRS muss die Version festgelegt werden. Die zitierte Spacing-Studie untersucht verbales Material. Dass die Ergebnisse auf Stoff der Softwareentwicklung übertragbar sind, ist eine Annahme und nicht belegt.
+  \item \textbf{Auswahl des Algorithmus:} Die Entscheidung zwischen SM-2 und FSRS sowie die FSRS-Version sind offen. Dass die Ergebnisse der Lernforschung auf Stoff der Softwareentwicklung übertragbar sind, ist eine Annahme (Abschnitt~\ref{subsec:lernforschung}).
   \item \textbf{Wirksamkeit:} Ein Nachweis eines Lernzuwachses ist im Rahmen des Projekts nur eingeschränkt möglich. Simulation und Nutzertest zeigen das Verhalten des Algorithmus, aber keine Wirksamkeit.
   \item \textbf{Datenmodell:} Offen ist, ob auch Testaufgaben einen Wiederholungsstatus erhalten, wie das Lernergebnis technisch umgesetzt wird und ob Daten der Gamification-Elemente im Backend gespeichert werden (siehe Abschnitt~\ref{subsec:entitaeten}).
   \item \textbf{Schnittstelle zum Frontend:} Das Format der API und ihre Dokumentation sind noch mit \Jakob abzustimmen. Welche Technologie für die REST-API verwendet wird, ist in diesem Kapitel noch nicht ausdrücklich festgelegt.
-  \item \textbf{Authentifizierung:} Ob Sitzungen oder Tokens verwendet werden, hängt davon ab, ob Frontend und API unter derselben Adresse laufen. Die Anbindung an das Active Directory ist mit \Jai abzustimmen. Laut Infrastrukturkapitel wird dafür ein eigenes Active Directory mit Testkonten verwendet.
+  \item \textbf{Authentifizierung:} Ob Sitzungen oder Tokens verwendet werden, hängt davon ab, ob Frontend und API unter derselben Adresse laufen. Die Anbindung an das Active Directory ist mit \Jai abzustimmen.
   \item \textbf{Datenschutz:} Verantwortlicher, Rechtsgrundlage und Aufbewahrungsdauer sind ungeklärt. Ebenso offen ist, ob Lehrkräfte Lernergebnisse einzelner Schüler sehen dürfen und ob es Ranglisten gibt.
   \item \textbf{Leistung und Skalierung:} Ob die Architektur die erwartete Benutzerzahl bewältigt, ist nicht gemessen. Die Vergleichswerte stammen aus Untersuchungen mit anderen Anwendungen und Technologien und sind nur eingeschränkt übertragbar. Die Last- und Performancetests von \Jai liefern erst später Ergebnisse.
-  \item \textbf{Belege:} Einige Aussagen sind als eigene Einschätzung gekennzeichnet (Eig.) und nicht durch Quellen belegt. Die Artikelangaben der DSGVO und die Aussagen der Dokumentationen sind vor der Abgabe nochmals zu prüfen.
-  \item \textbf{Zeitplan:} Der Umfang beträgt 180 Stunden. Ein startfähiges System ist bis 29.11.2026 geplant. Simulation und Nutzertest müssen sich in diesen Rahmen einfügen.
 \end{itemize}
 \subsection{Verwendung von Künstlicher Intelligenz}
 \label{subsec:ki-verwendung}
