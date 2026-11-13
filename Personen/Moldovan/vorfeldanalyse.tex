@@ -583,7 +583,7 @@ Die Wirksamkeit lässt sich auf drei Ebenen prüfen:
 \begin{enumerate}
     \item Korrektheit der Implementierung durch Unit-Tests der Intervall- und Rating-Berechnung;
     \item Verhalten des Algorithmus in Simulationen mit künstlichen Lernenden;
-    \item ein Test mit realen Nutzern.
+    \item ein Test mit Mitschülern.
 \end{enumerate}
 Ein Wirksamkeitsnachweis im Sinne eines Lernzuwachses ist im Rahmen des Projekts nur eingeschränkt möglich.
 
@@ -717,10 +717,10 @@ Aus der Vorfeldanalyse ergeben sich diese Entscheidungen. Einige sind vorläufig
   \item[BE-1 Django als Framework.] Das Backend wird mit Django umgesetzt. Ausschlaggebend sind der mitgelieferte Funktionsumfang (ORM, Authentifizierung, Schutzmechanismen, Administrationsbereich) und dass der adaptive Lernalgorithmus direkt in Python integriert werden kann (Abschnitt~\ref{subsec:auswahl-framework-architektur}).
   \item[BE-2 Modularer Monolith.] Das Backend ist ein modularer Monolith mit den Apps \texttt{accounts}, \texttt{content}, \texttt{assessments}, \texttt{progress}, \texttt{adaptive} und \texttt{api}. Abhängigkeiten verlaufen nur in eine Richtung, und \texttt{adaptive} kennt weder Datenbank noch API (Abschnitt~\ref{subsec:projektstruktur}). Die Namen sind vorläufig.
   \item[BE-3 Trennung von Lernergebnis und Wiederholungsstatus.] Lernergebnisse werden unveränderlich gespeichert, der Wiederholungsstatus wird je Benutzer und Lernkarte fortgeschrieben. Beide werden in einer Transaktion geschrieben. Der Lernfortschritt wird berechnet und nicht gespeichert (Abschnitt~\ref{subsec:ergebnisse-speichern}).
-  \item[BE-4 Algorithmen.] Datenhungrige Verfahren (Half-Life Regression, Deep Knowledge Tracing) scheiden aus. Für Lernkarten ist SM-2 oder eine vereinfachte FSRS-Variante vorgesehen, für Tests ein Elo-basiertes Modell (Abschnitt~\ref{sec:algorithmus}). Die endgültige Wahl zwischen SM-2 und FSRS ist noch offen.
+  \item[BE-4 Algorithmen.] Verfahren, die viele Lerndaten benötigen (Half-Life Regression, Deep Knowledge Tracing), scheiden aus. Für Lernkarten ist SM-2 oder eine vereinfachte FSRS-Variante vorgesehen, für Tests ein Elo-basiertes Modell (Abschnitt~\ref{sec:algorithmus}). Die endgültige Wahl zwischen SM-2 und FSRS ist noch offen.
   \item[BE-5 Sicherheit.] Anonymer Zugriff ist standardmäßig verweigert, Rollen und Objektberechtigungen werden im Backend geprüft, und Schüler sehen nur ihre eigenen Daten. Vorgesehen ist die sitzungsbasierte Authentifizierung mit CSRF-Schutz, sofern Frontend und API unter derselben Adresse laufen (Abschnitt~\ref{subsec:authentifizierung}).
   \item[BE-6 Datenschutz.] Es werden nur die für die Lernfunktionen nötigen Daten gespeichert. Lernstände werden nicht standardmäßig exportiert, und für Entwicklung und Tests werden keine echten Schülerdaten verwendet (Abschnitt~\ref{subsec:datenschutz}).
-  \item[BE-7 Tests.] Es werden das Testframework von Django und die Testklassen des Django REST Framework verwendet. Der Lernalgorithmus wird durch Unit-Tests, eine Simulation und einen Test mit Mitschülern geprüft.
+  \item[BE-7 Tests.] Der Lernalgorithmus wird durch Unit-Tests, eine Simulation und einen Test mit Mitschülern geprüft.
 \end{description}
  
 \subsection{Risiken und offene Fragen}
